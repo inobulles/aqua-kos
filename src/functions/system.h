@@ -685,9 +685,10 @@
 
 					} else if (gl_command[0] == 'v') { // draw
 						surface_t test;
-						surface_new(&test, -_UI64_MAX_MARGIN, -_UI64_MAX_MARGIN, 0, 0);
-						surface_set_texture(&test, 0);
-						surface_draw(&test);
+						
+						surface_new        ((unsigned long long) &test, -_UI64_MAX_MARGIN, -_UI64_MAX_MARGIN, 0, 0);
+						surface_set_texture((unsigned long long) &test, 0);
+						surface_draw       ((unsigned long long) &test);
 
 						glPointSize(4.0f);
 						glBegin(GL_POINTS);
