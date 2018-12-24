@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <ft2build.h>
+#include "../freetype2/ft2build.h" /// MODIFIED FROM ORIGINAL SOURCE
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
 #include FT_STROKER_H

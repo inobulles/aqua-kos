@@ -9,7 +9,7 @@
 			#include <SDL2/SDL_ttf.h>
 			#warning "WARNING Using the SDL_ttf library may cause problems on some platforms"
 		#else
-			#include <ft2build.h>
+			#include "freetype2/ft2build.h"
 			#include FT_FREETYPE_H
 			
 			#include "SDL_ttf/SDL_ttf.c"
