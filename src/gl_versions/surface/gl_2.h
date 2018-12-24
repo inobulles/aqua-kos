@@ -51,7 +51,7 @@
 
 			if (__this->has_texture) {
 				glTexCoordPointer(2, GL_FLOAT, 0, __this->texture_coords);
-				gl2_surface_draw_textures(__this);
+				gl2_surface_draw_shader_sampler_location(__this);
 
 			}
 

@@ -6,16 +6,16 @@
 	#include "../../gl_common/texture.h"
 
 	#if !KOS_USES_JNI
-		int glDeleteFramebuffers     (...);
-		int glCheckFramebufferStatus (...);
-		int glDrawBuffers            (...);
-		int glFramebufferTexture     (...);
-		int glFramebufferRenderbuffer(...);
-		int glRenderbufferStorage    (...);
-		int glBindRenderbuffer       (...);
-		int glGenRenderbuffers       (...);
-		int glBindFramebuffer        (...);
-		int glGenFramebuffers        (...);
+		int glDeleteFramebuffers     ();
+		int glCheckFramebufferStatus ();
+		int glDrawBuffers            ();
+		int glFramebufferTexture     ();
+		int glFramebufferRenderbuffer();
+		int glRenderbufferStorage    ();
+		int glBindRenderbuffer       ();
+		int glGenRenderbuffers       ();
+		int glBindFramebuffer        ();
+		int glGenFramebuffers        ();
 	#endif
 	
 	framebuffer_t gl2_framebuffer_create(texture_t texture) {
