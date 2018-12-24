@@ -97,7 +97,8 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject
 	init_callback_function(&java_get_font_width,  "get_font_width",  CALLBACK_FONT_AND_TEXT);
 	init_callback_function(&java_get_font_height, "get_font_height", CALLBACK_FONT_AND_TEXT);
 
-	init_callback_function(&java_create_texture_from_font, "create_texture_from_font", "(ILjava/lang/String;II)I");
+	init_callback_function(&java_create_texture_from_font,       "create_texture_from_font",       "(ILjava/lang/String;II)I");
+	init_callback_function(&java_create_texture_from_screenshot, "create_texture_from_screenshot", "(IIII)I");
 
 	init_callback_function(&java_read_external_slash_internal_storage_path,       "read_external_slash_internal_storage_path",       "(Ljava/lang/String;)Ljava/lang/String;");
 	init_callback_function(&java_read_external_slash_internal_storage_path_bytes, "read_external_slash_internal_storage_path_bytes", "(Ljava/lang/String;)J");

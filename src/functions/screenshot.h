@@ -6,10 +6,10 @@
 	
 	texture_t create_texture_from_screenshot(void) {
 		#if KOS_USES_JNI
-			return 0;
+			return (texture_t) CALLBACK_INT(java_create_texture_from_screenshot, video_width(), video_height(), TEXTURE_WRAP_TYPE, SHARP_TEXTURES);
 		#else
 			unsigned long long bpp   = 32;
-			unsigned long long bytes = video_width() * video_height() * (bpp / 8);
+			unsigned long long bytes = video_width() * video_height() * (bpp >> 3);
 			
 			unsigned char* pixels = (unsigned char*) malloc(bytes);
 			glReadBuffer(GL_FRONT);

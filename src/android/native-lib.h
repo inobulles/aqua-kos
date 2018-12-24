@@ -62,6 +62,7 @@ static callback_method_t java_package_exists;
 static callback_method_t java_package_open;
 
 static callback_method_t java_open_text_input;
+static callback_method_t java_create_texture_from_screenshot;
 
 static void init_callback_function(callback_method_t* __this, const char* name, const char* params) {
 	__this->found = false;
