@@ -1,6 +1,6 @@
 [submodule "asm"]
 	path = asm
-	url = ssh://git@github.com/inobulles/AQUA-CW.git
+	url = https://github.com/inobulles/AQUA-CW
 [submodule "src/librequests"]
 	path = src/librequests
-	url = ssh://git@github.com/inobulles/librequests.git
+	url = https://github.com/inobulles/librequests
