@@ -3,10 +3,13 @@
 	#define __AQUA__SDL2_SRC_FUNCTIONS_VIDEO_H
 	
 	#include "../macros_and_inclusions.h"
-#include "../lib/structs.h"
-#include "../android/root.h"
+	#include "../lib/structs.h"
+	
+	#if KOS_USES_ANDROID
+		#include "../android/root.h"
+	#endif
 
-void video_clear(void) {
+	void video_clear(void) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 	}

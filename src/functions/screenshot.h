@@ -32,6 +32,7 @@
 			
 			if (texture == -1ull) {
 				printf("WARNING Could not create texture from screenshot\n");
+				return 0;
 				
 			} else {
 				return texture;

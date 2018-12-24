@@ -14,7 +14,7 @@ static kos_t kos;
 #define ROM_PATH "ROM.zed"
 
 static unsigned long long kos_roms_loaded = 0;
-static program_t* current_de_program = nullptr;
+static program_t* current_de_program = (program_t*) 0;
 
 static signed long long __load_rom(unsigned long long __path) {
 	const char* ____path;
@@ -42,7 +42,7 @@ static signed long long __load_rom(unsigned long long __path) {
 	
 	current_de_program = de_program;
 	
-	char*              rom   = nullptr;
+	char*              rom   = (char*) 0;
 	unsigned long long bytes = 0;
 	
 	#if KOS_USES_JNI
