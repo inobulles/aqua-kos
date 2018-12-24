@@ -22,7 +22,7 @@
 		
 		int i;
 		for (i = 0; i < SURFACE_VERTEX_COUNT; i++) {
-			__this->vertices[i].z = 1.0f - (GLfloat) layer / 512.0f - 0.1f; /// FIXME
+			__this->vertices[i].z = (GLfloat) layer / 512.0f;
 			
 		}
 		

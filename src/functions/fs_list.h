@@ -42,7 +42,7 @@
 		
 		unsigned long long count = fs_list_count(_path);
 		
-		if (count <= -1) {
+		if (count == -1) {
 			printf("WARNING Failed to open current directory");
 			return (char**) 0;
 			

@@ -151,7 +151,7 @@ void ortho(float left, float right, float top, float bottom, float near, float f
 	projection_matrix[0]  =  2.0f / (right - left);
 	projection_matrix[5]  =  2.0f / (top - bottom);
 	projection_matrix[10] = -2.0f / (far - near);
-	projection_matrix[15] = 1.0f;
+	projection_matrix[15] =  1.0f;
 
 	projection_matrix[12] = -((right + left) / (right - left));
 	projection_matrix[13] = -((top + bottom) / (top - bottom));
