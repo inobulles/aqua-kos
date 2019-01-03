@@ -810,6 +810,9 @@
 		} discord_device_struct_t;
 	#endif
 	
+	void heap_memory_snapshot_start(void);
+	void heap_memory_snapshot_end  (void);
+	
 	void send_device(unsigned long long device, unsigned long long __extra, unsigned long long __data) {
 		const char*         extra = (const char*)        __extra;
 		unsigned long long* data  = (unsigned long long*) __data;
@@ -840,10 +843,11 @@
 			} case DEVICE_DEBUG: {
 				if (strcmp(extra, "mem.snap.start") == 0) {
 					printf("=== debug.mem.snap.start ===\n");
-					printf("\tRecording all memory manager invocations ...\n");
+					heap_memory_snapshot_start();
 					
 				} else if (strcmp(extra, "mem.snap.end") == 0) {
 					printf("=== debug.mem.snap.end ===\n");
+					heap_memory_snapshot_end();
 					
 				} else {
 					KOS_DEVICE_COMMAND_WARNING("debug")
