@@ -15,6 +15,17 @@
 			return 1; \
 		}
 	
+	void* heap_malloc                           (unsigned long long bytes);
+	void  heap_mfree(unsigned long long pointer, unsigned long long bytes);
+	
+	#if KOS_USES_ANDROID /// TODO
+		#define FS_MALLOC_FUNCTION(       bytes) (malloc(bytes))
+		#define FS_FREE_FUNCTION(pointer, bytes) (free  (pointer))
+	#else
+		#define FS_MALLOC_FUNCTION(       bytes) (heap_malloc                             (bytes))
+		#define FS_FREE_FUNCTION(pointer, bytes) (heap_mfree((unsigned long long) pointer, bytes))
+	#endif
+	
 	static unsigned long long __fs_read(unsigned long long _path, unsigned long long data, unsigned long long bytes, unsigned long long offset) {
 		GET_PATH((char*) _path);
 		
@@ -32,8 +43,8 @@
 			*((unsigned long long*) bytes) = ftell(file) + offset;
 			rewind(file);
 			
-			*((char**) data) = (char*) malloc(*((unsigned long long*) bytes) + 1);
-			fread(*((char**) data) + offset,  *((unsigned long long*) bytes) - offset, sizeof(char), file);
+			*((char**) data) = (char*) FS_MALLOC_FUNCTION(*((unsigned long long*) bytes) + 1);
+			fread(*((char**) data) + offset,              *((unsigned long long*) bytes) - offset, sizeof(char), file);
 			
 			fclose(file);
 		#endif
@@ -48,7 +59,7 @@
 	}
 	
 	void fs_free(unsigned long long data, unsigned long long bytes) {
-		free((char*) data);
+		FS_FREE_FUNCTION((char*) data, bytes);
 		
 	}
 
