@@ -67,6 +67,7 @@
 		else if (strcmp(device, "gl")       == 0) return DEVICE_GL;
 		else if (strcmp(device, "gl batch") == 0) return DEVICE_GL_BATCH;
 		else if (strcmp(device, "fs")       == 0) return DEVICE_FS;
+		else if (strcmp(device, "debug")    == 0) return DEVICE_DEBUG;
 
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")         == 0) return DEVICE_ANDROID;
@@ -821,13 +822,31 @@
 				break;
 				
 			} case DEVICE_WM: {
-				if (strcmp(extra, "visible") == 0 && *data == HIDDEN) {
-					#if KOS_USES_SDL2
-						SDL_MinimizeWindow(current_kos->window);
-					#endif
+				if (strcmp(extra, "visible") == 0) {
+					if (*data == HIDDEN) {
+						#if KOS_USES_SDL2
+							SDL_MinimizeWindow(current_kos->window);
+						#endif
+						
+					}
 					
 				} else {
 					KOS_DEVICE_COMMAND_WARNING("wm")
+					
+				}
+				
+				break;
+				
+			} case DEVICE_DEBUG: {
+				if (strcmp(extra, "mem.snap.start") == 0) {
+					printf("=== debug.mem.snap.start ===\n");
+					printf("\tRecording all memory manager invocations ...\n");
+					
+				} else if (strcmp(extra, "mem.snap.end") == 0) {
+					printf("=== debug.mem.snap.end ===\n");
+					
+				} else {
+					KOS_DEVICE_COMMAND_WARNING("debug")
 					
 				}
 				

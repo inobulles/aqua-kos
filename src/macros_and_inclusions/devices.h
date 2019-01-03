@@ -17,6 +17,7 @@
 	#define DEVICE_GL_BATCH        12
 	#define DEVICE_FS              13
 	#define DEVICE_KEYBOARD_DIALOG 14
+	#define DEVICE_DEBUG           15
 	
 	// compute devices
 	
