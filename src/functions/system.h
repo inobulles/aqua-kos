@@ -840,7 +840,7 @@
 			} case DEVICE_DEBUG: {
 				if (strcmp(extra, "mem.snap.start") == 0) {
 					printf("=== debug.mem.snap.start ===\n");
-					printf("\tRecording all memory managert invocations ...\n");
+					printf("\tRecording all memory manager invocations ...\n");
 					
 				} else if (strcmp(extra, "mem.snap.end") == 0) {
 					printf("=== debug.mem.snap.end ===\n");
