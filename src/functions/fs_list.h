@@ -49,7 +49,7 @@
 		}
 		
 		unsigned long long current = 0;
-		char** result              = (char**) malloc(count * sizeof(char*));
+		char** result              = (char**) heap_malloc(count * sizeof(char*));
 		
 		DIR* dp = opendir(path);
 		struct dirent* directory;
@@ -58,7 +58,7 @@
 			while ((directory = readdir(dp)) != NULL) {
 				if (FS_LIST_D_NAME_VALID) {
 					unsigned long long bytes = strlen(directory->d_name) + 1;
-					result[current] = (char*) malloc(bytes * sizeof(char) + sizeof(unsigned long long));
+					result[current] = (char*) heap_malloc(bytes * sizeof(char) + sizeof(unsigned long long));
 					memcpy((result[current] + sizeof(unsigned long long)), directory->d_name, bytes);
 					
 					#define RESULT_FILE_TYPE *((unsigned long long*) result[current])
@@ -96,11 +96,12 @@
 	void fs_list_free(unsigned long long list, unsigned long long count) {
 		unsigned long long i;
 		for (i = 0; i < count; i++) {
-			free(((char**) list)[i]);
+			char* entry = ((char**) list)[i];
+			heap_mfree((unsigned long long) entry, strlen(entry + sizeof(unsigned long long)) + sizeof(unsigned char) + sizeof(unsigned long long));
 			
 		}
 		
-		free((char**) list);
+		heap_mfree((unsigned long long) list, count);
 		
 	}
 	

@@ -15,13 +15,22 @@
 			return 1; \
 		}
 	
+<<<<<<< HEAD
+=======
+	void* heap_malloc                           (unsigned long long bytes);
+	void  heap_mfree(unsigned long long pointer, unsigned long long bytes);
+	
+>>>>>>> fs_list
 	#if KOS_USES_ANDROID /// TODO
 		#define FS_MALLOC_FUNCTION(       bytes) (malloc(bytes))
 		#define FS_FREE_FUNCTION(pointer, bytes) (free  (pointer))
 	#else
+<<<<<<< HEAD
 		void* heap_malloc                           (unsigned long long bytes);
 		void  heap_mfree(unsigned long long pointer, unsigned long long bytes);
 		
+=======
+>>>>>>> fs_list
 		#define FS_MALLOC_FUNCTION(       bytes) (heap_malloc                             (bytes))
 		#define FS_FREE_FUNCTION(pointer, bytes) (heap_mfree((unsigned long long) pointer, bytes))
 	#endif
