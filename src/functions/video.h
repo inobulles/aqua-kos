@@ -15,7 +15,6 @@
 	}
 	
 	void video_clear_colour(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
-		r = -1;
 		glClearColor((float) r / _UI64_MAX, (float) g / _UI64_MAX, (float) b / _UI64_MAX, (float) a / _UI64_MAX);
 		
 	}
@@ -40,7 +39,7 @@
 		
 		if (current_video_flip_is_root_window) {
 			if (load_program_overlay) {
-				surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, -1);
+				surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, _UI64_MAX >> 1);
 				surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy, 256);
 				surface_set_texture((unsigned long long) &predefined_texture_surface_dummy, load_program_overlay_texture);
 				
@@ -83,24 +82,38 @@
 		
 	}
 	
-	unsigned long long video_width (void) { return (unsigned long long) current_kos->width;  }
-	unsigned long long video_height(void) { return (unsigned long long) current_kos->height; }
-	unsigned long long video_bpp   (void) { return (unsigned long long) current_kos->bpp;    }
+	unsigned long long video_width(void) {
+		if (current_video_flip_is_root_window) return (unsigned long long) current_kos->width;
+		else                                   return (unsigned long long) load_program_overlay_dimensions[0];
+		
+	} unsigned long long video_height(void) {
+		if (current_video_flip_is_root_window) return (unsigned long long) current_kos->height;
+		else                                   return (unsigned long long) load_program_overlay_dimensions[1];
+		
+	}
+	
+	unsigned long long video_bpp(void) {
+		return (unsigned long long) current_kos->bpp;
+		
+	}
 	
 	static unsigned long long kos_last_time;
+	static unsigned long long kos_last_fps;
 	
 	unsigned long long video_fps(void) {
+		current_video_flip_is_root_window
+		
 		#if KOS_USES_JNI
 			extern unsigned long long gl_fps;
-			return gl_fps;
+			kos_last_fps = gl_fps;
 		#elif KOS_USES_SDL2
 			unsigned long long tick_time = SDL_GetTicks();
 			
-			float fps = 1000.0f / (float) (tick_time - kos_last_time);
+			kos_last_fps  = (unsigned long long) (1000.0f / (float) (tick_time - kos_last_time));
 			kos_last_time = tick_time;
-			
-			return (unsigned long long) fps;
 		#endif
+		
+		return kos_last_fps;
 		
 	}
 	
