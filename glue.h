@@ -1,8 +1,38 @@
 
 #include <unistd.h>
 
+#ifndef     LOAD_PROGRAM_SUPPORTED
+	#define LOAD_PROGRAM_SUPPORTED 1
+	void load_program(unsigned long long rom_data, unsigned long long rom_bytes, unsigned long long in_animation_speed, unsigned long long out_animation_speed, unsigned long long width, unsigned long long height);
+#endif
+
 #include "src/kos.h"
 #include "asm/asm.h"
+
+#if LOAD_PROGRAM_SUPPORTED
+	static uint64_t* load_program_overlay_data;
+	static texture_t load_program_overlay_texture;
+	static GLuint    load_program_overlay_framebuffer;
+	
+	static int       load_program_overlay_bpp;
+	static int       load_program_overlay_dimensions[2];
+	
+	static int       load_program_overlay = 0;
+	static program_t load_program_overlay_de_program;
+	
+	static void free_load_program_overlay(void) {
+		if (load_program_overlay) {
+			load_program_overlay = 0;
+			program_free(&load_program_overlay_de_program);
+			
+			framebuffer_remove(load_program_overlay_framebuffer);
+			texture_remove    (load_program_overlay_texture);
+			free              (load_program_overlay_data);
+			
+		}
+		
+	}
+#endif
 
 void mfree(void* ptr, unsigned long long bytes) { // for some reason, this was not already defined
 	free(ptr);
@@ -88,7 +118,23 @@ static signed long long __load_rom(unsigned long long __path) {
 	#if KOS_USES_JNI
 		return 0;
 	#else
-		while (!program_run_loop_phase(de_program));
+		while (1) {
+			if (!load_program_overlay && program_run_loop_phase(de_program)) { // loop the root program
+				break;
+				
+			}
+			
+			#if LOAD_PROGRAM_SUPPORTED
+				else if (load_program_overlay) { // loop the overlay program
+					if (program_run_loop_phase(&load_program_overlay_de_program)) {
+						free_load_program_overlay();
+						
+					}
+					
+				}
+			#endif
+			
+		}
 		
 		program_free(de_program);
 		mfree(rom, bytes);
@@ -107,6 +153,28 @@ signed long long load_rom(unsigned long long path) {
 	char command_buffer[4096];
 	sprintf(command_buffer, "%s root/%s", a_out_execution_command, (const char*) path);
 	return system(command_buffer);
+	
+}
+
+void load_program(unsigned long long rom_data, unsigned long long rom_bytes, unsigned long long in_animation_speed, unsigned long long out_animation_speed, unsigned long long width, unsigned long long height) {
+	#if LOAD_PROGRAM_SUPPORTED
+		free_load_program_overlay();
+		load_program_overlay = 1;
+		
+		load_program_overlay_dimensions[0] = width;
+		load_program_overlay_dimensions[1] = height;
+		
+		load_program_overlay_bpp     = 32;
+		load_program_overlay_data    = (uint64_t*) malloc                        ((load_program_overlay_bpp >> 3) * load_program_overlay_dimensions[0] * load_program_overlay_dimensions[1]);
+		load_program_overlay_texture = __texture_create(load_program_overlay_data, load_program_overlay_bpp,        load_program_overlay_dimensions[0],  load_program_overlay_dimensions[1], 0);
+		
+		load_program_overlay_framebuffer = framebuffer_create(load_program_overlay_texture);
+		
+		load_program_overlay_de_program.pointer = (void*) rom_data;
+		program_run_setup_phase(&load_program_overlay_de_program);
+	#else
+		printf("WARNING This platform does not support the load_program function (USES_LOAD_PROGRAM_OVERLAYS = %d)\n", USES_LOAD_PROGRAM_OVERLAYS);
+	#endif
 	
 }
 
@@ -129,7 +197,8 @@ int main(int argc, char** argv) {
 	else           path = argv[1];
 	
 	int error_code = (int) __load_rom((unsigned long long) path);
-
+	free_load_program_overlay();
+	
 	#if !KOS_USES_JNI
 		printf("DE return code is %d\n", error_code);
 	
