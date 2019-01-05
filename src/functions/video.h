@@ -101,17 +101,18 @@
 	static unsigned long long kos_last_fps;
 	
 	unsigned long long video_fps(void) {
-		current_video_flip_is_root_window
-		
-		#if KOS_USES_JNI
-			extern unsigned long long gl_fps;
-			kos_last_fps = gl_fps;
-		#elif KOS_USES_SDL2
-			unsigned long long tick_time = SDL_GetTicks();
+		if (current_video_flip_is_root_window) {
+			#if KOS_USES_JNI
+				extern unsigned long long gl_fps;
+				kos_last_fps = gl_fps;
+			#elif KOS_USES_SDL2
+				unsigned long long tick_time = SDL_GetTicks();
+				
+				kos_last_fps  = (unsigned long long) (1000.0f / (float) (tick_time - kos_last_time));
+				kos_last_time = tick_time;
+			#endif
 			
-			kos_last_fps  = (unsigned long long) (1000.0f / (float) (tick_time - kos_last_time));
-			kos_last_time = tick_time;
-		#endif
+		}
 		
 		return kos_last_fps;
 		
