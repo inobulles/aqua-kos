@@ -3,7 +3,19 @@
 
 #ifndef     LOAD_PROGRAM_SUPPORTED
 	#define LOAD_PROGRAM_SUPPORTED 1
+<<<<<<< HEAD
 	void load_program(unsigned long long rom_data, unsigned long long rom_bytes, unsigned long long in_animation_speed, unsigned long long out_animation_speed, unsigned long long width, unsigned long long height);
+=======
+	
+	void load_program(unsigned long long rom_data, unsigned long long rom_bytes, unsigned long long in_animation_speed, unsigned long long out_animation_speed, unsigned long long width, unsigned long long height);
+	static unsigned char current_video_flip_is_root_window = 1;
+	
+	static int          load_program_overlay = 0;
+	static int          load_program_overlay_dimensions[2];
+	
+	static unsigned int load_program_overlay_texture;
+	static unsigned int load_program_overlay_framebuffer;
+>>>>>>> new-branch-name
 #endif
 
 #include "src/kos.h"
@@ -11,6 +23,7 @@
 
 #if LOAD_PROGRAM_SUPPORTED
 	static uint64_t* load_program_overlay_data;
+<<<<<<< HEAD
 	static texture_t load_program_overlay_texture;
 	static GLuint    load_program_overlay_framebuffer;
 	
@@ -18,6 +31,10 @@
 	static int       load_program_overlay_dimensions[2];
 	
 	static int       load_program_overlay = 0;
+=======
+	static int       load_program_overlay_bpp;
+	
+>>>>>>> new-branch-name
 	static program_t load_program_overlay_de_program;
 	
 	static void free_load_program_overlay(void) {
@@ -119,6 +136,7 @@ static signed long long __load_rom(unsigned long long __path) {
 		return 0;
 	#else
 		while (1) {
+<<<<<<< HEAD
 			if (!load_program_overlay && program_run_loop_phase(de_program)) { // loop the root program
 				break;
 				
@@ -130,6 +148,56 @@ static signed long long __load_rom(unsigned long long __path) {
 						free_load_program_overlay();
 						
 					}
+=======
+			#if LOAD_PROGRAM_SUPPORTED
+				if (load_program_overlay) { // loop the overlay program
+					current_video_flip_is_root_window = 0;
+					framebuffer_bind(load_program_overlay_framebuffer, 0, 0, load_program_overlay_dimensions[0], load_program_overlay_dimensions[1]);
+					
+					while (!program_run_loop_phase(&load_program_overlay_de_program)) {
+						if (video_flip_called) {
+							break;
+							
+						}
+						
+					}
+					
+					if (!video_flip_called) {
+						free_load_program_overlay();
+						
+					} else {
+						video_flip_called = 0;
+						
+					}
+					
+					current_video_flip_is_root_window = 1;
+					framebuffer_bind(0, 0, 0, video_width(), video_height());
+					
+				} while (!
+			#else
+				if (
+			#endif
+			
+			program_run_loop_phase(de_program)) { // loop the root program
+				#if LOAD_PROGRAM_SUPPORTED
+					if (video_flip_called) {
+				#endif
+				
+				break;
+				
+				#if LOAD_PROGRAM_SUPPORTED
+					}
+				#endif
+				
+			}
+			
+			#if LOAD_PROGRAM_SUPPORTED
+				if (!video_flip_called && !load_program_overlay) {
+					break;
+					
+				} else {
+					video_flip_called = 0;
+>>>>>>> new-branch-name
 					
 				}
 			#endif
@@ -164,7 +232,11 @@ void load_program(unsigned long long rom_data, unsigned long long rom_bytes, uns
 		load_program_overlay_dimensions[0] = width;
 		load_program_overlay_dimensions[1] = height;
 		
+<<<<<<< HEAD
 		load_program_overlay_bpp     = 32;
+=======
+		load_program_overlay_bpp     = 24; /// TODO argument to make this 32 for transparent windows
+>>>>>>> new-branch-name
 		load_program_overlay_data    = (uint64_t*) malloc                        ((load_program_overlay_bpp >> 3) * load_program_overlay_dimensions[0] * load_program_overlay_dimensions[1]);
 		load_program_overlay_texture = __texture_create(load_program_overlay_data, load_program_overlay_bpp,        load_program_overlay_dimensions[0],  load_program_overlay_dimensions[1], 0);
 		

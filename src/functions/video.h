@@ -15,6 +15,7 @@
 	}
 	
 	void video_clear_colour(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
+		r = -1;
 		glClearColor((float) r / _UI64_MAX, (float) g / _UI64_MAX, (float) b / _UI64_MAX, (float) a / _UI64_MAX);
 		
 	}
@@ -31,20 +32,44 @@
 	void __update_predefined_texture(unsigned long long name);
 	static unsigned char predefined_textures_live = 0;
 	
+	static surface_t predefined_texture_surface_dummy;
+	static unsigned char video_flip_called = 0;
+	
 	void video_flip(void) {
+		video_flip_called = 1;
+		
+		if (current_video_flip_is_root_window) {
+			if (load_program_overlay) {
+				surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, -1);
+				surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy, 256);
+				surface_set_texture((unsigned long long) &predefined_texture_surface_dummy, load_program_overlay_texture);
+				
+				surface_draw       ((unsigned long long) &predefined_texture_surface_dummy);
+				
+				surface_set_texture((unsigned long long) &predefined_texture_surface_dummy,  0);
+				surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy,  0);
+				surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, -1);
+				
+			}
+			
+			#if KOS_USES_SDL2 && KOS_USES_OPENGL
+				SDL_GL_SwapWindow(current_kos->window);
+			#endif
+			
+			#if KOS_USES_BCM && KOS_USES_OPENGLES
+				eglSwapBuffers(current_kos->display, current_kos->surface);
+			#endif
+			
+			#if KOS_USES_JNI
+				waiting_video_flip = 1;
+			#endif
+			
+		} else {
+			// non-root window flip
+			
+		}
+		
 		surface_layer_offset = 0.0f;
-		
-		#if KOS_USES_SDL2 && KOS_USES_OPENGL
-			SDL_GL_SwapWindow(current_kos->window);
-		#endif
-		
-		#if KOS_USES_BCM && KOS_USES_OPENGLES
-			eglSwapBuffers(current_kos->display, current_kos->surface);
-		#endif
-		
-		#if KOS_USES_JNI
-			waiting_video_flip = 1;
-		#endif
 		
 		#if KOS_3D_VISUALIZATION
 			glRotatef(1.0f, 0.0f, 1.0f, 0.0f);
@@ -119,17 +144,24 @@
 		unsigned long long half_width  = (unsigned long long) (current_kos->width  >> 1);
 		unsigned long long half_height = (unsigned long long) (current_kos->height >> 1);
 		
+		__this->pointer_x          = half_width;
+		__this->pointer_y          = half_height;
+		__this->pointer_click_type = 0;
+		
+		__this->quit   = 0;
+		__this->resize = 0;
+		
 		if (first_event_flush) {
 			first_event_flush = 0;
 			memset(__this, 0, sizeof(event_list_t));
 			
-			__this->pointer_x = half_width;
-			__this->pointer_y = half_height;
+		}
+		
+		if (current_video_flip_is_root_window && load_program_overlay) {
+			return;
 			
 		}
 		
-		__this->quit = 0;
-		__this->resize = 0;
 		__this->pointer_click_type = kos_is_mouse_pressed;
 		
 		#if KOS_USES_SDL2
@@ -235,8 +267,6 @@
 	
 	static GLuint predefined_background_texture_framebuffer;
 	static GLuint predefined_frost_background_texture_framebuffer;
-	
-	static surface_t predefined_texture_surface_dummy;
 	
 	void bmp_load(unsigned long long ____this, unsigned long long _path);
 	void bmp_free(unsigned long long ____this);
