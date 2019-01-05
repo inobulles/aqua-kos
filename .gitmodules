@@ -1,6 +1,0 @@
-[submodule "asm"]
-	path = asm
-	url = https://github.com/inobulles/AQUA-CW
-[submodule "src/librequests"]
-	path = src/librequests
-	url = https://github.com/inobulles/librequests
