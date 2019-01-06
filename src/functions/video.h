@@ -45,6 +45,8 @@
 				unsigned long long alpha = _UI64_MAX;
 				
 				if (load_program_overlay_stage == 0) {
+					printf("%lld\n", kos_last_fps);
+					
 					if (animate        (&load_program_overlay_animation, kos_last_fps) >= 0.9f) {
 						reset_animation(&load_program_overlay_animation);
 						
@@ -140,6 +142,11 @@
 				kos_last_fps  = (unsigned long long) (1000.0f / (float) (tick_time - kos_last_time));
 				kos_last_time = tick_time;
 			#endif
+			
+		}
+		
+		if (kos_last_fps <= 1) {
+			kos_last_fps  = 60;
 			
 		}
 		
