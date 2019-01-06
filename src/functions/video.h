@@ -15,7 +15,6 @@
 	}
 	
 	void video_clear_colour(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
-		r = -1;
 		glClearColor((float) r / _UI64_MAX, (float) g / _UI64_MAX, (float) b / _UI64_MAX, (float) a / _UI64_MAX);
 		
 	}
@@ -188,14 +187,15 @@
 		unsigned long long half_width  = (unsigned long long) (current_kos->width  >> 1);
 		unsigned long long half_height = (unsigned long long) (current_kos->height >> 1);
 		
-		__this->pointer_x          = half_width;
-		__this->pointer_y          = half_height;
 		__this->pointer_click_type = 0;
 		
 		__this->quit   = 0;
 		__this->resize = 0;
 		
 		if (first_event_flush) {
+			__this->pointer_x = half_width;
+			__this->pointer_y = half_height;
+			
 			first_event_flush = 0;
 			memset(__this, 0, sizeof(event_list_t));
 			
