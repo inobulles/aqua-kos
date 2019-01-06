@@ -320,11 +320,12 @@
 	static int kos_setup_predefined_textures(kos_t* __this) {
 		int warning = 0;
 		
+		surface_new        ((unsigned long long) &predefined_texture_surface_dummy, -_UI64_MAX_MARGIN, -_UI64_MAX_MARGIN, _UI64_MAX_MARGIN << 1, _UI64_MAX_MARGIN << 1);
+		surface_set_texture((unsigned long long) &predefined_texture_surface_dummy, 0);
+		surface_scroll     ((unsigned long long) &predefined_texture_surface_dummy, -_UI64_MAX_MARGIN, _UI64_MAX_MARGIN, _UI64_MAX_MARGIN << 1, _UI64_MAX_MARGIN << 1);
+		
 		#if KOS_SUB2PEWDS
 			predefined_textures_live = 1;
-			
-			surface_new        ((unsigned long long) &predefined_texture_surface_dummy, -_UI64_MAX_MARGIN, -_UI64_MAX_MARGIN, _UI64_MAX_MARGIN << 1, _UI64_MAX_MARGIN << 1);
-			surface_set_texture((unsigned long long) &predefined_texture_surface_dummy, 0);
 			
 			predefined_background_texture_dimensions      [0] = video_width();
 			predefined_background_texture_dimensions      [1] = video_height();
