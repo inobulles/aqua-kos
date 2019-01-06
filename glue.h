@@ -169,7 +169,18 @@ static signed long long __load_rom(unsigned long long __path) {
 					current_video_flip_is_root_window = 1;
 					framebuffer_bind(0, 0, 0, video_width(), video_height());
 					
-				} while (!
+					if (load_program_overlay_stage == 1) {
+						video_clear();
+						video_flip();
+						
+						video_flip_called = 0;
+						continue;
+						
+					}
+					
+				}
+				
+				while (!
 			#else
 				if (
 			#endif
@@ -189,6 +200,7 @@ static signed long long __load_rom(unsigned long long __path) {
 			
 			#if LOAD_PROGRAM_SUPPORTED
 				if (!video_flip_called && !load_program_overlay) {
+					goto end_all;
 					break;
 					
 				} else {
@@ -197,7 +209,7 @@ static signed long long __load_rom(unsigned long long __path) {
 				}
 			#endif
 			
-		}
+		} end_all:
 		
 		program_free(de_program);
 		mfree(rom, bytes);

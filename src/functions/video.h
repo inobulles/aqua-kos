@@ -45,8 +45,6 @@
 				unsigned long long alpha = _UI64_MAX;
 				
 				if (load_program_overlay_stage == 0) {
-					printf("%lld\n", kos_last_fps);
-					
 					if (animate        (&load_program_overlay_animation, kos_last_fps) >= 0.9f) {
 						reset_animation(&load_program_overlay_animation);
 						
@@ -132,7 +130,7 @@
 	}
 	
 	unsigned long long video_fps(void) {
-		if (current_video_flip_is_root_window) {
+		if (current_video_flip_is_root_window || load_program_overlay_stage == 1) {
 			#if KOS_USES_JNI
 				extern unsigned long long gl_fps;
 				kos_last_fps = gl_fps;
@@ -208,7 +206,7 @@
 			
 		}
 		
-		if (current_video_flip_is_root_window && load_program_overlay_stage < 2) {
+		if (current_video_flip_is_root_window && load_program_overlay_stage == 0) {
 			return;
 			
 		}
