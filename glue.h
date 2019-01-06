@@ -149,7 +149,8 @@ static signed long long __load_rom(unsigned long long __path) {
 					current_video_flip_is_root_window = 0;
 					framebuffer_bind(load_program_overlay_framebuffer, 0, 0, load_program_overlay_dimensions[0], load_program_overlay_dimensions[1]);
 					
-					while (!program_run_loop_phase(&load_program_overlay_de_program)) {
+					__pointer_current_program = (void*) &load_program_overlay_de_program.main_thread;
+					while (!program_run_loop_phase     (&load_program_overlay_de_program)) {
 						if (video_flip_called) {
 							break;
 							
@@ -180,6 +181,10 @@ static signed long long __load_rom(unsigned long long __path) {
 					
 				}
 				
+				unsigned char root_good = 0;
+				video_flip_called = 0;
+				
+				__pointer_current_program = (void*) &de_program->main_thread;
 				while (!
 			#else
 				if (
@@ -188,20 +193,19 @@ static signed long long __load_rom(unsigned long long __path) {
 			program_run_loop_phase(de_program)) { // loop the root program
 				#if LOAD_PROGRAM_SUPPORTED
 					if (video_flip_called) {
-				#endif
-				
-				break;
-				
-				#if LOAD_PROGRAM_SUPPORTED
+						root_good = 1;
+						break;
+						
 					}
+				#else
+					break;
 				#endif
 				
 			}
 			
 			#if LOAD_PROGRAM_SUPPORTED
-				if (!video_flip_called && !load_program_overlay) {
+				if (!root_good) {
 					goto end_all;
-					break;
 					
 				} else {
 					video_flip_called = 0;
