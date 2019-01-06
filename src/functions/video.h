@@ -48,6 +48,8 @@
 				if (load_program_overlay_stage == 0) {
 					if (animate        (&load_program_overlay_animation, kos_last_fps) >= 0.9f) {
 						reset_animation(&load_program_overlay_animation);
+						
+						load_program_overlay_animation.time = load_program_overlay_animation_out_time;
 						load_program_overlay_stage++;
 						
 					} else {
@@ -199,7 +201,7 @@
 			
 		}
 		
-		if (current_video_flip_is_root_window && load_program_overlay) {
+		if (current_video_flip_is_root_window && load_program_overlay_stage < 2) {
 			return;
 			
 		}

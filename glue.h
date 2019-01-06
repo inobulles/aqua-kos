@@ -8,14 +8,17 @@
 	void load_program(unsigned long long rom_data, unsigned long long rom_bytes, unsigned long long in_animation_speed, unsigned long long out_animation_speed, unsigned long long width, unsigned long long height);
 	static unsigned char current_video_flip_is_root_window = 1;
 	
-	static int          load_program_overlay = 0;
+	static int          load_program_overlay       = 0;
+	static int          load_program_overlay_stage = 3;
+	
 	static int          load_program_overlay_dimensions[2];
+	static int          load_program_overlay_bpp;
 	
 	static unsigned int load_program_overlay_texture;
 	static unsigned int load_program_overlay_framebuffer;
 	
+	static float        load_program_overlay_animation_out_time;
 	static animation_t  load_program_overlay_animation;
-	static unsigned int load_program_overlay_stage = 3;
 #endif
 
 static void free_load_program_overlay_last(void);
@@ -25,9 +28,7 @@ static void free_load_program_overlay_last(void);
 
 #if LOAD_PROGRAM_SUPPORTED
 	static uint64_t* load_program_overlay_data;
-	static int       load_program_overlay_bpp;
-	
-	static program_t load_program_overlay_de_program;
+	static program_t load_program_overlay_de_program = { .pointer = (void*) 0 };
 	
 	static void free_load_program_overlay_last(void) {
 		if (load_program_overlay) {
@@ -43,7 +44,8 @@ static void free_load_program_overlay_last(void);
 	}
 	
 	static void free_load_program_overlay_first(void) {
-		if (load_program_overlay) {
+		if (load_program_overlay_de_program.pointer != (void*) 0 && load_program_overlay) {
+			load_program_overlay_de_program.pointer  = (void*) 0;
 			program_free(&load_program_overlay_de_program);
 			
 		}
@@ -220,7 +222,9 @@ signed long long load_rom(unsigned long long path) {
 void load_program(unsigned long long rom_data, unsigned long long rom_bytes, unsigned long long in_animation_speed, unsigned long long out_animation_speed, unsigned long long width, unsigned long long height) {
 	#if LOAD_PROGRAM_SUPPORTED
 		free_load_program_overlay();
+		
 		load_program_overlay = 1;
+		load_program_overlay_stage = 0;
 		
 		load_program_overlay_dimensions[0] = width;
 		load_program_overlay_dimensions[1] = height;
@@ -234,8 +238,8 @@ void load_program(unsigned long long rom_data, unsigned long long rom_bytes, uns
 		load_program_overlay_de_program.pointer = (void*) rom_data;
 		program_run_setup_phase(&load_program_overlay_de_program);
 		
+		load_program_overlay_animation_out_time =            (float) out_animation_speed / FLOAT_ONE;
 		new_animation(&load_program_overlay_animation, 0.0f, (float) in_animation_speed / FLOAT_ONE);
-		load_program_overlay_stage = 0;
 	#else
 		printf("WARNING This platform does not support the load_program function (USES_LOAD_PROGRAM_OVERLAYS = %d)\n", USES_LOAD_PROGRAM_OVERLAYS);
 	#endif
