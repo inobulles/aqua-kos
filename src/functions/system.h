@@ -122,8 +122,6 @@
 		
 	} math_device_generic_t;
 	
-	#define FLOAT_ONE 1000000
-	
 	#include <math.h>
 	#include <time.h>
 	

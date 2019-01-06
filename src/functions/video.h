@@ -15,6 +15,7 @@
 	}
 	
 	void video_clear_colour(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
+		r = -1;
 		glClearColor((float) r / _UI64_MAX, (float) g / _UI64_MAX, (float) b / _UI64_MAX, (float) a / _UI64_MAX);
 		
 	}
@@ -34,20 +35,50 @@
 	static surface_t predefined_texture_surface_dummy;
 	static unsigned char video_flip_called = 0;
 	
+	static unsigned long long kos_last_time;
+	static unsigned long long kos_last_fps;
+	
 	void video_flip(void) {
 		video_flip_called = 1;
 		
 		if (current_video_flip_is_root_window) {
 			if (load_program_overlay) {
-				surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, _UI64_MAX >> 1);
-				surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy, 256);
-				surface_set_texture((unsigned long long) &predefined_texture_surface_dummy, load_program_overlay_texture);
+				unsigned long long alpha = _UI64_MAX;
 				
-				surface_draw       ((unsigned long long) &predefined_texture_surface_dummy);
-				
-				surface_set_texture((unsigned long long) &predefined_texture_surface_dummy,  0);
-				surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy,  0);
-				surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, -1);
+				if (load_program_overlay_stage == 0) {
+					if (animate        (&load_program_overlay_animation, kos_last_fps) >= 0.9f) {
+						reset_animation(&load_program_overlay_animation);
+						load_program_overlay_stage++;
+						
+					} else {
+						alpha = (load_program_overlay_animation.base * FLOAT_ONE) * (_UI64_MAX / FLOAT_ONE);
+						
+					}
+					
+				} else if (load_program_overlay_stage == 1) {
+					
+				} else if (load_program_overlay_stage == 2) {
+					if (animate(&load_program_overlay_animation, kos_last_fps) >= 0.9f) {
+						load_program_overlay_stage++;
+						free_load_program_overlay_last();
+						
+					} else {
+						alpha = ((1.0f - load_program_overlay_animation.base) * FLOAT_ONE) * (_UI64_MAX / FLOAT_ONE);
+						
+					}
+					
+				} if (load_program_overlay_stage < 3) {
+					surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, alpha);
+					surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy, 256);
+					surface_set_texture((unsigned long long) &predefined_texture_surface_dummy, load_program_overlay_texture);
+					
+					surface_draw       ((unsigned long long) &predefined_texture_surface_dummy);
+					
+					surface_set_texture((unsigned long long) &predefined_texture_surface_dummy,  0);
+					surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy,  0);
+					surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, -1);
+					
+				}
 				
 			}
 			
@@ -96,9 +127,6 @@
 		return (unsigned long long) current_kos->bpp;
 		
 	}
-	
-	static unsigned long long kos_last_time;
-	static unsigned long long kos_last_fps;
 	
 	unsigned long long video_fps(void) {
 		if (current_video_flip_is_root_window) {

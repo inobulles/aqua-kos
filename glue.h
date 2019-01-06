@@ -1,5 +1,6 @@
 
 #include <unistd.h>
+#include "src/lib/animation.h"
 
 #ifndef     LOAD_PROGRAM_SUPPORTED
 	#define LOAD_PROGRAM_SUPPORTED 1
@@ -12,7 +13,12 @@
 	
 	static unsigned int load_program_overlay_texture;
 	static unsigned int load_program_overlay_framebuffer;
+	
+	static animation_t  load_program_overlay_animation;
+	static unsigned int load_program_overlay_stage = 3;
 #endif
+
+static void free_load_program_overlay_last(void);
 
 #include "src/kos.h"
 #include "asm/asm.h"
@@ -23,16 +29,30 @@
 	
 	static program_t load_program_overlay_de_program;
 	
-	static void free_load_program_overlay(void) {
+	static void free_load_program_overlay_last(void) {
 		if (load_program_overlay) {
-			load_program_overlay = 0;
-			program_free(&load_program_overlay_de_program);
+			load_program_overlay       = 0;
+			load_program_overlay_stage = 3;
 			
 			framebuffer_remove(load_program_overlay_framebuffer);
 			texture_remove    (load_program_overlay_texture);
 			free              (load_program_overlay_data);
 			
 		}
+		
+	}
+	
+	static void free_load_program_overlay_first(void) {
+		if (load_program_overlay) {
+			program_free(&load_program_overlay_de_program);
+			
+		}
+		
+	}
+	
+	static void free_load_program_overlay(void) {
+		free_load_program_overlay_first();
+		free_load_program_overlay_last ();
 		
 	}
 #endif
@@ -123,7 +143,7 @@ static signed long long __load_rom(unsigned long long __path) {
 	#else
 		while (1) {
 			#if LOAD_PROGRAM_SUPPORTED
-				if (load_program_overlay) { // loop the overlay program
+				if (load_program_overlay_stage < 2) { // loop the overlay program
 					current_video_flip_is_root_window = 0;
 					framebuffer_bind(load_program_overlay_framebuffer, 0, 0, load_program_overlay_dimensions[0], load_program_overlay_dimensions[1]);
 					
@@ -136,7 +156,8 @@ static signed long long __load_rom(unsigned long long __path) {
 					}
 					
 					if (!video_flip_called) {
-						free_load_program_overlay();
+						free_load_program_overlay_first();
+						load_program_overlay_stage++;
 						
 					} else {
 						video_flip_called = 0;
@@ -212,6 +233,9 @@ void load_program(unsigned long long rom_data, unsigned long long rom_bytes, uns
 		
 		load_program_overlay_de_program.pointer = (void*) rom_data;
 		program_run_setup_phase(&load_program_overlay_de_program);
+		
+		new_animation(&load_program_overlay_animation, 0.0f, (float) in_animation_speed / FLOAT_ONE);
+		load_program_overlay_stage = 0;
 	#else
 		printf("WARNING This platform does not support the load_program function (USES_LOAD_PROGRAM_OVERLAYS = %d)\n", USES_LOAD_PROGRAM_OVERLAYS);
 	#endif
