@@ -20,7 +20,6 @@
 	#include "gl_common/framebuffer.h"
 	
 	#include "functions/font.h"
-	#include "functions/native.h"
 	
 	#ifdef __HAS_X11
 		#include "xwm/xwm.h"
@@ -352,5 +351,6 @@
 	#include "functions/dummy.h"
 	
 	#include "functions/decoders/bmp.h"
+	#include "functions/native.h"
 	
 #endif
