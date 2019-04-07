@@ -230,8 +230,9 @@
 				
 			}
 			
-			__this->text = (char*) malloc(strlen(text) + 1);
-			strcpy(__this->text,                 text);
+			unsigned long long bytes = strlen(text) + 1;
+			__this->text = (char*) malloc(bytes);
+			memcpy(__this->text, text,    bytes);
 			
 			#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
 				SDL_Surface* temp = TTF_RenderUTF8_Blended(__this->font, text, kos_font_colour);
