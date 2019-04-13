@@ -320,7 +320,7 @@
 	void bmp_load(unsigned long long ____this, unsigned long long _path);
 	void bmp_free(unsigned long long ____this);
 	
-	#define KOS_SUB2PEWDS KOS_USES_OPENGL_DESKTOP
+	#define KOS_SUB2PEWDS 0//KOS_USES_OPENGL_DESKTOP
 	
 	static int kos_setup_predefined_textures(kos_t* __this) {
 		int warning = 0;
