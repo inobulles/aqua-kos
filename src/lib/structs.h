@@ -62,14 +62,16 @@
 		signed long long scroll_texture_width;
 		signed long long scroll_texture_height;
 		
-		unsigned long long vertex_pixel_align; // uint32_t resize_count;
-		
 		// internal, do not touch
 		
 		Vertex3D vertices     [COMPAT_SURFACE_VERTEX_COUNT];
 		Color3D colours       [COMPAT_SURFACE_VERTEX_COUNT];
 		Coord2D texture_coords[COMPAT_SURFACE_VERTEX_COUNT];
 		GLubyte faces         [COMPAT_SURFACE_VERTEX_COUNT];
+		
+		// public again
+		
+		unsigned long long vertex_pixel_align; // uint32_t resize_count;
 		
 	} surface_t;
 	
