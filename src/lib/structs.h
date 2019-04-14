@@ -51,8 +51,7 @@
 		signed long long layer;
 		unsigned long long alpha;
 		
-		uint32_t has_texture;
-		uint32_t resize_count;
+		unsigned long long has_texture;
 		texture_t texture;
 		
 		unsigned long long scroll_texture;
@@ -62,6 +61,8 @@
 		
 		signed long long scroll_texture_width;
 		signed long long scroll_texture_height;
+		
+		unsigned long long vertex_pixel_align; // uint32_t resize_count;
 		
 		// internal, do not touch
 		

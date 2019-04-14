@@ -34,6 +34,9 @@
 		
 	}
 	
+	unsigned long long video_width (void);
+	unsigned long long video_height(void);
+	
 	static inline void surface_update_vertices(unsigned long long ____this) {
 		surface_t* __this = (surface_t*) ____this;
 		surface_set_layer((unsigned long long) __this, __this->layer);
@@ -44,12 +47,22 @@
 		float x      = (float) __this->x      / _UI64_MAX_MARGIN;
 		float y      = (float) __this->y      / _UI64_MAX_MARGIN;
 		
-		int i;
-		for (i = 0; i < 4; i++) {
+		GLint half_vwidth;
+		GLint half_vheight;
+		
+		if (__this->vertex_pixel_align) {
+			half_vwidth  = video_width () >> 1;
+			half_vheight = video_height() >> 1;
+			
+		} for (int i = 0; i < 4; i++) {
 			__this->vertices[i].x =           (GLfloat) (width  * vertex_matrix[i * 3]     + x);
 			__this->vertices[i].y =           (GLfloat) (height * vertex_matrix[i * 3 + 1] + y);
 			
-			if (!__this->scroll_texture) {
+			if (__this->vertex_pixel_align) {
+				__this->vertices[i].x =       (GLfloat) (GLint) (__this->vertices[i].x * half_vwidth ) / half_vwidth;
+				__this->vertices[i].y =       (GLfloat) (GLint) (__this->vertices[i].y * half_vheight) / half_vheight;
+				
+			} if (!__this->scroll_texture) {
 				__this->texture_coords[i].x = (GLfloat) texture_coords[i * 2];
 				__this->texture_coords[i].y = (GLfloat) texture_coords[i * 2 + 1];
 				
@@ -137,8 +150,9 @@
 		__this->layer  = 0;
 		__this->alpha  = _UI64_MAX;
 		
-		__this->scroll_texture = 0;
-		__this->has_texture    = 0;
+		__this->scroll_texture     = 0;
+		__this->has_texture        = 0;
+		__this->vertex_pixel_align = 0;
 		
 		surface_update((unsigned long long) __this);
 		surface_faces ((unsigned long long) __this);
