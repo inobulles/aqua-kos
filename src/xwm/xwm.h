@@ -23,7 +23,9 @@
 		return 0;
 
 	}
-
+	
+	void close_xwm(void);
+	
 	unsigned char open_xwm(void) {
 		xwm_display = XOpenDisplay(0);
 
@@ -41,7 +43,7 @@
 		XSelectInput(xwm_display, root, SubstructureRedirectMask | SubstructureNotifyMask);
 		XSync       (xwm_display, 0);
 
-		printf("ScreenCount() = %lld; ScreenOfDisplay() = %lld; WidthOfScreen() = %lld; HeightOfScreen() = %lld;\n", ScreenCount(), ScreenOfDisplay(), WidthOfScreen(), HeightOfScreen());
+		//~ printf("ScreenCount() = %lld; ScreenOfDisplay() = %lld; WidthOfScreen() = %lld; HeightOfScreen() = %lld;\n", ScreenCount(), ScreenOfDisplay(), WidthOfScreen(), HeightOfScreen());
 		close_xwm();
 		exit(0);
 
