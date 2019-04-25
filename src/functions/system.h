@@ -127,6 +127,7 @@
 	#include <time.h>
 	
 	#include "compute/cuda.h"
+	#include "joystick.h"
 	
 	#ifdef __HAS_CURL
 		#include "requests.h"
@@ -191,8 +192,6 @@
 		unsigned long long previous_math_device_sin_result;
 		unsigned long long previous_math_device_sigmoid_result;
 		
-		unsigned long long get_device_count;
-		
 		unsigned long long get_device_keyboard_key_packet;
 		unsigned long long get_device_keyboard_keycode_packet;
 		
@@ -201,6 +200,9 @@
 		#if KOS_USES_JNI
 			unsigned long long previous_package_existence;
 		#endif
+		
+		unsigned long long get_device_count;
+		char name[256];
 		
 	} kos_bda_extension_t;
 
@@ -315,11 +317,12 @@
 				
 			} case DEVICE_JOYSTICK: { /// TODO Add select command for selecting what joystick to interact with
 				if (strcmp(extra, "count") == 0) {
-					kos_bda_implementation.get_device_count = SDL_NumJoysticks();
+					kos_bda_implementation.get_device_count = kos_joystick_count;
 					result = &kos_bda_implementation.get_device_count;
 					
 				} else if (strcmp(extra, "name") == 0) {
-					//~ kos_bda_implementation
+					strcpy(kos_bda_implementation.name, kos_get_joystick_name(kos_current_joystick));
+					result = kos_bda_implementation.name;
 					
 				} else {
 					KOS_DEVICE_COMMAND_WARNING("joystick")

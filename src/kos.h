@@ -20,6 +20,7 @@
 	#include "gl_common/framebuffer.h"
 	
 	#include "functions/font.h"
+	#include "functions/joystick.h"
 	
 	#ifdef __HAS_X11
 		#include "xwm/xwm.h"
@@ -39,6 +40,8 @@
 				
 			}
 		#endif
+		
+		kos_close_joysticks();
 		
 		kos_free_predefined_textures(__this);
 		kos_destroy_fonts();
@@ -115,6 +118,9 @@
 				
 			}
 		#endif
+		
+		printf("Initializing joysticks ...\n");
+		kos_open_joysticks();
 		
 		#if KOS_USES_BCM
 			printf("Initializing the BCM host ...\n");
