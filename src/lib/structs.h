@@ -71,7 +71,13 @@
 		
 		// public again
 		
-		unsigned long long vertex_pixel_align; // uint32_t resize_count;
+		#ifndef     SURFACE_VERTEX_PIXEL_ALIGN
+			#define SURFACE_VERTEX_PIXEL_ALIGN 1
+		#endif
+		
+		#if         SURFACE_VERTEX_PIXEL_ALIGN
+			unsigned long long vertex_pixel_align; // uint32_t resize_count;
+		#endif
 		
 	} surface_t;
 	
