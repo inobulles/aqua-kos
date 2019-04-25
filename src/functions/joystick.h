@@ -50,4 +50,30 @@
 		
 	}
 	
+	unsigned long long kos_joystick_button_count(unsigned long long __this) {
+		#if KOS_USES_SDL2
+			return SDL_JoystickNumButtons(kos_sdl2_joysticks[__this]);
+		#endif
+		
+	} unsigned long long kos_joystick_axis_count(unsigned long long __this) {
+		#if KOS_USES_SDL2
+			return SDL_JoystickNumAxes(kos_sdl2_joysticks[__this]);
+		#endif
+		
+	} unsigned long long kos_joystick_hat_count(unsigned long long __this) {
+		#if KOS_USES_SDL2
+			return SDL_JoystickNumHats(kos_sdl2_joysticks[__this]);
+		#endif
+		
+	}
+	
+	unsigned long long kos_get_joystick_button(unsigned long long __this, unsigned long long button) {
+		#if KOS_USES_SDL2
+			return SDL_JoystickGetButton(kos_sdl2_joysticks[__this], button);
+		#else
+			return 0;
+		#endif
+		
+	}
+	
 #endif

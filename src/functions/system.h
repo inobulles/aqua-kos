@@ -203,6 +203,7 @@
 		
 		unsigned long long get_device_count;
 		char name[256];
+		unsigned long long get_device_joystick_packet;
 		
 	} kos_bda_extension_t;
 
@@ -315,14 +316,30 @@
 				
 				break;
 				
-			} case DEVICE_JOYSTICK: {
+			} case DEVICE_JOYSTICK: { /// TODO Add support for the other input methods
 				if (strcmp(extra, "count") == 0) {
 					kos_bda_implementation.get_device_count = kos_joystick_count;
 					result = &kos_bda_implementation.get_device_count;
 					
 				} else if (strcmp(extra, "name") == 0) {
 					strcpy(kos_bda_implementation.name, kos_get_joystick_name(kos_current_joystick));
-					result = kos_bda_implementation.name;
+					result = (unsigned long long*) kos_bda_implementation.name;
+					
+				} else if (strcmp(extra, "button count") == 0) {
+					kos_bda_implementation.get_device_count = kos_joystick_button_count(kos_current_joystick);
+					result = &kos_bda_implementation.get_device_count;
+					
+				} else if (strcmp(extra, "axis count") == 0) {
+					kos_bda_implementation.get_device_count = kos_joystick_axis_count(kos_current_joystick);
+					result = &kos_bda_implementation.get_device_count;
+					
+				} else if (strcmp(extra, "hat count") == 0) {
+					kos_bda_implementation.get_device_count = kos_joystick_hat_count(kos_current_joystick);
+					result = &kos_bda_implementation.get_device_count;
+					
+				} else if (strncmp(extra, "button ", 7) == 0) {
+					kos_bda_implementation.get_device_joystick_packet = kos_get_joystick_button(kos_current_joystick, atoi(extra + 7));
+					result = &kos_bda_implementation.get_device_joystick_packet;
 					
 				} else {
 					KOS_DEVICE_COMMAND_WARNING("joystick")
