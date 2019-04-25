@@ -109,7 +109,7 @@
 		__this->height = KOS_ORIGINAL_HEIGHT;
 		
 		#if KOS_USES_SDL2
-			if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+			if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
 				printf("ERROR SDL2 could not initizalize (%s)\n", SDL_GetError());
 				KOS_ERROR
 				

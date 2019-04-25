@@ -293,7 +293,7 @@
 				
 			} case DEVICE_KEYBOARD: {
 				if (strcmp(extra, "count") == 0) {
-					kos_bda_implementation.get_device_count = 1; /// TODO Add support for multiple keyboards
+					kos_bda_implementation.get_device_count = 1; /// TODO Add support for multiple keyboards (+ select command to select what keyboard to interact with)
 					result = &kos_bda_implementation.get_device_count;
 					
 				} else if (strcmp(extra, "press scancode") == 0) {
@@ -313,7 +313,19 @@
 				
 				break;
 				
-			} case DEVICE_JOYSTICK: {
+			} case DEVICE_JOYSTICK: { /// TODO Add select command for selecting what joystick to interact with
+				if (strcmp(extra, "count") == 0) {
+					kos_bda_implementation.get_device_count = SDL_NumJoysticks();
+					result = &kos_bda_implementation.get_device_count;
+					
+				} else if (strcmp(extra, "name") == 0) {
+					//~ kos_bda_implementation
+					
+				} else {
+					KOS_DEVICE_COMMAND_WARNING("joystick")
+					
+				}
+				
 				break;
 				
 			} case DEVICE_CLOCK: {
