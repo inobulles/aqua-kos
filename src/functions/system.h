@@ -74,6 +74,7 @@
 			else if (strcmp(device, "keyboard dialog") == 0) return DEVICE_KEYBOARD_DIALOG;
 		#else // absolutely not JNI
 			else if (strcmp(device, "keyboard") == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
+			else if (strcmp(device, "joystick") == 0) return DEVICE_JOYSTICK; /// TODO Add joystick support for Android
 		#endif
 		
 		// compute
@@ -190,6 +191,8 @@
 		unsigned long long previous_math_device_sin_result;
 		unsigned long long previous_math_device_sigmoid_result;
 		
+		unsigned long long get_device_count;
+		
 		unsigned long long get_device_keyboard_key_packet;
 		unsigned long long get_device_keyboard_keycode_packet;
 		
@@ -289,7 +292,11 @@
 				break;
 				
 			} case DEVICE_KEYBOARD: {
-				if (strcmp(extra, "press scancode") == 0) {
+				if (strcmp(extra, "count") == 0) {
+					kos_bda_implementation.get_device_count = 1; /// TODO Add support for multiple keyboards
+					result = &kos_bda_implementation.get_device_count;
+					
+				} else if (strcmp(extra, "press scancode") == 0) {
 					kos_bda_implementation.get_device_keyboard_key_packet =                    get_device_keyboard_key;
 					get_device_keyboard_key                          = 0;
 					result                                           = &kos_bda_implementation.get_device_keyboard_key_packet;
@@ -304,6 +311,9 @@
 					
 				}
 				
+				break;
+				
+			} case DEVICE_JOYSTICK: {
 				break;
 				
 			} case DEVICE_CLOCK: {
