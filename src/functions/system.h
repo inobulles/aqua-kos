@@ -315,7 +315,7 @@
 				
 				break;
 				
-			} case DEVICE_JOYSTICK: { /// TODO Add select command for selecting what joystick to interact with
+			} case DEVICE_JOYSTICK: {
 				if (strcmp(extra, "count") == 0) {
 					kos_bda_implementation.get_device_count = kos_joystick_count;
 					result = &kos_bda_implementation.get_device_count;
@@ -858,6 +858,17 @@
 					
 				} else {
 					KOS_DEVICE_COMMAND_WARNING("wm")
+					
+				}
+				
+				break;
+				
+			} case DEVICE_JOYSTICK: {
+				if (strcmp(extra, "select") == 0) {
+					kos_select_joystick(*data);
+					
+				} else {
+					KOS_DEVICE_COMMAND_WARNING("joystick")
 					
 				}
 				

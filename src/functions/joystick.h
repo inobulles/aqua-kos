@@ -33,6 +33,14 @@
 		
 	}
 	
+	void kos_select_joystick(unsigned long long __this) {
+		if (__this < kos_joystick_count) {
+			kos_current_joystick = __this;
+			
+		}
+		
+	}
+	
 	const char* kos_get_joystick_name(unsigned long long __this) {
 		#if KOS_USES_SDL2
 			return SDL_JoystickName(kos_sdl2_joysticks[__this]);
