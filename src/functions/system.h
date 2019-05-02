@@ -387,6 +387,10 @@
 					kos_bda_implementation.get_device_joystick_packet = kos_get_joystick_hat(kos_current_joystick, atoi(extra + 4));
 					result = &kos_bda_implementation.get_device_joystick_packet;
 					
+				} else if (strncmp(extra, "axis ", 5) == 0) {
+					kos_bda_implementation.get_device_joystick_packet = (unsigned long long) (kos_get_joystick_axis(kos_current_joystick, atoi(extra + 5)) * FLOAT_ONE);
+					result = &kos_bda_implementation.get_device_joystick_packet;
+					
 				} else {
 					KOS_DEVICE_COMMAND_WARNING("joystick")
 					

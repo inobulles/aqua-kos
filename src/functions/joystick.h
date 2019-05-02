@@ -81,6 +81,13 @@
 			return 0;
 		#endif
 		
+	} float kos_get_joystick_axis(unsigned long long __this, unsigned long long axis) {
+		#if KOS_USES_SDL2
+			return (float) SDL_JoystickGetAxis(kos_sdl2_joysticks[__this], axis) / 32768.0f;
+		#else
+			return 0.0f;
+		#endif
+		
 	}
 	
 #endif
