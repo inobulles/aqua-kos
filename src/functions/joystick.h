@@ -74,6 +74,13 @@
 			return 0;
 		#endif
 		
+	} unsigned long long kos_get_joystick_hat(unsigned long long __this, unsigned long long hat) {
+		#if KOS_USES_SDL2
+			return SDL_JoystickGetHat(kos_sdl2_joysticks[__this], hat);
+		#else
+			return 0;
+		#endif
+		
 	}
 	
 #endif

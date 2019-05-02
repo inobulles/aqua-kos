@@ -3,9 +3,9 @@
 	#define __AQUA__SDL2_SRC_KOS_GL_VERSIONS_SURFACE_GL_2_H
 	
 	#include "../../macros_and_inclusions.h"
-#include "../../gl_common/shaders.h"
-#include "../../lib/structs.h"
-#include <time.h>
+	#include "../../gl_common/shaders.h"
+	#include "../../lib/structs.h"
+	#include <time.h>
 	
 	int glUniform1i();
 	int glUniform1f();
