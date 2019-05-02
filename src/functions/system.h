@@ -864,6 +864,9 @@
 						glEnd();
 
 
+					} else if (gl_command[0] == 'i') { // load identity
+						glLoadIdentity();
+						
 					} else if (gl_command[0] == 'r') { // rotate
 						glRotatef( \
 							(double) gl_command[7]  / FLOAT_ONE, \
