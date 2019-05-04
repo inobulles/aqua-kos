@@ -788,12 +788,12 @@
 							(double) gl_command[5] / FLOAT_ONE, \
 							(double) gl_command[6] / FLOAT_ONE  \
 						);
-
-						glTranslatef(0.0f, 0.0f, -3.0f);
-
+						
 						glMatrixMode(GL_MODELVIEW);
 						glLoadIdentity();
-
+						
+						glTranslatef(0.0f, 0.0f, -3.0f);
+						
 					} else if (gl_command[0] == 'o') { // ortho
 						glMatrixMode(GL_PROJECTION);
 						glLoadIdentity();
@@ -879,6 +879,13 @@
 							(double) gl_command[10] / FLOAT_ONE  \
 						);
 
+					} else if (gl_command[0] == 'm') { // translate (move)
+						glTranslatef( \
+							(double) gl_command[7] / FLOAT_ONE, \
+							(double) gl_command[8] / FLOAT_ONE, \
+							(double) gl_command[9] / FLOAT_ONE  \
+						);
+						
 					} else {
 						KOS_DEVICE_COMMAND_WARNING("gl");
 
