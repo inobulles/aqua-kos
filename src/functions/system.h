@@ -119,7 +119,8 @@
 	
 	typedef struct {
 		char signature[sizeof(uint64_t)];
-		uint64_t x;
+		int64_t x;
+		int64_t y;
 		
 	} math_device_generic_t;
 	
@@ -199,6 +200,7 @@
 		
 		unsigned long long previous_math_device_sqrt_result;
 		unsigned long long previous_math_device_sin_result;
+		unsigned long long previous_math_device_atan2_result;
 		unsigned long long previous_math_device_sigmoid_result;
 		
 		unsigned long long get_device_keyboard_key_packet;
@@ -322,6 +324,11 @@
 					math_device_generic_t* data = (math_device_generic_t*) extra;
 					kos_bda_implementation.previous_math_device_sin_result = (unsigned long long) (sin((double) data->x / FLOAT_ONE) * FLOAT_ONE);
 					result = &kos_bda_implementation.previous_math_device_sin_result;
+					
+				} else if (strcmp(extra, "atan2") == 0) {
+					math_device_generic_t* data = (math_device_generic_t*) extra;
+					kos_bda_implementation.previous_math_device_atan2_result = atan2((double) data->x / FLOAT_ONE, (double) data->y / FLOAT_ONE) * FLOAT_ONE;
+					result = &kos_bda_implementation.previous_math_device_atan2_result;
 					
 				} else if (strcmp(extra, "sigmoid") == 0) {
 					math_device_generic_t* data = (math_device_generic_t*) extra;
