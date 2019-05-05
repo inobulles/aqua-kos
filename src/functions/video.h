@@ -144,7 +144,7 @@
 		}
 		
 		if (kos_last_fps <= 1) {
-			kos_last_fps  = 60;
+			kos_last_fps  = 60; /// TODO find the most appropriate framerate
 			
 		}
 		

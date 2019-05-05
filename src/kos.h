@@ -316,11 +316,15 @@
 		#endif
 		
 		#if KOS_USES_SDL2
-			if (SDL_GL_SetSwapInterval(1) < 0) {
-				printf("WARNING Failed to enable VSync (__this may cause problems down the line)\n");
-				__this->warning_count++;
-				
-			}
+			#if defined(KOS_ENABLE_VSYNC) && KOS_ENABLE_VSYNC
+				if (SDL_GL_SetSwapInterval(-1) < 0) { // enable adaptive (-1) VSync
+					printf("WARNING Failed to enable adaptive VSync (this may cause problems down the line)\n");
+					__this->warning_count++;
+					
+				}
+			#else
+				SDL_GL_SetSwapInterval(0);
+			#endif
 		#endif
 		
 		printf("Setting up predefined textures ...\n");
