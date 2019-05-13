@@ -40,65 +40,17 @@
 	void video_flip(void) {
 		video_flip_called = 1;
 		
-		if (current_video_flip_is_root_window) {
-			if (load_program_overlay) {
-				unsigned long long alpha = _UI64_MAX;
-				
-				if (load_program_overlay_stage == 0) {
-					if (animate        (&load_program_overlay_animation, kos_last_fps) >= 0.9f) {
-						reset_animation(&load_program_overlay_animation);
-						
-						load_program_overlay_animation.time = load_program_overlay_animation_out_time;
-						load_program_overlay_stage++;
-						
-					} else {
-						alpha = (load_program_overlay_animation.base * FLOAT_ONE) * (_UI64_MAX / FLOAT_ONE);
-						
-					}
-					
-				} else if (load_program_overlay_stage == 1) {
-					
-				} else if (load_program_overlay_stage == 2) {
-					if (animate(&load_program_overlay_animation, kos_last_fps) >= 0.9f) {
-						load_program_overlay_stage++;
-						free_load_program_overlay_last();
-						
-					} else {
-						alpha = ((1.0f - load_program_overlay_animation.base) * FLOAT_ONE) * (_UI64_MAX / FLOAT_ONE);
-						
-					}
-					
-				} if (load_program_overlay_stage < 3) {
-					surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, alpha);
-					surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy, 256);
-					surface_set_texture((unsigned long long) &predefined_texture_surface_dummy, load_program_overlay_texture);
-					
-					surface_draw       ((unsigned long long) &predefined_texture_surface_dummy);
-					
-					surface_set_texture((unsigned long long) &predefined_texture_surface_dummy,  0);
-					surface_set_layer  ((unsigned long long) &predefined_texture_surface_dummy,  0);
-					surface_set_alpha  ((unsigned long long) &predefined_texture_surface_dummy, -1);
-					
-				}
-				
-			}
-			
-			#if KOS_USES_SDL2 && KOS_USES_OPENGL
-				SDL_GL_SwapWindow(current_kos->window);
-			#endif
-			
-			#if KOS_USES_BCM && KOS_USES_OPENGLES
-				eglSwapBuffers(current_kos->display, current_kos->surface);
-			#endif
-			
-			#if KOS_USES_JNI
-				waiting_video_flip = 1;
-			#endif
-			
-		} else {
-			// non-root window flip
-			
-		}
+		#if KOS_USES_SDL2 && KOS_USES_OPENGL
+			SDL_GL_SwapWindow(current_kos->window);
+		#endif
+		
+		#if KOS_USES_BCM && KOS_USES_OPENGLES
+			eglSwapBuffers(current_kos->display, current_kos->surface);
+		#endif
+		
+		#if KOS_USES_JNI
+			waiting_video_flip = 1;
+		#endif
 		
 		surface_layer_offset = 0.0f;
 		
@@ -114,15 +66,8 @@
 		
 	}
 	
-	unsigned long long video_width(void) {
-		if (current_video_flip_is_root_window) return (unsigned long long) current_kos->width;
-		else                                   return (unsigned long long) load_program_overlay_dimensions[0];
-		
-	} unsigned long long video_height(void) {
-		if (current_video_flip_is_root_window) return (unsigned long long) current_kos->height;
-		else                                   return (unsigned long long) load_program_overlay_dimensions[1];
-		
-	}
+	unsigned long long video_width (void) { return (unsigned long long) current_kos->width;  }
+	unsigned long long video_height(void) { return (unsigned long long) current_kos->height; }
 	
 	unsigned long long video_bpp(void) {
 		return (unsigned long long) current_kos->bpp;
@@ -130,18 +75,15 @@
 	}
 	
 	unsigned long long video_fps(void) {
-		if (current_video_flip_is_root_window || load_program_overlay_stage == 1) {
-			#if KOS_USES_JNI
-				extern unsigned long long gl_fps;
-				kos_last_fps = gl_fps;
-			#elif KOS_USES_SDL2
-				unsigned long long tick_time = SDL_GetTicks();
-				
-				kos_last_fps  = (unsigned long long) (1000.0f / (float) (tick_time - kos_last_time));
-				kos_last_time = tick_time;
-			#endif
+		#if KOS_USES_JNI
+			extern unsigned long long gl_fps;
+			kos_last_fps = gl_fps;
+		#elif KOS_USES_SDL2
+			unsigned long long tick_time = SDL_GetTicks();
 			
-		}
+			kos_last_fps  = (unsigned long long) (1000.0f / (float) (tick_time - kos_last_time));
+			kos_last_time = tick_time;
+		#endif
 		
 		if (kos_last_fps <= 1) {
 			kos_last_fps  = 60; /// TODO find the most appropriate framerate
@@ -203,11 +145,6 @@
 			
 			first_event_flush = 0;
 			memset(__this, 0, sizeof(event_list_t));
-			
-		}
-		
-		if (current_video_flip_is_root_window && load_program_overlay_stage == 0) {
-			return;
 			
 		}
 		

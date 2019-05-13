@@ -1,63 +1,8 @@
 
 #include <unistd.h>
-#include "src/lib/animation.h"
-
-#ifndef     LOAD_PROGRAM_SUPPORTED
-	#define LOAD_PROGRAM_SUPPORTED 1
-	
-	void load_program(unsigned long long rom_data, unsigned long long rom_bytes, unsigned long long in_animation_speed, unsigned long long out_animation_speed, unsigned long long width, unsigned long long height);
-	static unsigned char current_video_flip_is_root_window = 1;
-	
-	static int          load_program_overlay       = 0;
-	static int          load_program_overlay_stage = 3;
-	
-	static int          load_program_overlay_dimensions[2];
-	static int          load_program_overlay_bpp;
-	
-	static unsigned int load_program_overlay_texture;
-	static unsigned int load_program_overlay_framebuffer;
-	
-	static float        load_program_overlay_animation_out_time;
-	static animation_t  load_program_overlay_animation;
-#endif
-
-static void free_load_program_overlay_last(void);
 
 #include "src/kos.h"
 #include "asm/asm.h"
-
-#if LOAD_PROGRAM_SUPPORTED
-	static uint64_t* load_program_overlay_data;
-	static program_t load_program_overlay_de_program = { .pointer = (void*) 0 };
-	
-	static void free_load_program_overlay_last(void) {
-		if (load_program_overlay) {
-			load_program_overlay       = 0;
-			load_program_overlay_stage = 3;
-			
-			framebuffer_remove(load_program_overlay_framebuffer);
-			texture_remove    (load_program_overlay_texture);
-			free              (load_program_overlay_data);
-			
-		}
-		
-	}
-	
-	static void free_load_program_overlay_first(void) {
-		if (load_program_overlay_de_program.pointer != (void*) 0 && load_program_overlay) {
-			load_program_overlay_de_program.pointer  = (void*) 0;
-			program_free(&load_program_overlay_de_program);
-			
-		}
-		
-	}
-	
-	static void free_load_program_overlay(void) {
-		free_load_program_overlay_first();
-		free_load_program_overlay_last ();
-		
-	}
-#endif
 
 void mfree(void* ptr, unsigned long long bytes) { // for some reason, this was not already defined
 	free(ptr);
@@ -65,37 +10,14 @@ void mfree(void* ptr, unsigned long long bytes) { // for some reason, this was n
 }
 
 static kos_t kos;
+#define ROM_PATH "ROM.zed" /// TODO make this rom.zed
 
-#define ROM_PATH "ROM.zed"
+static program_t __de_program;
+static program_t*  de_program;
 
-static unsigned long long kos_roms_loaded = 0;
-static program_t* current_de_program = (program_t*) 0;
-
-static signed long long __load_rom(unsigned long long __path) {
-	const char* ____path;
-	
-	if (kos_roms_loaded++) {
-		GET_PATH((char*) __path);
-		____path = path;
-		
-	} else {
-		____path = (const char*) __path;
-		
-	}
-	
-	const char* path = ____path;
-	
-	void*                 __pointer_current_program_previous = __pointer_current_program;
-	__pointer__program_t* __pointer___this_previous          = __pointer___this;
-	
-	#if KOS_USES_JNI
-		program_t* de_program = (program_t*) malloc(sizeof(program_t));
-	#else
-		program_t __de_program;
-		program_t* de_program = &__de_program;
-	#endif
-	
-	current_de_program = de_program;
+static int load_rom(const char* path) {
+	de_program = (program_t*) &__de_program;
+	memset(de_program, 0, sizeof(program_t));
 	
 	char*              rom   = (char*) 0;
 	unsigned long long bytes = 0;
@@ -133,6 +55,7 @@ static signed long long __load_rom(unsigned long long __path) {
 	
 		rom = (char*) malloc(bytes);
 		fread(rom, sizeof(char), bytes, fp);
+		fclose(fp);
 	#endif
 	
 	de_program->pointer = rom;
@@ -143,127 +66,18 @@ static signed long long __load_rom(unsigned long long __path) {
 	#if KOS_USES_JNI
 		return 0;
 	#else
-		while (1) {
-			#if LOAD_PROGRAM_SUPPORTED
-				if (load_program_overlay_stage < 2) { // loop the overlay program
-					current_video_flip_is_root_window = 0;
-					framebuffer_bind(load_program_overlay_framebuffer, 0, 0, load_program_overlay_dimensions[0], load_program_overlay_dimensions[1]);
-					
-					__pointer_current_program = (void*) &load_program_overlay_de_program.main_thread;
-					while (!program_run_loop_phase     (&load_program_overlay_de_program)) {
-						if (video_flip_called) {
-							break;
-							
-						}
-						
-					}
-					
-					if (!video_flip_called) {
-						free_load_program_overlay_first();
-						load_program_overlay_stage++;
-						
-					} else {
-						video_flip_called = 0;
-						
-					}
-					
-					current_video_flip_is_root_window = 1;
-					framebuffer_bind(0, 0, 0, video_width(), video_height());
-					
-					if (load_program_overlay_stage == 1) {
-						video_clear();
-						video_flip();
-						
-						video_flip_called = 0;
-						continue;
-						
-					}
-					
-				}
-				
-				unsigned char root_good = 0;
-				video_flip_called = 0;
-				
-				__pointer_current_program = (void*) &de_program->main_thread;
-				while (!
-			#else
-				if (
-			#endif
-			
-			program_run_loop_phase(de_program)) { // loop the root program
-				#if LOAD_PROGRAM_SUPPORTED
-					if (video_flip_called) {
-						root_good = 1;
-						break;
-						
-					}
-				#else
-					break;
-				#endif
-				
-			}
-			
-			#if LOAD_PROGRAM_SUPPORTED
-				if (!root_good) {
-					goto end_all;
-					
-				} else {
-					video_flip_called = 0;
-					
-				}
-			#endif
-			
-		} end_all:
+		while (!program_run_loop_phase(de_program));
 		
 		program_free(de_program);
 		mfree(rom, bytes);
 		
-		__pointer_current_program = __pointer_current_program_previous;
-		__pointer___this          = __pointer___this_previous;
-		
-		return de_program->error_code;
+		return (int) de_program->error_code;
 	#endif
 	
 }
 
-static const char* a_out_execution_command = "./a.out";
-
-signed long long load_rom(unsigned long long path) {
-	char command_buffer[4096];
-	sprintf(command_buffer, "%s root/%s", a_out_execution_command, (const char*) path);
-	return system(command_buffer);
-	
-}
-
-void load_program(unsigned long long rom_data, unsigned long long rom_bytes, unsigned long long in_animation_speed, unsigned long long out_animation_speed, unsigned long long width, unsigned long long height) {
-	#if LOAD_PROGRAM_SUPPORTED
-		free_load_program_overlay();
-		
-		load_program_overlay = 1;
-		load_program_overlay_stage = 0;
-		
-		load_program_overlay_dimensions[0] = width;
-		load_program_overlay_dimensions[1] = height;
-		
-		load_program_overlay_bpp     = 24; /// TODO argument to make this 32 for transparent windows
-		load_program_overlay_data    = (uint64_t*) malloc                        ((load_program_overlay_bpp >> 3) * load_program_overlay_dimensions[0] * load_program_overlay_dimensions[1]);
-		load_program_overlay_texture = __texture_create(load_program_overlay_data, load_program_overlay_bpp,        load_program_overlay_dimensions[0],  load_program_overlay_dimensions[1], 0);
-		
-		load_program_overlay_framebuffer = framebuffer_create(load_program_overlay_texture);
-		
-		load_program_overlay_de_program.pointer = (void*) rom_data;
-		program_run_setup_phase(&load_program_overlay_de_program);
-		
-		load_program_overlay_animation_out_time =            (float) out_animation_speed / FLOAT_ONE;
-		new_animation(&load_program_overlay_animation, 0.0f, (float) in_animation_speed / FLOAT_ONE);
-	#else
-		printf("WARNING This platform does not support the load_program function (USES_LOAD_PROGRAM_OVERLAYS = %d)\n", USES_LOAD_PROGRAM_OVERLAYS);
-	#endif
-	
-}
 
 int main(int argc, char** argv) {
-	printf("\nControl passed to the CW\n");
 	printf("Initializing the KOS ...\n");
 	
 	if (kos_init(&kos)) {
@@ -275,13 +89,10 @@ int main(int argc, char** argv) {
 	printf("Entering the DE ...\n");
 	char* path;
 	
-	a_out_execution_command = argv[0];
-	
 	if (argc <= 1) path = (char*) ROM_PATH;
 	else           path = argv[1];
 	
-	int error_code = (int) __load_rom((unsigned long long) path);
-	free_load_program_overlay();
+	int error_code = load_rom(path);
 	
 	#if !KOS_USES_JNI
 		printf("DE return code is %d\n", error_code);

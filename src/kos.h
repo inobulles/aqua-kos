@@ -5,6 +5,7 @@
 	#define KOS_3D_VISUALIZATION 0
 	
 	#include "macros_and_inclusions.h"
+	#include "lib/macros.h"
 	
 	#if KOS_USES_BCM
 		#include "bcm/bcm.h"
