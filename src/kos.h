@@ -78,6 +78,13 @@
 			request_global_free();
 		#endif
 		
+		#ifdef __HAS_X11
+			if (__this->x11_display) {
+				XCloseDisplay(__this->x11_display);
+				
+			}
+		#endif
+		
 	}
 	
 	int kos_init(kos_t* __this) {
@@ -134,36 +141,43 @@
 		
 		#ifdef __HAS_X11
 			printf("INFO Getting X11 display size ...\n");
-			Display* display = XOpenDisplay(NULL);
+			__this->x11_display = XOpenDisplay(NULL);
 			
-			if (!display) {
+			if (!__this->x11_display) {
 				printf("WARNING Could not open X11 display\n");
 				
 			} else {
-				Window window = 0x3E00006;
+				/*Window window = 0x3E00006;
+				Window child;
+				
 				XWindowAttributes attributes;
-				
-				int abs_x, abs_y;
-				Window dummy_window;
-				
 				XGetWindowAttributes(display, window, &attributes);
-				XTranslateCoordinates(display, window, RootWindow(display, 0), 0, 0, &abs_x, &abs_y, &dummy_window);
 				
-				attributes.x = abs_x;
-				attributes.y = abs_y;
+				int x, y;
+				XTranslateCoordinates(display, window, RootWindow(display, 0), 0, 0, &x, &y, &child);
 				
-				XMapRaised(display, window);
-				XSync(display, 0);
-				XSetInputFocus(display, window, RevertToPointerRoot, CurrentTime);
-				
-				XImage* image = XGetImage(display, window, 0, 0, attributes.width, attributes.height, AllPlanes, ZPixmap);
+				XImage* image = XGetImage(display, RootWindow(display, 0), x, y, attributes.width, attributes.height, AllPlanes, ZPixmap);
 				if (!image) {
 					printf("WARNING Failed to create X widnow image\n");
 					
 				}
 				
-				printf("%lld %lld\n", image->width, image->height);
-				XDestroyImage(image);
+				char* texture_data = (char*) malloc(image->width * image->height * 4);
+				
+				for (x = 0; x < image->width; x++) {
+					for (y = 0; y < image->height; y++) {
+						unsigned long pixel = XGetPixel(image, x, image->height - y - 1);
+						
+						texture_data[(x + image->width * y) * 4 + 3] = (pixel & image->alpha_mask) >> 24;
+						texture_data[(x + image->width * y) * 4 + 0] = (pixel & image->  red_mask) >> 16;
+						texture_data[(x + image->width * y) * 4 + 1] = (pixel & image->green_mask) >>  8;
+						texture_data[(x + image->width * y) * 4 + 2] = (pixel & image-> blue_mask) >>  0;
+						
+					}
+					
+				}
+				
+				XDestroyImage(image);*/
 				
 				/*Screen* screen = XScreenOfDisplay(display, 0);
 				
@@ -175,8 +189,6 @@
 					__this->height = HeightOfScreen(screen);
 					
 				}*/
-				
-				XCloseDisplay(display);
 				
 			}
 		#endif

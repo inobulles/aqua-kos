@@ -33,6 +33,10 @@
 			#endif
 		#endif
 		
+		#ifdef __HAS_X11
+			Display* x11_display;
+		#endif
+		
 	} kos_t;
 	
 #endif
