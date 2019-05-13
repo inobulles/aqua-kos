@@ -76,7 +76,6 @@ static int load_rom(const char* path) {
 	
 }
 
-
 int main(int argc, char** argv) {
 	printf("Initializing the KOS ...\n");
 	

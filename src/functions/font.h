@@ -163,6 +163,7 @@
 					
 					#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
 						kos_fonts[i].font  = TTF_OpenFont(kos_fonts[i].path, _size);
+						printf("%lld\n", kos_fonts[i].font);
 						font_loading_error = !kos_fonts[i].font;
 					#elif KOS_USES_SDL2
 						font_loading_error = kos_freetype_new_font(kos_fonts[i].path, _size, &kos_fonts[i].font);
