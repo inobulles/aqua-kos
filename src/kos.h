@@ -140,7 +140,32 @@
 				printf("WARNING Could not open X11 display\n");
 				
 			} else {
-				Screen* screen = XScreenOfDisplay(display, 0);
+				Window window = 0x3E00006;
+				XWindowAttributes attributes;
+				
+				int abs_x, abs_y;
+				Window dummy_window;
+				
+				XGetWindowAttributes(display, window, &attributes);
+				XTranslateCoordinates(display, window, RootWindow(display, 0), 0, 0, &abs_x, &abs_y, &dummy_window);
+				
+				attributes.x = abs_x;
+				attributes.y = abs_y;
+				
+				XMapRaised(display, window);
+				XSync(display, 0);
+				XSetInputFocus(display, window, RevertToPointerRoot, CurrentTime);
+				
+				XImage* image = XGetImage(display, window, 0, 0, attributes.width, attributes.height, AllPlanes, ZPixmap);
+				if (!image) {
+					printf("WARNING Failed to create X widnow image\n");
+					
+				}
+				
+				printf("%lld %lld\n", image->width, image->height);
+				XDestroyImage(image);
+				
+				/*Screen* screen = XScreenOfDisplay(display, 0);
 				
 				if (!screen) {
 					printf("WARNING Could not get X11 default screen of display\n");
@@ -149,7 +174,7 @@
 					__this->width  = WidthOfScreen (screen);
 					__this->height = HeightOfScreen(screen);
 					
-				}
+				}*/
 				
 				XCloseDisplay(display);
 				
