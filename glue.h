@@ -3,16 +3,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "src/kos.h"
-#include "asm/asm.h"
-
-static char* first_argv;
-#include "src/machine.h"
-
 void mfree(void* ptr, unsigned long long bytes) { // for some reason, this was not already defined
 	free(ptr);
 	
 }
+
+#include "src/kos.h"
+
+static char* first_argv;
+#include "src/machine.h"
+
+#include "asm/asm.h"
 
 static kos_t kos;
 #define ROM_PATH "ROM.zed" /// TODO make this rom.zed
@@ -118,20 +119,6 @@ int main(int argc, char** argv) {
 	
 	printf("Starting run setup phase ...\n");
 	program_run_setup_phase(de_program);
-	
-	
-	
-	
-	int a;
-	scanf("%d", &a);
-	
-	if (a) {
-		unsigned long long mid = create_machine((unsigned long long) "REMME.zed", 100, 100, 0, MAX_HEAP_SPACE);
-		
-	}
-	
-	
-	
 	
 	#if KOS_USES_JNI
 		error_code = 0;

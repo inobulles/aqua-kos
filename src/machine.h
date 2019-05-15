@@ -12,7 +12,8 @@
 		unsigned char text_only;
 		unsigned long long heap_size;
 		
-		void* image_data;
+		texture_t most_recent_texture;
+		int pid;
 		
 	} machine_t;
 	
@@ -35,6 +36,7 @@
 		machines[mid].text_only = text_only;
 		machines[mid].heap_size = heap_size;
 		
+		machines[mid].most_recent_texture = 0;
 		return mid;
 		
 	}
@@ -63,7 +65,8 @@
 		
 		char* argv[] = {first_argv, machines[mid].path, ascii_text_only, ascii_width, ascii_height, ascii_heap, ascii_pid, NULL};
 		
-		if (!fork()) {
+		machines[mid].pid = fork();
+		if (!machines[mid].pid) {
 			execvp(argv[0], argv);
 			
 		}
@@ -87,6 +90,37 @@
 		
 	}
 	
+	texture_t get_machine_texture(unsigned long long mid) {
+		if (machines[mid].most_recent_texture) {
+			texture_remove(machines[mid].most_recent_texture);
+			
+		}
+		
+		unsigned long long bytes = 4 * machines[mid].width * machines[mid].height;
+		void* data = (void*) malloc(bytes);
+		
+		#if __HAS_X11
+			XImage* ximage;
+		#endif
+		
+		machines[mid].most_recent_texture = __texture_create(data, 32, machines[mid].width, machines[mid].height, 0);
+		mfree(data, bytes);
+		return machines[mid].most_recent_texture;
+		
+	}
+	
+	#include <signal.h>
+	void kill_machine(unsigned long long mid, unsigned long long polite) {
+		if (machines[mid].exists) kill(machines[mid].pid, polite ? SIGTERM : SIGKILL);
+		else printf("WARNING Machine (%lld) does not exist\n", mid);
+		
+	}
+	
+	void give_machine_events(unsigned long long mid, event_list_t* events) {
+		printf("TODO %s\n", __func__);
+		
+	}
+	
 	void free_all_machines(void) {
 		if (!machine_count) {
 			return;
@@ -94,7 +128,7 @@
 		}
 		
 		for (unsigned long long i = 0; i < machine_count; i++) {
-			// machines[i]
+			if (machines[i].most_recent_texture) texture_remove(machines[i].most_recent_texture);
 			
 		}
 		

@@ -90,16 +90,16 @@
 	int kos_init(kos_t* __this) {
 		has_to_close_xwm = 0;
 		
-		#ifdef __HAS_X11
-			printf("INFO KOS has X11, will now try to open a new XWM ...\n");
+		#ifdef __HAS_X11 /// TODO open XWM flag
+			//~ printf("INFO KOS has X11, will now try to open a new XWM ...\n");
 			
-			if (1/*open_xwm()*/) {
-				printf("WARNING Failed to launch XWM\n");
+			//~ if (open_xwm()) {
+				//~ printf("WARNING Failed to launch XWM\n");
 				
-			} else {
-				has_to_close_xwm = 1;
+			//~ } else {
+				//~ has_to_close_xwm = 1;
 				
-			}
+			//~ }
 		#endif
 		
 		#ifdef __HAS_CURL
@@ -304,11 +304,9 @@
 
 				glHint(GL_POINT_SMOOTH,   GL_NICEST);
 				glHint(GL_LINE_SMOOTH,    GL_NICEST);
-				//~ glHint(GL_POLYGON_SMOOTH, GL_NICEST);
 
 				glEnable(GL_POINT_SMOOTH);
 				glEnable(GL_LINE_SMOOTH);
-				//~ glEnable(GL_POLYGON_SMOOTH);
 
 				glMatrixMode(GL_PROJECTION);
 				glLoadIdentity();
@@ -372,14 +370,6 @@
 			__this->warning_count++;
 			
 		}
-		
-		//~ if (gl_load_shaders(&__this->shader_program, (char*) temp_gl_2_vertex_shader, (char*) temp_gl_2_fragment_shader)) {
-			//~ printf("ERROR Failed to create GL shader program\n");
-			//~ KOS_ERROR
-			
-		//~ }
-		
-		//~ glUseProgram(__this->shader_program);
 		
 		#if KOS_USES_OPENGL
 			GLint                                   default_fbo;
