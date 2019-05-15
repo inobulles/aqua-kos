@@ -4,6 +4,10 @@
 	
 	#define KOS_3D_VISUALIZATION 0
 	
+	#ifdef __HAS_X11
+		#include "xwm/xwm.h"
+	#endif
+	
 	#include "macros_and_inclusions.h"
 	#include "lib/macros.h"
 	
@@ -22,10 +26,6 @@
 	
 	#include "functions/font.h"
 	#include "functions/joystick.h"
-	
-	#ifdef __HAS_X11
-		#include "xwm/xwm.h"
-	#endif
 	
 	static int  kos_setup_predefined_textures(kos_t* __this);
 	static void kos_free_predefined_textures (kos_t* __this);
