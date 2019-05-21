@@ -11,7 +11,7 @@
 	static unsigned long long* nvcc_result;
 	static unsigned long long  cuda_result;
 	
-	void cuda_compile_bytecode(COMPUTE_PARAMS) {
+	void cuda_compile_device_handle(COMPUTE_PARAMS) {
 		if (strcmp(extra,  "__FREE__") == 0) {
 			fs_free((unsigned long long) nvcc_result, *nvcc_result);
 			
@@ -39,7 +39,7 @@
 		
 	}
 	
-	void cuda_execute_bytecode(COMPUTE_PARAMS) {
+	void cuda_execute_device_handle(COMPUTE_PARAMS) {
 		unsigned long long* bytecode = (unsigned long long*) extra;
 		
 		fs_write((unsigned long long) "__temp_cuda_bytecode.o", (unsigned long long) (bytecode + 1), (unsigned long long) (*bytecode - 1));

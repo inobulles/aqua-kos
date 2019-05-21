@@ -150,4 +150,18 @@
 		
 	} socket_t;
 	
+	typedef struct {
+		uint64_t hour;
+		uint64_t minute;
+		uint64_t second;
+		
+		uint64_t day;
+		uint64_t month;
+		uint64_t year;
+		
+		uint64_t week_day;
+		uint64_t year_day;
+		
+	} time_device_t;
+	
 #endif
