@@ -11,6 +11,9 @@
 			strncpy(kos_bda_implementation.temp_string, kos_get_joystick_name(kos_current_joystick), sizeof(kos_bda_implementation.temp_string));
 			result_string = 1;
 			
+		} else if (strncmp(data, "select ", 7) == 0) {
+			kos_select_joystick(atoi(data + 7));
+			
 		}
 		
 		else if (strcmp (data, "count"       ) == 0) kos_bda_implementation.temp_value = kos_joystick_count;
