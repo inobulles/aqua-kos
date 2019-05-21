@@ -2,6 +2,8 @@
 #ifndef __AQUA__KOS_FUNCTIONS_PREDEFINED_H
 	#define __AQUA__KOS_FUNCTIONS_PREDEFINED_H
 	
+	static surface_t predefined_texture_surface_dummy;
+	
 	// predefined textures
 	
 	static texture_t predefined_background_texture;

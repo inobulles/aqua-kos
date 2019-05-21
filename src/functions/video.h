@@ -12,18 +12,11 @@
 	void video_clear(void) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-	}
-	
-	void video_clear_colour(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
+	} void video_clear_colour(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
 		glClearColor((float) r / _UI64_MAX, (float) g / _UI64_MAX, (float) b / _UI64_MAX, (float) a / _UI64_MAX);
 		
 	}
 	
-	void video_draw(void) {
-		printf("WARNING __this function (`video_draw`) is deprecated\n");
-		
-	}
-
 	#if KOS_USES_JNI
 		unsigned char waiting_video_flip = 0;
 	#endif
@@ -31,13 +24,28 @@
 	void __update_predefined_texture(unsigned long long name);
 	static unsigned char predefined_textures_live = 0;
 	
-	static surface_t predefined_texture_surface_dummy;
 	static unsigned char video_flip_called = 0;
 	
-	static unsigned long long kos_last_time;
-	static unsigned long long kos_last_fps;
+	#include <time.h>
+	
+	static unsigned long long last_ns = 0;
+	static unsigned long long fps = 0;
 	
 	void video_flip(void) {
+		// get current fps
+		
+		struct timespec now;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		unsigned long long ns = now.tv_sec * 1000000000ull + now.tv_nsec;
+		
+		if (last_ns > 0) {
+			float delta = (float) (ns - last_ns) * 0.000000001f;
+			fps = (unsigned long long) (1.0f / delta);
+			
+		} last_ns = ns;
+		
+		// flip
+		
 		video_flip_called = 1;
 		
 		#if KOS_USES_SDL2 && KOS_USES_OPENGL
@@ -58,7 +66,7 @@
 			glRotatef(1.0f, 0.0f, 1.0f, 0.0f);
 		#endif
 		
-		if (predefined_textures_live) {
+		if (predefined_textures_live) { // update predefined texture if live
 			__update_predefined_texture(TEXTURE_BACKGROUND);
 			__update_predefined_texture(TEXTURE_FROSTED_BACKGROUND);
 			
@@ -75,34 +83,7 @@
 	}
 	
 	unsigned long long video_fps(void) {
-		#if KOS_USES_JNI
-			extern unsigned long long gl_fps;
-			kos_last_fps = gl_fps;
-		#elif KOS_USES_SDL2
-			unsigned long long tick_time = SDL_GetTicks();
-			
-			kos_last_fps  = (unsigned long long) (1000.0f / (float) (tick_time - kos_last_time));
-			kos_last_time = tick_time;
-		#endif
-		
-		if (kos_last_fps <= 1) {
-			kos_last_fps  = 60; /// TODO find the most appropriate framerate
-			
-		}
-		
-		return kos_last_fps;
-		
-	}
-	
-	void set_video_visibility(unsigned long long state) {
-		KOS_DEPRECATED
-		
-		if (state == HIDDEN) {
-			#if KOS_USES_SDL2
-				SDL_MinimizeWindow(current_kos->window);
-			#endif
-			
-		}
+		return fps;
 		
 	}
 	
