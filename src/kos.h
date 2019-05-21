@@ -85,7 +85,7 @@
 		#ifdef __HAS_X11
 			printf("INFO KOS has X11, will now try to open a new XWM ...\n");
 			
-			if (1/*open_xwm()*/) {
+			if (open_xwm()) {
 				printf("WARNING Failed to launch XWM\n");
 				
 			} else {
@@ -334,14 +334,6 @@
 			__this->warning_count++;
 			
 		}
-		
-		//~ if (gl_load_shaders(&__this->shader_program, (char*) temp_gl_2_vertex_shader, (char*) temp_gl_2_fragment_shader)) {
-			//~ printf("ERROR Failed to create GL shader program\n");
-			//~ KOS_ERROR
-			
-		//~ }
-		
-		//~ glUseProgram(__this->shader_program);
 		
 		#if KOS_USES_OPENGL
 			GLint                                   default_fbo;
