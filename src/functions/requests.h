@@ -4,9 +4,9 @@
 	
 	int asprintf(char **strp, const char *fmt, ...);
 	
-	#include "../librequests/include/requests.h"
+	#include "librequests/include/requests.h"
 	#define __OMIT_INCLUSION_OF_REQUESTS_HEADER__ 1
-	#include "../librequests/src/requests.c"
+	#include "librequests/src/requests.c"
 	
 	static req_t         kos_current_request;
 	static CURL*         kos_curl;
