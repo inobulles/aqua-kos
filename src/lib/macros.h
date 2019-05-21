@@ -11,6 +11,8 @@
 	#define _UI64_MAX_MARGIN (_UI64_MAX >> 8)
 	#define _SI64_MAX_MARGIN (_SI64_MAX >> 8)
 	
+	#define FLOAT_ONE 1000000
+	
 	#define MAX_EVENTS_IN_EVENT_LIST 256
 	
 	// socket stuff
