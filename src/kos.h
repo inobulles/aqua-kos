@@ -357,10 +357,9 @@
 	#include "functions/video.h"
 	#include "functions/system.h"
 	#include "functions/fs.h"
-	#include "socket/socket.h"
-	#include "functions/dummy.h"
+	#include "functions/socket.h"
 	
-	#include "functions/decoders/bmp.h"
+	#include "functions/bmp.h"
 	#include "functions/native.h"
 	
 #endif

@@ -2,10 +2,10 @@
 #ifndef __AQUA__SDL2_SRC_FUNCTIONS_DECODERS_BMP_H
 	#define __AQUA__SDL2_SRC_FUNCTIONS_DECODERS_BMP_H
 	
-	#include "../../macros_and_inclusions.h"
-#include "../../lib/structs.h"
-
-#pragma pack(push, 1)
+	#include "../macros_and_inclusions.h"
+	#include "../lib/structs.h"
+	
+	#pragma pack(push, 1)
 		typedef struct {
 			uint16_t magic;
 			uint32_t file_size;
