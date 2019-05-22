@@ -85,7 +85,7 @@
 		#ifdef __HAS_X11
 			printf("INFO KOS has X11, will now try to open a new XWM ...\n");
 			
-			if (open_xwm()) {
+			if (1 /*open_xwm()*/) {
 				printf("WARNING Failed to launch XWM\n");
 				
 			} else {
