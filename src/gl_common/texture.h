@@ -3,12 +3,21 @@
 	#define __AQUA__SDL2_SRC_GL_COMMON_TEXTURE_H
 	
 	#define TEXTURE_WRAP_TYPE GL_MIRRORED_REPEAT // pushes colour to absolute edge, GL_CLAMP_TO_EDGE to wrap colour around
+	static void gl_texture_parameters(void);
 	
 	#include "../gl_versions/texture/gl_1.h"
 	#include "../gl_versions/texture/gl_2.h"
 	#include "../gl_versions/texture/gl_3.h"
 	#include "../gl_versions/texture/gl_4.h"
 	#include "../gl_versions/texture/gl_5.h"
+	
+	static void gl_texture_parameters(void) {
+		switch (kos_best_gl_version_major) {
+			case 2: gl2_texture_parameters(); break;
+			
+		}
+		
+	}
 	
 	texture_t __texture_create(unsigned long long* data, unsigned long long bpp, unsigned long long width, unsigned long long height, unsigned char warning) {
 		if (warning && ((((width & ~(width - 1)) == width) ? 0 : 1) || ((height & ~(height - 1)) == height ? 0 : 1))) {

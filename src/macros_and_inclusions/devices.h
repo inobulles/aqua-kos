@@ -19,6 +19,7 @@
 	#define DEVICE_KEYBOARD_DIALOG 14
 	#define DEVICE_DEBUG           15
 	#define DEVICE_JOYSTICK        16
+	#define DEVICE_DDS             17
 	
 	// compute devices
 	

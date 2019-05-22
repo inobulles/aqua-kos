@@ -24,6 +24,9 @@
 			else if (strcmp(device, "keyboard") == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
 			else if (strcmp(device, "joystick") == 0) return DEVICE_JOYSTICK; /// TODO Add joystick support for Android
 		#endif
+		#if KOS_USES_OPENGL_DESKTOP
+			else if (strcmp(device, "dds") == 0) return DEVICE_DDS;
+		#endif
 		
 		// compute
 		
@@ -67,6 +70,9 @@
 	#include "../devices/wm.h"
 	#include "../devices/debug.h"
 	
+	#if KOS_USES_OPENGL_DESKTOP
+		#include "../devices/dds.h"
+	#endif
 	#ifdef __HAS_CURL
 		#include "../devices/requests.h"
 	#endif
@@ -97,6 +103,9 @@
 			case DEVICE_WM:                              wm_device_handle(&result, data); break;
 			case DEVICE_DEBUG:                        debug_device_handle(&result, data); break;
 			
+			#if KOS_USES_OPENGL_DESKTOP
+				case DEVICE_DDS: dds_device_handle(&result, data); break;
+			#endif
 			#ifdef __HAS_CURL
 				case DEVICE_REQUESTS: requests_device_handle(&result, data); break;
 			#endif
