@@ -36,7 +36,7 @@
 			case FOURCC_DXT5: format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; break;
 			
 			default: {
-				printf("WARNING Unknown four_cc (%ld)\n", four_cc);
+				printf("WARNING Unknown four_cc (%d)\n", four_cc);
 				return;
 				
 			}
