@@ -6,6 +6,26 @@
 	#include <sys/stat.h>
 	#include <dirent.h>
 	
+	int fs_mkdir(const char* __path) {
+		char* path = (char*) __path;
+		int error = 0;
+		
+		int path_length = strlen(path);
+		for (int i = 0; i < path_length; i++) {
+			if (path[i] == '/') {
+				path[i] = 0;
+				error += mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+				path[i] = '/';
+				
+			}
+			
+		}
+		
+		error += mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		return error;
+		
+	}
+	
 	int remove_directory_recursive(const char* name) {
 		DIR* directory = opendir(name);
 		
@@ -41,7 +61,7 @@
 		const unsigned long long* fs_command = (const unsigned long long*) data;
 		GET_PATH((char*) fs_command[1]);
 		
-		if      (fs_command[0] == 'm') kos_bda_implementation.temp_value = (unsigned long long) mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		if      (fs_command[0] == 'm') kos_bda_implementation.temp_value = (unsigned long long) fs_mkdir(path);
 		else if (fs_command[0] == 'r') kos_bda_implementation.temp_value = (unsigned long long) remove_directory_recursive(path);
 		
 		else if (fs_command[0] == 'c') { // move
