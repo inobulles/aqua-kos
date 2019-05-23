@@ -115,7 +115,7 @@
 		#else
 			bitmap_image_t temp_bmp;
 			
-			bmp_load((unsigned long long) &temp_bmp, (unsigned long long) "wallpaper/wallpaper.bmp");
+			bmp_load((unsigned long long) &temp_bmp, (unsigned long long) "config/wallpaper/wallpaper.bmp");
 			predefined_background_texture = texture_create((unsigned long long) temp_bmp.data, temp_bmp.bpp, temp_bmp.width, temp_bmp.height);
 			
 			predefined_background_texture_dimensions[0] = temp_bmp.width;
@@ -124,7 +124,7 @@
 			bmp_free((unsigned long long) &temp_bmp);
 			warning += predefined_background_texture == -1;
 			
-			bmp_load((unsigned long long) &temp_bmp, (unsigned long long) "wallpaper/frost.bmp");
+			bmp_load((unsigned long long) &temp_bmp, (unsigned long long) "config/wallpaper/frost.bmp");
 			predefined_frost_background_texture = texture_create((unsigned long long) temp_bmp.data, temp_bmp.bpp, temp_bmp.width, temp_bmp.height);
 			
 			predefined_frost_background_texture_dimensions[0] = temp_bmp.width;
