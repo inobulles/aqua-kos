@@ -126,7 +126,7 @@
 				
 			} else if (batch_command[0] == 'i') { // add IVX model
 				ivx_t* model = (ivx_t*) batch_command[10];
-				object->has_texture   = batch_command[7] ? 1 : 0;
+				object->has_texture   = 1;//batch_command[7] ? 1 : 0;
 				
 				unsigned long long old_vertex_count = object->vertex_count; // get the current counts of the batch
 				unsigned long long old_coords_count = object->coords_count;
