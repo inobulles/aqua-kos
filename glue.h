@@ -1,16 +1,22 @@
 
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-#include "src/kos.h"
-#include "asm/asm.h"
-
-void mfree(void* ptr, unsigned long long bytes) { // for some reason, this was not already defined
+void mfree(void* ptr, unsigned long long bytes) {
 	free(ptr);
 	
 }
 
+#include "src/kos.h"
+
+static char* first_argv;
+#include "src/machine.h"
+
+#include "asm/asm.h"
+
 static kos_t kos;
-#define ROM_PATH "ROM.zed"
+#define ROM_PATH "ROM.zed" /// TODO make this rom.zed
 static program_t* de_program;
 
 static int load_rom(const char* path, char** rom, unsigned long long* bytes) {
@@ -56,6 +62,29 @@ static int load_rom(const char* path, char** rom, unsigned long long* bytes) {
 }
 
 int main(int argc, char** argv) {
+	first_argv = argv[0];
+	
+	printf("Parsing arguments ...\n");
+	char* path;
+	
+	if (argc <= 1) path = (char*) ROM_PATH;
+	else           path = argv[1];
+	
+	
+	if (argc > 2 && argv[2][0] == 'x') {
+		printf("Text only machine\n");
+		/// TODO is text only machine
+		
+	} if (argc > 4) {
+		/// TODO width  = atoi(argv[3]);
+		/// TODO height = atoi(argv[4]);
+		
+	} if (argc > 5) {
+		printf("Child machine (parent PID = %s)\n", argv[6]);
+		/// TODO is child machine (parent_pid = atoi(argv[6]))
+		
+	}
+	
 	printf("Initializing the KOS ...\n");
 	
 	if (kos_init(&kos)) {
@@ -65,10 +94,6 @@ int main(int argc, char** argv) {
 	}
 	
 	printf("Loading the DE ...\n");
-	char* path;
-	
-	if (argc <= 1) path = (char*) ROM_PATH;
-	else           path = argv[1];
 	
 	char* rom = (char*) 0;
 	unsigned long long bytes = 0;
@@ -80,6 +105,9 @@ int main(int argc, char** argv) {
 		
 	}
 	
+	printf("Creating root machine ...\n");
+	root_mid = __create_machine((unsigned long long) path, kos.width, kos.height, 0);
+	
 	de_program = (program_t*) malloc(sizeof(program_t));
 	memset(de_program, 0, sizeof(program_t));
 	de_program->pointer = rom;
@@ -90,7 +118,7 @@ int main(int argc, char** argv) {
 	#if KOS_USES_JNI
 		error_code = 0;
 	#else
-		while (!program_run_loop_phase(de_program)); // loop the root program
+		while (!program_run_loop_phase(de_program));
 		error_code = (int) de_program->error_code;
 		
 		program_free(de_program);
@@ -105,6 +133,7 @@ int main(int argc, char** argv) {
 	#endif
 	
 	mfree(de_program, sizeof(program_t));
+	free_all_machines();
 	return error_code;
 	
 }
