@@ -127,6 +127,7 @@
 			case DEVICE_WM:                              wm_device_handle(&result, data); break;
 			case DEVICE_DEBUG:                        debug_device_handle(&result, data); break;
 			case DEVICE_FONT:                          font_device_handle(&result, data); break;
+			case DEVICE_SURFACE:                    surface_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
