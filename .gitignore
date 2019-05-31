@@ -1,3 +1,4 @@
 src/librequests
 src/functions/librequests
+src/external/librequests
 asm/

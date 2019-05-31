@@ -2,7 +2,6 @@
 #ifndef __AQUA__SDL2_SRC_KOS_GL_VERSIONS_FRAMEBUFFER_GL_2_H
 	#define __AQUA__SDL2_SRC_KOS_GL_VERSIONS_FRAMEBUFFER_GL_2_H
 	
-	#include "../../macros_and_inclusions.h"
 	#include "../../gl_common/texture.h"
 
 	#if !KOS_USES_JNI

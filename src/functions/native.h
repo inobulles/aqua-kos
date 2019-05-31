@@ -1,6 +1,5 @@
-
-#ifndef __AQUA__SDL2_SRC_KOS_FUNCTIONS_NATIVE_H
-	#define __AQUA__SDL2_SRC_KOS_FUNCTIONS_NATIVE_H
+#ifndef __AQUA__KOS__FUNCTIONS_NATIVE_H
+	#define __AQUA__KOS__FUNCTIONS_NATIVE_H
 	
 	#include <sys/mman.h>
 	static size_t page_size = 0;

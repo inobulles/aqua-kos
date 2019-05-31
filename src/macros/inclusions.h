@@ -29,7 +29,4 @@
 		#include "bcm_host.h"
 	#endif
 	
-	#include "../lib/structs.h"
-	#include "../lib/macros.h"
-	
 #endif

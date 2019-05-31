@@ -2,12 +2,36 @@
 #ifndef __AQUA__SDL2_KOS_SOCKET_SOCKET_H
 	#define __AQUA__SDL2_KOS_SOCKET_SOCKET_H
 	
+	#define SOCKET_AF_INET 1
+	#define SOCKET_SOCK_STREAM 2
+	
+	#define SOCKET_IP_LOCALHOST 0
+	#define SOCKET_IP_INTERNAL 1
+	#define SOCKET_IP_EXTERNAL 2
+	
+	#define SOCKET_CLIENT 0
+	#define SOCKET_SERVER 1
+	#define SOCKET_MIXED 2
+	
+	#define SOCKET_REUSE_ADDRESS ((void*) 0)
+	#define SOCKET_REUSE_PORT -1
+	
+	#define SOCKET_DEFAULT_BUFFER_SIZE 1024
+	
+	typedef unsigned long long* ip_address_t;
+	
+	typedef struct {
+		unsigned long long error;		
+		unsigned long long type; // either SOCKET_SERVER, SOCKET_CLIENT or SOCKET_MIXED (default)
+		
+		unsigned long long port;
+		void* __internal_pointer; // this is handled by the KOS; the programmer should not use this
+		
+	} socket_t;
+	
 	#include <sys/socket.h>
 	#include <netinet/in.h>
 	#include <arpa/inet.h>
-	
-	#include "../lib/macros.h"
-	#include "../lib/structs.h"
 	
 	ssize_t read(int fd, void *buf, size_t count); // from <unistd.h>
 	

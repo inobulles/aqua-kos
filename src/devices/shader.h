@@ -2,6 +2,8 @@
 #ifndef __AQUA__KOS_DEVICES_SHADER_H
 	#define __AQUA__KOS_DEVICES_SHADER_H
 	
+	#include "../external/gl/gl_common/shaders.h"
+	
 	static void shader_device_handle(unsigned long long** result, const char* data) {
 		const unsigned long long* shader_command = (const unsigned long long*) data;
 		

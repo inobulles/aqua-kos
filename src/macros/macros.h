@@ -79,4 +79,12 @@
 		}
 	#endif
 	
+	#define _UI64_MAX 0xFFFFFFFFFFFFFFFF
+	#define _SI64_MAX 0xFFFFFFFFFFFFFFFF / 2
+	
+	#define _UI64_MAX_MARGIN (_UI64_MAX >> 8)
+	#define _SI64_MAX_MARGIN (_SI64_MAX >> 8)
+	
+	#define FLOAT_ONE 1000000
+	
 #endif

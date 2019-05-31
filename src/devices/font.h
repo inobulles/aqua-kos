@@ -2,17 +2,17 @@
 #ifndef __AQUA__SDL2_SRC_FUNCTIONS_FONT_H
 	#define __AQUA__SDL2_SRC_FUNCTIONS_FONT_H
 	
-	#include "../macros_and_inclusions.h"
+	typedef unsigned long long font_t;
 	
 	#if KOS_USES_SDL2
 		#ifdef __USE_SDL_TTF
 			#include <SDL2/SDL_ttf.h>
 			#warning "WARNING Using the SDL_ttf library may cause problems on some platforms"
 		#else
-			#include "freetype2/ft2build.h"
+			#include "../external/freetype2/ft2build.h"
 			#include FT_FREETYPE_H
 			
-			#include "SDL_ttf/SDL_ttf.c"
+			#include "../external/SDL_ttf/SDL_ttf.c"
 		#endif
 	#endif
 	

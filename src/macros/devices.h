@@ -20,6 +20,10 @@
 	#define DEVICE_DEBUG           15
 	#define DEVICE_JOYSTICK        16
 	#define DEVICE_DDS             17
+	#define DEVICE_SURFACE         18
+	#define DEVICE_FONT            19
+	#define DEVICE_MOUSE           20
+	#define DEVICE_SOCKET          21
 	
 	// compute devices
 	

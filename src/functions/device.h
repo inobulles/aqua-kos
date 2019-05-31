@@ -4,7 +4,7 @@
 	
 	#define KOS_DEVICE_COMMAND_WARNING(device_name) printf("WARNING The command you have passed to the " device_name " device (%s) is unrecognized\n", (const char*) data);
 	
-	unsigned long long is_device_supported(unsigned long long __device) {
+	unsigned long long create_device(unsigned long long __device) {
 		const char* device = (const char*) __device;
 		
 		if      (strcmp(device, "texture")  == 0) return DEVICE_TEXTURE;
@@ -17,6 +17,10 @@
 		else if (strcmp(device, "gl batch") == 0) return DEVICE_GL_BATCH;
 		else if (strcmp(device, "fs")       == 0) return DEVICE_FS;
 		else if (strcmp(device, "debug")    == 0) return DEVICE_DEBUG;
+		else if (strcmp(device, "surface")  == 0) return DEVICE_SURFACE;
+		else if (strcmp(device, "font")     == 0) return DEVICE_FONT;
+		else if (strcmp(device, "mouse")    == 0) return DEVICE_MOUSE;
+		else if (strcmp(device, "socket")   == 0) return DEVICE_SOCKET;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -47,6 +51,20 @@
 	}
 	
 	typedef struct {
+		uint64_t hour;
+		uint64_t minute;
+		uint64_t second;
+		
+		uint64_t day;
+		uint64_t month;
+		uint64_t year;
+		
+		uint64_t week_day;
+		uint64_t year_day;
+		
+	} time_device_t;
+	
+	typedef struct {
 		unsigned long long temp_value;
 		char temp_string[4096];
 		time_device_t temp_time_device;
@@ -65,10 +83,14 @@
 	#include "../devices/fbo.h"
 	#include "../devices/shader.h"
 	#include "../devices/gl_batch.h"
+	#include "../devices/surface.h"
 	#include "../devices/gl.h"
 	#include "../devices/texture.h"
 	#include "../devices/wm.h"
 	#include "../devices/debug.h"
+	#include "../devices/font.h"
+	#include "../devices/mouse.h"
+	#include "../devices/socket.h"
 	
 	#if KOS_USES_OPENGL_DESKTOP
 		#include "../devices/dds.h"
@@ -83,7 +105,7 @@
 		#include "../devices/android.h"
 	#endif
 	
-	unsigned long long* get_device(unsigned long long device, unsigned long long __data) {
+	unsigned long long* send_device(unsigned long long device, unsigned long long __data) {
 		const         char* data   =         (const char*) __data;
 		unsigned long long* result = (unsigned long long*) 0;
 		

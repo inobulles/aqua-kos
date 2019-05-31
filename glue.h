@@ -11,7 +11,7 @@ void mfree(void* ptr, unsigned long long bytes) {
 #include "src/kos.h"
 
 static char* first_argv;
-#include "src/machine.h"
+#include "src/functions/machine.h"
 
 #include "asm/asm.h"
 
@@ -70,18 +70,24 @@ int main(int argc, char** argv) {
 	if (argc <= 1) path = (char*) ROM_PATH;
 	else           path = argv[1];
 	
+	kos.text_only = 0;
+	
+	kos.width  = KOS_ORIGINAL_WIDTH;
+	kos.height = KOS_ORIGINAL_HEIGHT;
 	
 	if (argc > 2 && argv[2][0] == 'x') {
 		printf("Text only machine\n");
-		/// TODO is text only machine
+		kos.text_only = 1;
 		
 	} if (argc > 4) {
-		/// TODO width  = atoi(argv[3]);
-		/// TODO height = atoi(argv[4]);
+		printf("Video resolution %s x %s\n", argv[3], argv[4]);
+		
+		kos.width  = atoi(argv[3]);
+		kos.height = atoi(argv[4]);
 		
 	} if (argc > 5) {
-		printf("Child machine (parent PID = %s)\n", argv[6]);
-		/// TODO is child machine (parent_pid = atoi(argv[6]))
+		printf("Child machine (parent PID = %s)\n", argv[5]);
+		/// TODO is child machine (parent_pid = atoi(argv[5]))
 		
 	}
 	

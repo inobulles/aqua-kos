@@ -2,8 +2,6 @@
 #ifndef __AQUA__SDL2_SRC_KOS_GL_VERSIONS_GL_2_H
 	#define __AQUA__SDL2_SRC_KOS_GL_VERSIONS_GL_2_H
 	
-	#include "../../macros_and_inclusions.h"
-	
 	static int gl2_create_shader(GLuint shader, char* code) {
 		glShaderSource (shader, 1, (const GLchar**) &code, NULL);
 		glCompileShader(shader);

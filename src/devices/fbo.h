@@ -2,6 +2,8 @@
 #ifndef __AQUA__KOS_DEVICES_FBO_H
 	#define __AQUA__KOS_DEVICES_FBO_H
 	
+	#include "../external/gl/gl_common/framebuffer.h"
+	
 	static void fbo_device_handle(unsigned long long** result, const char* data) {
 		const unsigned long long* fbo_command = (const unsigned long long*) data;
 		

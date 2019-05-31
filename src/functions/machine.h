@@ -111,8 +111,13 @@
 		
 	}
 	
-	void give_machine_events(unsigned long long mid, event_list_t* events) {
+	void give_machine_events(unsigned long long mid, events_t* events) {
 		printf("TODO %s\n", __func__);
+		
+	}
+	
+	unsigned long long current_machine(void) {
+		return root_mid;
 		
 	}
 	

@@ -2,6 +2,8 @@
 #ifndef __AQUA__SDL2_SRC_GL_COMMON_SURFACE_H
 	#define __AQUA__SDL2_SRC_GL_COMMON_SURFACE_H
 	
+	#define SURFACE_VERTEX_COUNT 4
+	
 	//static unsigned char shader_has_set_locations = 0;
 	
 	//static GLint shader_time_location;

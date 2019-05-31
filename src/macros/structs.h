@@ -4,6 +4,7 @@
 	
 	typedef struct {
 		int warning_count;
+		int text_only;
 		
 		int width;
 		int height;
