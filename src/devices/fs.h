@@ -260,10 +260,15 @@
 		const unsigned long long* fs_command = (const unsigned long long*) data;
 		GET_PATH((char*) fs_command[1]);
 		
-		if      (fs_command[0] == 'm') kos_bda_implementation.temp_value = (unsigned long long) fs_mkdir(path);
-		else if (fs_command[0] == 'r') kos_bda_implementation.temp_value = (unsigned long long) remove_directory_recursive(path);
+		if      (fs_command[0] == 'r') kos_bda_implementation.temp_value = (unsigned long long) fs_read (fs_command[1], fs_command[2], fs_command[3]); // read
+		else if (fs_command[0] == 'w') kos_bda_implementation.temp_value = (unsigned long long) fs_write(fs_command[1], fs_command[2], fs_command[3]); // write
 		
-		else if (fs_command[0] == 'c') { // move
+		else if (fs_command[0] == 'm') kos_bda_implementation.temp_value = (unsigned long long) fs_mkdir(path); // make directory
+		else if (fs_command[0] == 'd') kos_bda_implementation.temp_value = (unsigned long long) remove_directory_recursive(path); // delete
+		
+		else if (fs_command[0] == 'c') kos_bda_implementation.temp_value = (unsigned long long) fs_list_count(fs_command[1]); // count list
+		
+		else if (fs_command[0] == 'v') { // move
 			GET_PATH_NAME(destination, (char*) fs_command[2]);
 			kos_bda_implementation.temp_value = (unsigned long long) rename(path, destination);
 			
