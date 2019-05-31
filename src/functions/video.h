@@ -79,8 +79,6 @@
 		
 	}
 	
-	// include some stuff to make life easier
-	
 	#include "events.h"
 	
 #endif

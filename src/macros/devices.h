@@ -24,6 +24,7 @@
 	#define DEVICE_FONT            19
 	#define DEVICE_MOUSE           20
 	#define DEVICE_SOCKET          21
+	#define DEVICE_PREDEFINED      22
 	
 	// compute devices
 	

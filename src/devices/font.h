@@ -431,4 +431,25 @@
 		
 	}
 	
+	typedef struct {
+		unsigned long long command;
+		unsigned long long self;
+		unsigned long long argument;
+		
+	} font_device_t;
+	
+	static void font_device_handle(unsigned long long** result, const char* data) {
+		font_device_t* command = (font_device_t*) data;
+		
+		if      (command->command == 'c') { kos_bda_implementation.temp_value = new_font(command->self, command->argument);                 *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command->command == 'r') font_remove(command->self);
+		
+		else if (command->command == 'w') { kos_bda_implementation.temp_value = get_font_width (command->self, command->argument);          *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command->command == 'h') { kos_bda_implementation.temp_value = get_font_height(command->self, command->argument);          *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		
+		else if (command->command == 't') { kos_bda_implementation.temp_value = create_texture_from_font(command->self, command->argument); *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else KOS_DEVICE_COMMAND_WARNING("font")
+		
+	}
+	
 #endif

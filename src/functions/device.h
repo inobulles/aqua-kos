@@ -7,20 +7,21 @@
 	unsigned long long create_device(unsigned long long __device) {
 		const char* device = (const char*) __device;
 		
-		if      (strcmp(device, "texture")  == 0) return DEVICE_TEXTURE;
-		else if (strcmp(device, "wm")       == 0) return DEVICE_WM;
-		else if (strcmp(device, "math")     == 0) return DEVICE_MATH;
-		else if (strcmp(device, "clock")    == 0) return DEVICE_CLOCK;
-		else if (strcmp(device, "fbo")      == 0) return DEVICE_FBO;
-		else if (strcmp(device, "shader")   == 0) return DEVICE_SHADER;
-		else if (strcmp(device, "gl")       == 0) return DEVICE_GL;
-		else if (strcmp(device, "gl batch") == 0) return DEVICE_GL_BATCH;
-		else if (strcmp(device, "fs")       == 0) return DEVICE_FS;
-		else if (strcmp(device, "debug")    == 0) return DEVICE_DEBUG;
-		else if (strcmp(device, "surface")  == 0) return DEVICE_SURFACE;
-		else if (strcmp(device, "font")     == 0) return DEVICE_FONT;
-		else if (strcmp(device, "mouse")    == 0) return DEVICE_MOUSE;
-		else if (strcmp(device, "socket")   == 0) return DEVICE_SOCKET;
+		if      (strcmp(device, "texture")    == 0) return DEVICE_TEXTURE;
+		else if (strcmp(device, "wm")         == 0) return DEVICE_WM;
+		else if (strcmp(device, "math")       == 0) return DEVICE_MATH;
+		else if (strcmp(device, "clock")      == 0) return DEVICE_CLOCK;
+		else if (strcmp(device, "fbo")        == 0) return DEVICE_FBO;
+		else if (strcmp(device, "shader")     == 0) return DEVICE_SHADER;
+		else if (strcmp(device, "gl")         == 0) return DEVICE_GL;
+		else if (strcmp(device, "gl batch")   == 0) return DEVICE_GL_BATCH;
+		else if (strcmp(device, "fs")         == 0) return DEVICE_FS;
+		else if (strcmp(device, "debug")      == 0) return DEVICE_DEBUG;
+		else if (strcmp(device, "surface")    == 0) return DEVICE_SURFACE;
+		else if (strcmp(device, "font")       == 0) return DEVICE_FONT;
+		else if (strcmp(device, "mouse")      == 0) return DEVICE_MOUSE;
+		else if (strcmp(device, "socket")     == 0) return DEVICE_SOCKET;
+		else if (strcmp(device, "predefined") == 0) return DEVICE_PREDEFINED;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -91,6 +92,7 @@
 	#include "../devices/font.h"
 	#include "../devices/mouse.h"
 	#include "../devices/socket.h"
+	#include "../devices/predefined.h"
 	
 	#if KOS_USES_OPENGL_DESKTOP
 		#include "../devices/dds.h"
@@ -124,6 +126,7 @@
 			case DEVICE_TEXTURE:                    texture_device_handle(&result, data); break;
 			case DEVICE_WM:                              wm_device_handle(&result, data); break;
 			case DEVICE_DEBUG:                        debug_device_handle(&result, data); break;
+			case DEVICE_FONT:                          font_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
