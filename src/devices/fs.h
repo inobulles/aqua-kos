@@ -257,19 +257,19 @@
 	}
 	
 	static void fs_device_handle(unsigned long long** result, const char* data) {
-		const unsigned long long* fs_command = (const unsigned long long*) data;
-		GET_PATH((char*) fs_command[1]);
+		unsigned long long* command = (unsigned long long*) data;
+		GET_PATH((char*) command[1]);
 		
-		if      (fs_command[0] == 'r') kos_bda_implementation.temp_value = (unsigned long long) fs_read (fs_command[1], fs_command[2], fs_command[3]); // read
-		else if (fs_command[0] == 'w') kos_bda_implementation.temp_value = (unsigned long long) fs_write(fs_command[1], fs_command[2], fs_command[3]); // write
+		if      (command[0] == 'r') kos_bda_implementation.temp_value = (unsigned long long) fs_read (command[1], command[2], command[3]); // read
+		else if (command[0] == 'w') kos_bda_implementation.temp_value = (unsigned long long) fs_write(command[1], command[2], command[3]); // write
 		
-		else if (fs_command[0] == 'm') kos_bda_implementation.temp_value = (unsigned long long) fs_mkdir(path); // make directory
-		else if (fs_command[0] == 'd') kos_bda_implementation.temp_value = (unsigned long long) remove_directory_recursive(path); // delete
+		else if (command[0] == 'm') kos_bda_implementation.temp_value = (unsigned long long) fs_mkdir(path); // make directory
+		else if (command[0] == 'd') kos_bda_implementation.temp_value = (unsigned long long) remove_directory_recursive(path); // delete
 		
-		else if (fs_command[0] == 'c') kos_bda_implementation.temp_value = (unsigned long long) fs_list_count(fs_command[1]); // count list
+		else if (command[0] == 'c') kos_bda_implementation.temp_value = (unsigned long long) fs_list_count(command[1]); // count list
 		
-		else if (fs_command[0] == 'v') { // move
-			GET_PATH_NAME(destination, (char*) fs_command[2]);
+		else if (command[0] == 'v') { // move
+			GET_PATH_NAME(destination, (char*) command[2]);
 			kos_bda_implementation.temp_value = (unsigned long long) rename(path, destination);
 			
 		} else {

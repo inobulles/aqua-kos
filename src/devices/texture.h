@@ -41,20 +41,14 @@
 		
 	}
 	
-	typedef struct {
-		unsigned long long command;
-		unsigned long long x, y, z, w;
-		
-	} texture_device_t;
-	
 	static void texture_device_handle(unsigned long long** result, const char* data) {
-		texture_device_t* command = (texture_device_t*) data;
+		unsigned long long* command = (unsigned long long*) data;
 		
-		if      (command->command == 'c') { kos_bda_implementation.temp_value = texture_create(command->x, command->y, command->z, command->w); *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
-		else if (command->command == 'r') texture_remove(command->x);
+		if      (command[0] == 'c') { kos_bda_implementation.temp_value = texture_create(command[1], command[2], command[3], command[4]); *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command[0] == 'r') texture_remove(command[1]);
 		
-		else if (strcmp(data, "screenshot") == 0) { kos_bda_implementation.temp_value = create_texture_from_screenshot();                       *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
-		else if (strncmp(data, "sharp ", 6) == 0) SHARP_TEXTURES = atoi(data + 6);
+		else if (strcmp (data, "screenshot") == 0) { kos_bda_implementation.temp_value = create_texture_from_screenshot();                       *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (strncmp(data, "sharp ", 6)  == 0) SHARP_TEXTURES = atoi(data + 6);
 		else KOS_DEVICE_COMMAND_WARNING("texture")
 		
 	}

@@ -439,15 +439,15 @@
 	} font_device_t;
 	
 	static void font_device_handle(unsigned long long** result, const char* data) {
-		font_device_t* command = (font_device_t*) data;
+		unsigned long long* command = (unsigned long long*) data;
 		
-		if      (command->command == 'c') { kos_bda_implementation.temp_value = new_font(command->self, command->argument);                 *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
-		else if (command->command == 'r') font_remove(command->self);
+		if      (command[0] == 'c') { kos_bda_implementation.temp_value = new_font(command[1], command[2]);                 *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command[0] == 'r') font_remove(command[1]);
 		
-		else if (command->command == 'w') { kos_bda_implementation.temp_value = get_font_width (command->self, command->argument);          *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
-		else if (command->command == 'h') { kos_bda_implementation.temp_value = get_font_height(command->self, command->argument);          *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command[0] == 'w') { kos_bda_implementation.temp_value = get_font_width (command[1], command[2]);          *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command[0] == 'h') { kos_bda_implementation.temp_value = get_font_height(command[1], command[2]);          *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
 		
-		else if (command->command == 't') { kos_bda_implementation.temp_value = create_texture_from_font(command->self, command->argument); *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command[0] == 't') { kos_bda_implementation.temp_value = create_texture_from_font(command[1], command[2]); *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
 		else KOS_DEVICE_COMMAND_WARNING("font")
 		
 	}
