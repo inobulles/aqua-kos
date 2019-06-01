@@ -46,7 +46,7 @@
 		
 	}
 	
-	static unsigned long long open_machine(unsigned long long mid) {
+	static unsigned long long execute_machine(unsigned long long mid) {
 		char ascii_width    [16];
 		char ascii_height   [16];
 		char ascii_text_only[2] = {machines[mid].text_only ? 'x' : 'g', 0};
@@ -66,21 +66,11 @@
 			
 		}
 		
-		return 0;
-		
 	}
 	
 	unsigned long long create_machine(unsigned long long __path, unsigned long long width, unsigned long long height, unsigned long long text_only) {
 		GET_PATH(__path)
 		unsigned long long mid = __create_machine((unsigned long long) path, width, height, text_only);
-		
-		if (open_machine(mid)) {
-			printf("WARNING Failed to open machine, popping it ...\n");
-			pop_machine();
-			return -1;
-			
-		}
-		
 		return mid;
 		
 	}
