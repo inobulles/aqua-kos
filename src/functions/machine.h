@@ -46,7 +46,8 @@
 		
 	}
 	
-	static unsigned long long execute_machine(unsigned long long mid) {
+	#include <sys/wait.h>
+	static unsigned long long execute_machine(unsigned long long mid, unsigned long long _wait) {
 		char ascii_width    [16];
 		char ascii_height   [16];
 		char ascii_text_only[2] = {machines[mid].text_only ? 'x' : 'g', 0};
@@ -59,12 +60,19 @@
 		sprintf(ascii_height, "%lld", machines[mid].height);
 		
 		char* argv[] = {first_argv, machines[mid].path, ascii_text_only, ascii_width, ascii_height, ascii_pid, (void*) 0};
+		int status = 0;
 		
 		machines[mid].pid = fork();
 		if (!machines[mid].pid) {
 			execvp(argv[0], argv);
 			
+		} if (_wait) {
+			wait(&status);
+			status = WEXITSTATUS(status);
+			
 		}
+		
+		return status;
 		
 	}
 	
