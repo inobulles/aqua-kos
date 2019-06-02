@@ -85,8 +85,9 @@ int main(int argc, char** argv) {
 		kos.width  = atoi(argv[3]);
 		kos.height = atoi(argv[4]);
 		
-	} if (argc > 5) {
-		printf("Child machine (parent PID = %s)\n", argv[5]);
+	} if (argc > 6) {
+		printf("Child machine (parent PID = %s, MID = %s)\n", argv[5], argv[6]);
+		root_mid = atoi(argv[6]);
 		/// TODO is child machine (parent_pid = atoi(argv[5]))
 		
 	}
@@ -112,7 +113,7 @@ int main(int argc, char** argv) {
 	}
 	
 	printf("Creating root machine ...\n");
-	root_mid = __create_machine((unsigned long long) path, kos.width, kos.height, 0);
+	root_mid = !root_mid ? __create_machine((unsigned long long) path, kos.width, kos.height, 0) : root_mid;
 	
 	de_program = (program_t*) malloc(sizeof(program_t));
 	memset(de_program, 0, sizeof(program_t));

@@ -26,7 +26,9 @@
 		else               machines = (machine_t*) malloc           (sizeof(machine_t));
 		
 		machines[mid].exists = 1;
-		machines[mid].path   = (char*) path;
+		unsigned long long bytes = strlen((const char*) path) + 1;
+		machines[mid].path = (char*) malloc(bytes);
+		memcpy(machines[mid].path, (const void*) path, bytes);
 		
 		machines[mid].width  = width;
 		machines[mid].height = height;
@@ -53,13 +55,15 @@
 		char ascii_text_only[2] = {machines[mid].text_only ? 'x' : 'g', 0};
 		
 		char ascii_pid      [16];
+		char ascii_mid      [16];
 		
 		sprintf(ascii_pid,    "%d",   getpid());
+		sprintf(ascii_mid,    "%lld", mid);
 		
 		sprintf(ascii_width,  "%lld", machines[mid].width);
 		sprintf(ascii_height, "%lld", machines[mid].height);
 		
-		char* argv[] = {first_argv, machines[mid].path, ascii_text_only, ascii_width, ascii_height, ascii_pid, (void*) 0};
+		char* argv[] = {first_argv, machines[mid].path, ascii_text_only, ascii_width, ascii_height, ascii_pid, ascii_mid, (void*) 0};
 		int status = 0;
 		
 		machines[mid].pid = fork();
@@ -83,7 +87,7 @@
 		
 	}
 	
-	texture_t get_machine_texture(unsigned long long mid) {
+	texture_t get_machine_texture(unsigned long long mid) { /// TODO
 		if (machines[mid].most_recent_texture) {
 			texture_remove(machines[mid].most_recent_texture);
 			
@@ -91,13 +95,9 @@
 		
 		unsigned long long bytes = 4 * machines[mid].width * machines[mid].height;
 		void* data = (void*) malloc(bytes);
-		
-		#if __HAS_X11
-			XImage* ximage;
-		#endif
-		
 		machines[mid].most_recent_texture = __texture_create(data, 32, machines[mid].width, machines[mid].height, 0);
 		mfree(data, bytes);
+		
 		return machines[mid].most_recent_texture;
 		
 	}
@@ -127,6 +127,7 @@
 		
 		for (unsigned long long i = 0; i < machine_count; i++) {
 			if (machines[i].most_recent_texture) texture_remove(machines[i].most_recent_texture);
+			free(machines[i].path);
 			
 		}
 		
