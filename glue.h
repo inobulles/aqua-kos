@@ -13,7 +13,7 @@ void mfree(void* ptr, unsigned long long bytes) {
 static char* first_argv;
 #include "src/functions/machine.h"
 
-#include "asm/asm.h"
+#include "zvm/zvm.h"
 
 static kos_t kos;
 #define ROM_PATH "ROM.zed" /// TODO make this rom.zed

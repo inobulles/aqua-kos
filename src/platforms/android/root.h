@@ -78,7 +78,7 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(give_1log_1tag)(JNIEnv* env, jobject ob
 }
 
 #include "../../glue.c"
-#include "../../asm/asm.h"
+#include "../../zvm/zvm.h"
 
 JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject java_asset_manager) {
 	callback_env   =          env;
