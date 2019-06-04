@@ -40,13 +40,13 @@
 		
 	}
 	
-	static void pop_machine(void) {
+	/*static void pop_machine(void) {
 		machines[machine_count--].exists = 0;
 		
 		if (machine_count > 0) machines = (machine_t*) realloc(machines, sizeof(machine_t) * machine_count);
 		else                   mfree(machines, machine_count * sizeof(machine_t));
 		
-	}
+	}*/
 	
 	#include <sys/wait.h>
 	static unsigned long long execute_machine(unsigned long long mid, unsigned long long _wait) {
