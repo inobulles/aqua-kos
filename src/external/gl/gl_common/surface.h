@@ -10,6 +10,34 @@
 	//static GLint shader_sampler_location;
 	//static GLint shader_has_texture_location;
 	
+	typedef struct {
+		unsigned long long red, green, blue;
+		signed   long long width, height;
+		signed   long long x, y;
+
+ 		signed   long long layer;
+		unsigned long long alpha;
+
+ 		unsigned long long has_texture;
+		texture_t texture;
+
+ 		unsigned long long scroll_texture;
+		signed   long long scroll_texture_x,     scroll_texture_y;
+		signed   long long scroll_texture_width, scroll_texture_height;
+		
+ 		// internal, do not touch
+
+ 		struct { float x, y, z;                 }       vertices[8];
+		struct { float red, green, blue, alpha; }        colours[8];
+		struct { float x, y;                    } texture_coords[8];
+		unsigned char                                      faces[8];
+
+ 		// public again :3
+
+ 		unsigned long long vertex_pixel_align;
+
+ 	} surface_t;
+	
 	#include "../gl_versions/surface/gl_1.h"
 	#include "../gl_versions/surface/gl_2.h"
 	#include "../gl_versions/surface/gl_3.h"
@@ -173,7 +201,6 @@
 	}
 	
 	void surface_free(unsigned long long ____this) {
-		//~ printf("FREED SURFACE %p\n", __this);
 		
 	}
 	

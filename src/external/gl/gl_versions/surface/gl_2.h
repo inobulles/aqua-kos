@@ -5,34 +5,6 @@
 	#include "../../gl_common/shaders.h"
 	#include <time.h>
 	
-	typedef struct {
-		unsigned long long red, green, blue;
-		signed   long long width, height;
-		signed   long long x, y;
-
- 		signed   long long layer;
-		signed   long long alpha;
-
- 		unsigned long long has_texture;
-		texture_t texture;
-
- 		unsigned long long scroll_texture;
-		signed   long long scroll_texture_x,     scroll_texture_y;
-		signed   long long scroll_texture_width, scroll_texture_height;
-		
- 		// internal, do not touch
-
- 		struct { float x, y, z;                 }       vertices[8];
-		struct { float red, green, blue, alpha; }        colours[8];
-		struct { float x, y;                    } texture_coords[8];
-		unsigned char                                      faces[8];
-
- 		// public again :3
-
- 		unsigned long long vertex_pixel_align;
-
- 	} surface_t;
-	
 	int glUniform1i();
 	int glUniform1f();
 
