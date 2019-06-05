@@ -11,6 +11,7 @@
 		else if (command[0] == 'd') surface_draw       (command[1]);
 		else if (command[0] == 't') surface_set_texture(command[1], command[2]);
 		else if (command[0] == 'y') surface_set_layer  (command[1], command[2]);
+		else if (command[0] == 's') surface_scroll     (command[1], command[2], command[3], command[4], command[5]);
 		
 		else if (command[0] == 'z') {
 			surface_set_width (command[1], command[2]);
