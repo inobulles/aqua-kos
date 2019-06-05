@@ -30,7 +30,7 @@
 			
 			unsigned long long i;
 			for (i = 0; i < data_bytes; i++) {
-				((char*) data)[i] = ((char*) _data)[i << 1];
+				((uint8_t*) data)[i] = ((uint16_t*) _data)[i] / 0x100;
 				
 			}
 			
