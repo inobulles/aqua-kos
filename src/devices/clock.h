@@ -12,18 +12,18 @@
 		kos_tm_struct = localtime(&kos_time);
 		
 		if (strcmp(data, "current") == 0) {
-			kos_bda_implementation.temp_time_device.hour     = (uint64_t) kos_tm_struct->tm_hour;
-			kos_bda_implementation.temp_time_device.minute   = (uint64_t) kos_tm_struct->tm_min;
-			kos_bda_implementation.temp_time_device.second   = (uint64_t) kos_tm_struct->tm_sec;
+			kos_bda_implementation.temp_value_field[0] = (unsigned long long) kos_tm_struct->tm_hour;
+			kos_bda_implementation.temp_value_field[1] = (unsigned long long) kos_tm_struct->tm_min;
+			kos_bda_implementation.temp_value_field[2] = (unsigned long long) kos_tm_struct->tm_sec;
 			
-			kos_bda_implementation.temp_time_device.day      = (uint64_t) kos_tm_struct->tm_mday;
-			kos_bda_implementation.temp_time_device.month    = (uint64_t) kos_tm_struct->tm_mon;
-			kos_bda_implementation.temp_time_device.year     = (uint64_t) kos_tm_struct->tm_year;
+			kos_bda_implementation.temp_value_field[3] = (unsigned long long) kos_tm_struct->tm_mday;
+			kos_bda_implementation.temp_value_field[4] = (unsigned long long) kos_tm_struct->tm_mon;
+			kos_bda_implementation.temp_value_field[5] = (unsigned long long) kos_tm_struct->tm_year;
 			
-			kos_bda_implementation.temp_time_device.week_day = (uint64_t) kos_tm_struct->tm_wday;
-			kos_bda_implementation.temp_time_device.year_day = (uint64_t) kos_tm_struct->tm_yday;
+			kos_bda_implementation.temp_value_field[6] = (unsigned long long) kos_tm_struct->tm_wday;
+			kos_bda_implementation.temp_value_field[7] = (unsigned long long) kos_tm_struct->tm_yday;
 			
-			*result = (unsigned long long*) &kos_bda_implementation.temp_time_device;
+			*result = (unsigned long long*) kos_bda_implementation.temp_value_field;
 			
 		} else {
 			KOS_DEVICE_COMMAND_WARNING("clock")

@@ -25,6 +25,7 @@
 	#define DEVICE_MOUSE           20
 	#define DEVICE_SOCKET          21
 	#define DEVICE_PREDEFINED      22
+	#define DEVICE_BMP             23
 	
 	// compute devices
 	

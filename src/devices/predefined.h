@@ -9,8 +9,8 @@
 	
 	// predefined textures
 	
-	static texture_t predefined_background_texture;
-	static texture_t predefined_frost_background_texture;
+	static texture_t predefined_background_texture       = -1;
+	static texture_t predefined_frost_background_texture = -1;
 	
 	static unsigned long long predefined_background_texture_dimensions      [2];
 	static unsigned long long predefined_frost_background_texture_dimensions[2];
@@ -29,7 +29,7 @@
 	void bmp_load(unsigned long long ____this, unsigned long long _path);
 	void bmp_free(unsigned long long ____this);
 	
-	#define KOS_SUB2PEWDS KOS_USES_OPENGL_DESKTOP
+	#define KOS_SUB2PEWDS 0//KOS_USES_OPENGL_DESKTOP
 	
 	static int kos_setup_predefined_textures(kos_t* __this) {
 		int warning = 0;
@@ -116,24 +116,32 @@
 				}
 			)shader-code");
 		#else
-			bitmap_image_t temp_bmp;
+			unsigned long long* result;
+			char* data;
+			unsigned long long bytes;
 			
-			bmp_load((unsigned long long) &temp_bmp, (unsigned long long) "config/wallpaper/wallpaper.bmp");
-			predefined_background_texture = texture_create((unsigned long long) temp_bmp.data, temp_bmp.bpp, temp_bmp.width, temp_bmp.height);
+			fs_read((unsigned long long) "config/wallpaper/wallpaper.bmp", (unsigned long long) &data, (unsigned long long) &bytes);
+			bmp_device_handle(&result, (const char*) data);
 			
-			predefined_background_texture_dimensions[0] = temp_bmp.width;
-			predefined_background_texture_dimensions[1] = temp_bmp.height;
+			if (result) {
+				predefined_background_texture               = result[0];
+				predefined_background_texture_dimensions[0] = result[1];
+				predefined_background_texture_dimensions[1] = result[2];
+				
+			}
 			
-			bmp_free((unsigned long long) &temp_bmp);
 			warning += predefined_background_texture == -1;
 			
-			bmp_load((unsigned long long) &temp_bmp, (unsigned long long) "config/wallpaper/frost.bmp");
-			predefined_frost_background_texture = texture_create((unsigned long long) temp_bmp.data, temp_bmp.bpp, temp_bmp.width, temp_bmp.height);
+			fs_read((unsigned long long) "config/wallpaper/frost.bmp", (unsigned long long) &data, (unsigned long long) &bytes);
+			bmp_device_handle(&result, (const char*) data);
 			
-			predefined_frost_background_texture_dimensions[0] = temp_bmp.width;
-			predefined_frost_background_texture_dimensions[1] = temp_bmp.height;
+			if (result) {
+				predefined_frost_background_texture               = result[0];
+				predefined_frost_background_texture_dimensions[0] = result[1];
+				predefined_frost_background_texture_dimensions[1] = result[2];
+				
+			}
 			
-			bmp_free((unsigned long long) &temp_bmp);
 			warning += predefined_frost_background_texture == -1;
 		#endif
 		

@@ -22,6 +22,7 @@
 		else if (strcmp(device, "mouse")      == 0) return DEVICE_MOUSE;
 		else if (strcmp(device, "socket")     == 0) return DEVICE_SOCKET;
 		else if (strcmp(device, "predefined") == 0) return DEVICE_PREDEFINED;
+		else if (strcmp(device, "bmp")        == 0) return DEVICE_BMP;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -68,7 +69,7 @@
 	typedef struct {
 		unsigned long long temp_value;
 		char temp_string[4096];
-		time_device_t temp_time_device;
+		unsigned long long temp_value_field[8];
 		
 	} kos_bda_extension_t;
 	
@@ -92,6 +93,7 @@
 	#include "../devices/font.h"
 	#include "../devices/mouse.h"
 	#include "../devices/socket.h"
+	#include "../devices/bmp.h"
 	#include "../devices/predefined.h"
 	
 	#if KOS_USES_OPENGL_DESKTOP
@@ -129,6 +131,7 @@
 			case DEVICE_FONT:                          font_device_handle(&result, data); break;
 			case DEVICE_SURFACE:                    surface_device_handle(&result, data); break;
 			case DEVICE_PREDEFINED:              predefined_device_handle(&result, data); break;
+			case DEVICE_BMP:                            bmp_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
