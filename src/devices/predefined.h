@@ -2,9 +2,6 @@
 #ifndef __AQUA__KOS_DEVICES_PREDEFINED_H
 	#define __AQUA__KOS_DEVICES_PREDEFINED_H
 	
-	#define TEXTURE_BACKGROUND 0
-	#define TEXTURE_FROSTED_BACKGROUND 1
-	
 	void video_clear(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a);
 	
 	static unsigned char predefined_textures_live = 0;
@@ -162,88 +159,62 @@
 		
 	}
 	
-	texture_t get_predefined_texture(unsigned long long name) {
-		switch (name) {
-			case TEXTURE_BACKGROUND:         return predefined_background_texture;
-			case TEXTURE_FROSTED_BACKGROUND: return predefined_frost_background_texture;
+	texture_t get_predefined_texture(const char* name) {
+		if      (strcmp(name, "wallpaper") == 0) return predefined_background_texture;
+		else if (strcmp(name, "frost")     == 0) return predefined_frost_background_texture;
+		
+		return (texture_t) -1;
+		
+	}
+	
+	static unsigned long long* get_predefined_texture_size(const char* name) {
+		if      (strcmp(name, "wallpaper") == 0) return predefined_background_texture_dimensions;
+		else if (strcmp(name, "frost")     == 0) return predefined_frost_background_texture_dimensions;
+		
+		return (unsigned long long*) 0;
+		
+	}
+	
+	void update_predefined_textures(void) {
+		if (predefined_textures_live) { // normal background
+			GLuint default_shader = 0;
 			
-			default: {
-				printf("WARNING Texture %lld is unknown. Returning -1 ...\n", name);
-				return (texture_t) -1;
-				
-			}
+			framebuffer_bind(predefined_background_texture_framebuffer, 0, 0, video_width(), video_height());
+			gl_use_shader_program((GLuint*) &predefined_background_texture_shader);
+			
+			video_clear(0, 0, 0, 0);
+			surface_draw((unsigned long long) &predefined_texture_surface_dummy);
+			
+			framebuffer_bind(0, 0, 0, video_width(), video_height());
+			gl_use_shader_program((GLuint*) &default_shader);
+			
+		} if (predefined_textures_live) { // frosted background
+			GLuint default_shader = 0;
+			
+			framebuffer_bind(predefined_frost_background_texture_framebuffer, 0, 0, video_width(), video_height());
+			gl_use_shader_program((GLuint*) &predefined_frost_background_texture_shader);
+			
+			video_clear(0, 0, 0, 0);
+			surface_draw((unsigned long long) &predefined_texture_surface_dummy);
+			
+			framebuffer_bind(0, 0, 0, video_width(), video_height());
+			gl_use_shader_program((GLuint*) &default_shader);
 			
 		}
 		
 	}
 	
-	static unsigned long long* get_predefined_texture_size(unsigned long long name) {
-		switch (name) {
-			case TEXTURE_BACKGROUND:         return predefined_background_texture_dimensions;
-			case TEXTURE_FROSTED_BACKGROUND: return predefined_frost_background_texture_dimensions;
-			
-			default: {
-				printf("WARNING Texture %lld is unknown. Returning 0 ...\n", name);
-				return 0;
-				
-			}
-			
-		}
+	static void predefined_device_handle(unsigned long long** result, const char* data) {
+		unsigned long long* command = (unsigned long long*) data;
+		kos_bda_implementation.temp_value = 0;
 		
-	}
-	
-	unsigned long long get_predefined_texture_width (unsigned long long name) { return get_predefined_texture_size(name)[0]; }
-	unsigned long long get_predefined_texture_height(unsigned long long name) { return get_predefined_texture_size(name)[1]; }
-	
-	#define GET_PREDEFINED_TEXTURE_SIZES 1
-	
-	void __update_predefined_texture(unsigned long long name) {
-		switch (name) {
-			case TEXTURE_BACKGROUND: {
-				if (predefined_textures_live) {
-					GLuint default_shader = 0;
-					
-					framebuffer_bind(predefined_background_texture_framebuffer, 0, 0, video_width(), video_height());
-					gl_use_shader_program((GLuint*) &predefined_background_texture_shader);
-					
-					video_clear(0, 0, 0, 0);
-					surface_draw((unsigned long long) &predefined_texture_surface_dummy);
-					
-					framebuffer_bind(0, 0, 0, video_width(), video_height());
-					gl_use_shader_program((GLuint*) &default_shader);
-					
-				}
-				
-				break;
-				
-			} case TEXTURE_FROSTED_BACKGROUND: {
-				if (predefined_textures_live) {
-					GLuint default_shader = 0;
-					
-					framebuffer_bind(predefined_frost_background_texture_framebuffer, 0, 0, video_width(), video_height());
-					gl_use_shader_program((GLuint*) &predefined_frost_background_texture_shader);
-					
-					video_clear(0, 0, 0, 0);
-					surface_draw((unsigned long long) &predefined_texture_surface_dummy);
-					
-					framebuffer_bind(0, 0, 0, video_width(), video_height());
-					gl_use_shader_program((GLuint*) &default_shader);
-					
-				}
-				
-				break;
-				
-			} default: {
-				printf("WARNING Texture %lld is unknown\n", name);
-				break;
-				
-			}
-			
-		}
+		if      (command[0] == 'w') kos_bda_implementation.temp_value = get_predefined_texture_size((const char*) command[1])[0];
+		else if (command[0] == 'h') kos_bda_implementation.temp_value = get_predefined_texture_size((const char*) command[1])[1];
 		
-	}
-	
-	void update_predefined_texture(unsigned long long name) {
+		else if (command[0] == 'g') kos_bda_implementation.temp_value = get_predefined_texture((const char*) command[1]);
+		else KOS_DEVICE_COMMAND_WARNING("predefined")
+		
+		*result = (unsigned long long*) &kos_bda_implementation.temp_value;
 		
 	}
 	

@@ -58,11 +58,7 @@
 			glRotatef(1.0f, 0.0f, 1.0f, 0.0f);
 		#endif
 		
-		if (predefined_textures_live) { // update predefined texture if live
-			__update_predefined_texture(TEXTURE_BACKGROUND);
-			__update_predefined_texture(TEXTURE_FROSTED_BACKGROUND);
-			
-		}
+		update_predefined_textures();
 		
 	}
 	
