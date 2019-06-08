@@ -15,7 +15,7 @@
 	#endif
 	
 	#ifdef __HAS_X11
-		#include "xwm/xwm.h"
+		#include "platforms/xwm/xwm.h"
 	#endif
 	
 	#include "functions/system.h"
