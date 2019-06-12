@@ -21,9 +21,7 @@
 	typedef unsigned long long* ip_address_t;
 	
 	typedef struct {
-		unsigned long long error;		
 		unsigned long long type; // either SOCKET_SERVER, SOCKET_CLIENT or SOCKET_MIXED (default)
-		
 		unsigned long long port;
 		void* __internal_pointer; // this is handled by the KOS; the programmer should not use this
 		
@@ -46,11 +44,6 @@
 		char __padding__[SOCKET_DEFAULT_BUFFER_SIZE];
 		
 	} __internal_socket_t;
-	
-	unsigned long long socket_support(void) {
-		return 1;
-		
-	}
 	
 	static void socket_socket(unsigned long long ____this) {
 		socket_t* __this = (socket_t*) ____this;
@@ -90,7 +83,7 @@
 		
 	}
 	
-	void socket_client(unsigned long long ____this, unsigned long long __host_ip, unsigned long long port) {
+	unsigned long long socket_client(unsigned long long ____this, unsigned long long __host_ip, unsigned long long port) {
 		ip_address_t host_ip = (ip_address_t) __host_ip;
 		
 		socket_t* __this = (socket_t*) ____this;
@@ -123,19 +116,17 @@
 			
 		}
 		
-		return;
+		return 0;
 		
 		error: {
 			socket_close((unsigned long long) __this);
-			
-			__this->error = 1;
-			return;
+			return 1;
 			
 		}
 		
 	}
 	
-	void socket_server(unsigned long long ____this, unsigned long long __host_ip, unsigned long long port) {
+	unsigned long long socket_server(unsigned long long ____this, unsigned long long __host_ip, unsigned long long port) {
 		ip_address_t host_ip = (ip_address_t) __host_ip;
 		
 		socket_t* __this = (socket_t*) ____this;
@@ -185,21 +176,21 @@
 			
 		}
 		
-		return;
+		return 0;
 		
 		error: {
 			socket_close((unsigned long long) __this);
-			
-			__this->error = 1;
-			return;
+			return 1;
 			
 		}
 		
 	}
 	
-	void socket_send(unsigned long long ____this, const char* data, unsigned long long bytes) {
+	unsigned long long socket_send(unsigned long long ____this, unsigned long long __data, unsigned long long bytes) {
+		const char* data = (const char*) __data;
 		socket_t* __this = (socket_t*) ____this;
 		send((int) ((__internal_socket_t*) __this->__internal_pointer)->socket, data, bytes, 0);
+		return 0;
 		
 	}
 	
@@ -214,6 +205,20 @@
 		
 	}
 	
-	#define SOCKET_FUNCTIONS 1
+	static void socket_device_handle(unsigned long long** result, const char* data) {
+		unsigned long long* command = (unsigned long long*) data;
+		
+		if      (command[0] == 's') kos_bda_implementation.temp_value =                      socket_send   (command[1], command[2], command[3]);
+		else if (command[0] == 'r') kos_bda_implementation.temp_value = (unsigned long long) socket_receive(command[1], command[2]);
+		
+		else if (command[0] == 'v') kos_bda_implementation.temp_value = socket_server(command[1], command[2], command[3]);
+		else if (command[0] == 'l') kos_bda_implementation.temp_value = socket_client(command[1], command[2], command[3]);
+		
+		else if (command[0] == 'c') socket_close(command[1]);
+		
+		else KOS_DEVICE_COMMAND_WARNING("socket")
+		*result = &kos_bda_implementation.temp_value;
+		
+	}
 	
 #endif

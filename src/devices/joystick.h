@@ -84,7 +84,7 @@
 		}
 		
 		else KOS_DEVICE_COMMAND_WARNING("joystick")
-		*result =  result_string ? (unsigned long long*) kos_bda_implementation.temp_string : &kos_bda_implementation.temp_value;
+		*result = result_string ? (unsigned long long*) kos_bda_implementation.temp_string : &kos_bda_implementation.temp_value;
 		
 	}
 	

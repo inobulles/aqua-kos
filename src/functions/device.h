@@ -132,6 +132,7 @@
 			case DEVICE_SURFACE:                    surface_device_handle(&result, data); break;
 			case DEVICE_PREDEFINED:              predefined_device_handle(&result, data); break;
 			case DEVICE_BMP:                            bmp_device_handle(&result, data); break;
+			case DEVICE_SOCKET:                      socket_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
