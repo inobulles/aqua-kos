@@ -186,33 +186,31 @@
 		
 	}
 	
+	#include <errno.h>
 	unsigned long long socket_send(unsigned long long ____this, unsigned long long __data, unsigned long long bytes) {
 		const char* data = (const char*) __data;
 		socket_t* __this = (socket_t*) ____this;
-		send((int) ((__internal_socket_t*) __this->__internal_pointer)->socket, data, bytes, 0);
-		return 0;
+		return send((int) ((__internal_socket_t*) __this->__internal_pointer)->socket, data, bytes, MSG_NOSIGNAL) == -1 ? errno : 0;
 		
 	}
 	
-	char* socket_receive(unsigned long long ____this, unsigned long long bytes) {
-		socket_t* __this = (socket_t*) ____this;
-		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
+	unsigned long long socket_receive(unsigned long long ____this, unsigned long long __buffer, unsigned long long bytes) {
+		char* buffer = (char*) __buffer;
+		__internal_socket_t* sock = (__internal_socket_t*) ((socket_t*) ____this)->__internal_pointer;
 		
-		memset      (sock->buffer, '\0',         bytes);
-		read  ((int) sock->socket, sock->buffer, bytes);
-		
-		return sock->buffer;
+		memset(buffer, 0, bytes);
+		return read((int) sock->socket, buffer, bytes) == -1 ? errno : 0;
 		
 	}
 	
 	static void socket_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
 		
-		if      (command[0] == 's') kos_bda_implementation.temp_value =                      socket_send   (command[1], command[2], command[3]);
-		else if (command[0] == 'r') kos_bda_implementation.temp_value = (unsigned long long) socket_receive(command[1], command[2]);
+		if      (command[0] == 's') kos_bda_implementation.temp_value = socket_send   (command[1], command[2], command[3]);
+		else if (command[0] == 'r') kos_bda_implementation.temp_value = socket_receive(command[1], command[2], command[3]);
 		
-		else if (command[0] == 'v') kos_bda_implementation.temp_value = socket_server(command[1], command[2], command[3]);
-		else if (command[0] == 'l') kos_bda_implementation.temp_value = socket_client(command[1], command[2], command[3]);
+		else if (command[0] == 'v') kos_bda_implementation.temp_value = socket_server (command[1], command[2], command[3]);
+		else if (command[0] == 'l') kos_bda_implementation.temp_value = socket_client (command[1], command[2], command[3]);
 		
 		else if (command[0] == 'c') socket_close(command[1]);
 		
