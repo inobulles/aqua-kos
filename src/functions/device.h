@@ -61,12 +61,12 @@
 		else if (strcmp(device, "socket")     == 0) return DEVICE_SOCKET;
 		else if (strcmp(device, "predefined") == 0) return DEVICE_PREDEFINED;
 		else if (strcmp(device, "bmp")        == 0) return DEVICE_BMP;
+		else if (strcmp(device, "joystick")   == 0) return DEVICE_JOYSTICK;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
 		#else // absolutely not JNI
 			else if (strcmp(device, "keyboard") == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
-			else if (strcmp(device, "joystick") == 0) return DEVICE_JOYSTICK; /// TODO Add joystick support for Android
 		#endif
 		#if KOS_USES_OPENGL_DESKTOP
 			else if (strcmp(device, "dds") == 0) return DEVICE_DDS;

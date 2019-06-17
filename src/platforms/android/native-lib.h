@@ -65,6 +65,11 @@ static callback_method_t java_package_open;
 static callback_method_t java_open_text_input;
 static callback_method_t java_create_texture_from_screenshot;
 
+static callback_method_t java_joystick_name;
+static callback_method_t java_joystick_count;
+static callback_method_t java_joystick_button;
+static callback_method_t java_joystick_axis;
+
 static void init_callback_function(callback_method_t* __this, const char* name, const char* params) {
 	__this->found = false;
 	__this->method = callback_env->GetStaticMethodID(callback_class, name, params);

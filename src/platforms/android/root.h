@@ -112,6 +112,11 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject
 
 	init_callback_function(&java_open_text_input, "open_text_input", CALLBACK_NO_PARAMS);
 
+	init_callback_function(&java_joystick_count,  "joystick_count",  "()I");
+	init_callback_function(&java_joystick_name,   "joystick_name",   "(I)Ljava/lang/String;");
+	init_callback_function(&java_joystick_button, "joystick_button", "(II)Z");
+	init_callback_function(&java_joystick_axis,   "joystick_axis",   "(II)F");
+	
 	// asset manager stuff
 
 	asset_manager = AAssetManager_fromJava(env, java_asset_manager);

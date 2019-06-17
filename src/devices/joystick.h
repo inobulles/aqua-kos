@@ -10,6 +10,15 @@
 		static SDL_GameController* kos_sdl2_joysticks[MAX_JOYSTICK_COUNT];
 	#endif
 	
+	unsigned long long kos_get_joystick_count(void) {
+		#if KOS_USES_JNI
+			return (unsigned long long) CALLBACK(java_joystick_count, callback_env->CallStaticIntMethod, 0);
+		#else
+			return kos_joystick_count;
+		#endif
+		
+	}
+
 	void kos_open_joysticks(void) {
 		#if KOS_USES_SDL2
 			kos_joystick_count = SDL_NumJoysticks();
@@ -37,7 +46,10 @@
 	}
 	
 	const char* kos_get_joystick_name(unsigned long long __this) {
-		#if KOS_USES_SDL2
+		#if KOS_USES_JNI
+			jboolean is_copy = 0;
+			return callback_env->GetStringUTFChars((jstring) CALLBACK(java_joystick_name, callback_env->CallStaticObjectMethod, __this), &is_copy);
+		#elif KOS_USES_SDL2
 			return SDL_JoystickName(SDL_GameControllerGetJoystick(kos_sdl2_joysticks[__this]));
 		#else
 			return (char*) 0;
@@ -46,14 +58,18 @@
 	}
 	
 	unsigned long long kos_get_joystick_button(unsigned long long __this, unsigned long long button) {
-		#if KOS_USES_SDL2
+		#if KOS_USES_JNI
+			return (unsigned long long) CALLBACK(java_joystick_button, callback_env->CallStaticBooleanMethod, __this);
+		#elif KOS_USES_SDL2
 			return SDL_GameControllerGetButton(kos_sdl2_joysticks[__this], button);
 		#else
 			return 0;
 		#endif
 		
 	} float kos_get_joystick_axis(unsigned long long __this, unsigned long long axis) {
-		#if KOS_USES_SDL2
+		#if KOS_USES_JNI
+			return (float) CALLBACK(java_joystick_axis, callback_env->CallStaticFloatMethod, __this);
+		#elif KOS_USES_SDL2
 			return (float) SDL_GameControllerGetAxis(kos_sdl2_joysticks[__this], axis) / 32768.0f;
 		#else
 			return 0.0f;
@@ -71,11 +87,11 @@
 			
 		}
 		
-		else if (command[0] == 'c') kos_bda_implementation.temp_value = kos_joystick_count;
+		else if (command[0] == 'c') kos_bda_implementation.temp_value = kos_get_joystick_count();
 		else if (command[0] == 'b') kos_bda_implementation.temp_value = kos_get_joystick_button(command[1], command[2]);
 		else if (command[0] == 'a') kos_bda_implementation.temp_value = (unsigned long long) (kos_get_joystick_axis(command[1], command[2]) * FLOAT_ONE);
 		
-		else if (command[0] == 'h') { /// TODO clean up
+		else if (command[0] == 'h') { /// TODO Joystick haptic feedback
 			printf("TODO Joystick haptic feedback\n");
 			//SDL_Haptic* haptic = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(kos_sdl2_joysticks[command[1]]));
 			//SDL_HapticRumblePlay(haptic, 0.5f, 2000);
