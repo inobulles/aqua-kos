@@ -63,7 +63,7 @@
 		sprintf(ascii_width,  "%lld", machines[mid].width);
 		sprintf(ascii_height, "%lld", machines[mid].height);
 		
-		char* argv[] = {first_argv, machines[mid].path, ascii_text_only, ascii_width, ascii_height, ascii_pid, ascii_mid, (void*) 0};
+		char* argv[] = {first_argv, machines[mid].path, ascii_text_only, ascii_width, ascii_height, ascii_pid, ascii_mid, (char*) 0};
 		int status = 0;
 		
 		machines[mid].pid = fork();
@@ -95,7 +95,7 @@
 		
 		unsigned long long bytes = 4 * machines[mid].width * machines[mid].height;
 		void* data = (void*) malloc(bytes);
-		machines[mid].most_recent_texture = __texture_create(data, 32, machines[mid].width, machines[mid].height, 0);
+		machines[mid].most_recent_texture = __texture_create((unsigned long long*) data, 32, machines[mid].width, machines[mid].height, 0);
 		mfree(data, bytes);
 		
 		return machines[mid].most_recent_texture;

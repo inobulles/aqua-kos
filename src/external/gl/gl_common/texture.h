@@ -16,6 +16,7 @@
 	static void gl_texture_parameters(void) {
 		switch (kos_best_gl_version_major) {
 			case 2: gl2_texture_parameters(); break;
+			default: break;
 			
 		}
 		

@@ -10,18 +10,23 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+#include <math.h>
+
+bool default_assets = false;
 
 #include "native-lib.h"
-#include "renderer.h"
 #include "gl.h"
+
+#define KOS_CURRENT KOS_ANDROID
+#include "../../../glue.c"
+
+#include "renderer.h"
 
 Renderer*      renderer      = nullptr;
 AAssetManager* asset_manager = nullptr;
 
 const char* internal_storage_path;
 bool     is_internal_storage_path_set = false;
-
-bool default_assets = false;
 
 #define PKG_ORG inobulles
 #define PKG_PER obiwac
@@ -77,8 +82,7 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(give_1log_1tag)(JNIEnv* env, jobject ob
 
 }
 
-#include "../../glue.c"
-#include "../../zvm/zvm.h"
+#include "../../../zvm/zvm.h"
 
 JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject java_asset_manager) {
 	callback_env   =          env;
@@ -154,9 +158,9 @@ static int loop(void) {
 		
 	}
 	
-	if (program_run_loop_phase         (current_de_program)) {
-		ALOGV("DE return code is %d\n", current_de_program->error_code);
-		return rom_free_last() ?        current_de_program->error_code : 0;
+	if (program_run_loop_phase         (de_program)) {
+		ALOGV("DE return code is %d\n", de_program->error_code);
+		return rom_free_last() ?        de_program->error_code : 0;
 		
 	} else {
 		return -1;
@@ -207,10 +211,10 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(step)(JNIEnv* env, jobject obj) {
 
 			if (text_input_has_string_response) {
 				extern const char* text_input_response;
-				current_de_program->main_thread.registers[REGISTER_FAMILY_a] = (unsigned long long) text_input_response;
+				de_program->main_thread.registers[REGISTER_FAMILY_a] = (unsigned long long) text_input_response;
 
 			} else {
-				current_de_program->main_thread.registers[REGISTER_FAMILY_a] = 0;
+				de_program->main_thread.registers[REGISTER_FAMILY_a] = 0;
 
 			}
 

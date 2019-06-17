@@ -1,7 +1,12 @@
 
 #ifndef __AQUA__SDL2_SRC_MACROS_AND_INCLUSIONS_STRUCTS_H
 	#define __AQUA__SDL2_SRC_MACROS_AND_INCLUSIONS_STRUCTS_H
-	
+
+	#if KOS_USES_OPENGLES
+		#include <EGL/egl.h>
+		#include <GLES2/gl2.h>
+	#endif
+
 	typedef struct {
 		int warning_count;
 		int text_only;

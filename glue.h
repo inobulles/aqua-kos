@@ -21,12 +21,12 @@ static program_t* de_program;
 
 static int load_rom(const char* path, char** rom, unsigned long long* bytes) {
 	#if KOS_USES_JNI
-		if (load_asset_bytes((const char*) __path, rom, bytes)) {
+		if (load_asset_bytes(path, rom, bytes)) {
 			if (!default_assets) {
 				ALOGW("WARNING Could not load the ROM from internal / external storage. Trying from assets ...\n");
 				default_assets = true;
 				
-				if (load_asset_bytes((const char*) __path, rom, bytes)) {
+				if (load_asset_bytes(path, rom, bytes)) {
 					ALOGE("ERROR Could not load ROM from assets either\n");
 					return 1;
 					
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 		
 	} if (argc > 6) {
 		printf("Child machine (parent PID = %s, MID = %s)\n", argv[5], argv[6]);
-		root_mid = atoi(argv[6]);
+		root_mid = (unsigned long long) atoi(argv[6]);
 		/// TODO is child machine (parent_pid = atoi(argv[5]))
 		
 	}
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 	}
 	
 	printf("Creating root machine ...\n");
-	root_mid = !root_mid ? __create_machine((unsigned long long) path, kos.width, kos.height, 0) : root_mid;
+	root_mid = !root_mid ? __create_machine((unsigned long long) path, (unsigned long long) kos.width, (unsigned long long) kos.height, 0) : root_mid;
 	
 	de_program = (program_t*) malloc(sizeof(program_t));
 	memset(de_program, 0, sizeof(program_t));
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
 		error_code = 0;
 	#else
 		while (!program_run_loop_phase(de_program));
-		error_code = (int) de_program->error_code;
+		error_code = de_program->error_code;
 		
 		program_free(de_program);
 		mfree(rom, bytes);

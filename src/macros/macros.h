@@ -5,13 +5,12 @@
 	#ifndef SYSTEM_ACCESS
 		#define SYSTEM_ACCESS 1 // 0
 	#endif
-	
+
 	#ifndef KOS_TEXTURE_WARNING
 		#define KOS_TEXTURE_WARNING 0
 	#endif
 	
 	#ifndef KOS_SHARP_TEXTURES
-		//~ #define SHARP_TEXTURES 1
 		unsigned long long SHARP_TEXTURES = 0;
 	#else
 		unsigned long long SHARP_TEXTURES = KOS_SHARP_TEXTURES;

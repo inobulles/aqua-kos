@@ -25,7 +25,7 @@
 	static void bmp_device_handle(unsigned long long** result, const char* __data) {
 		char* data = (char*) __data;
 		if (!data) {
-			*result = (void*) 0;
+			*result = (unsigned long long*) 0;
 			return;
 			
 		}
@@ -35,7 +35,7 @@
 		
 		if (header.magic != 0x4D42) {
 			printf("WARNING Data is not BMP\n");
-			*result = (void*) 0;
+			*result = (unsigned long long*) 0;
 			return;
 			
 		}
@@ -46,8 +46,8 @@
 		uint8_t* data8 = (uint8_t*) data;
 		char* final_data = (char*) malloc(info_header.image_bytes);
 		
-		kos_bda_implementation.temp_value_field[1] = info_header.width;
-		kos_bda_implementation.temp_value_field[2] = info_header.height;
+		kos_bda_implementation.temp_value_field[1] = (unsigned long long) info_header.width;
+		kos_bda_implementation.temp_value_field[2] = (unsigned long long) info_header.height;
 		
 		unsigned long long components = info_header.bpp >> 3;
 		unsigned long long pitch = info_header.width * components;

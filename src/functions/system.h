@@ -52,7 +52,7 @@
 		#endif
 		
 	}
-	
+
 	unsigned long long platform_system(unsigned long long __command) {
 		const char* command = (const char*) __command;
 		

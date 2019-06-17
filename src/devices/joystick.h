@@ -77,9 +77,9 @@
 		
 		else if (command[0] == 'h') { /// TODO clean up
 			printf("TODO Joystick haptic feedback\n");
-			SDL_Haptic* haptic = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(kos_sdl2_joysticks[command[1]]));
-			SDL_HapticRumblePlay(haptic, 0.5f, 2000);
-			SDL_HapticClose(haptic);
+			//SDL_Haptic* haptic = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(kos_sdl2_joysticks[command[1]]));
+			//SDL_HapticRumblePlay(haptic, 0.5f, 2000);
+			//SDL_HapticClose(haptic);
 			
 		}
 		

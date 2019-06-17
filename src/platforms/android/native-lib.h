@@ -2,17 +2,6 @@
 #ifndef NATIVE_LIB_H
 #define NATIVE_LIB_H
 
-#include <math.h>
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <android/log.h>
-#include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
-
-#include "../lib/structs.h"
-
 #if DYNAMIC_ES3
 #include "gl3_stub.h"
 #else
@@ -26,11 +15,23 @@
 #endif
 #endif
 
+#include <android/log.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+
 extern char* LOG_TAG;
 #define VERBOSE_OUTPUT 1
-#include "alog.h"
 
+#include "alog.h"
 #include "safemem.h"
+
+#define INTERNAL_STORAGE_PREFIX "/storage/emulated/0/"
+
+#define SET_FINAL_PATH { \
+    final_path = (char*) malloc(strlen(path) + strlen(INTERNAL_STORAGE_PREFIX) + 1); \
+    strcpy(final_path, INTERNAL_STORAGE_PREFIX); \
+    strcat(final_path, path); \
+}
 
 #define MAX_PATH_LENGTH 4096
 #define CALLBACK_NO_PARAMS "()V"
@@ -86,14 +87,6 @@ static unsigned char disable_gl = 0;
 #define CALLBACK_VOID(          address,            ...) (disable_gl ? nothing() : callback_env->CallStaticVoidMethod(callback_class, (&address)->method, __VA_ARGS__))
 #define CALLBACK_VOID_NO_PARAMS(address)                 (disable_gl ? nothing() : callback_env->CallStaticVoidMethod(callback_class, (&address)->method))
 #define CALLBACK_INT(           address,            ...) (disable_gl ? 0         : callback_env->CallStaticIntMethod (callback_class, (&address)->method, __VA_ARGS__))
-
-#define INTERNAL_STORAGE_PREFIX "/storage/emulated/0/"
-
-#define SET_FINAL_PATH { \
-    final_path = (char*) malloc(strlen(path) + strlen(INTERNAL_STORAGE_PREFIX) + 1); \
-    strcpy(final_path, INTERNAL_STORAGE_PREFIX); \
-    strcat(final_path, path); \
-}
 
 static bool load_asset_bytes(const char* path, char** buffer, unsigned long long* bytes) {
 	if (buffer == NULL) {
@@ -187,7 +180,7 @@ class Renderer {
         void resize(int w, int h);
         unsigned long long render(void);
 
-		virtual void draw_surface(surface_t* __this) = 0;
+		virtual void draw_surface(void* __this) = 0;
 
     protected:
         Renderer(void);

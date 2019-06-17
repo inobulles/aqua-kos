@@ -35,4 +35,5 @@
 
 // glue.h inclusion
 
+#include "src/macros.h"
 #include "glue.h"

@@ -36,14 +36,14 @@
 
 			return framebuffer_id;
 		#else
-			return -1;
+			return (framebuffer_t) -1;
 		#endif
 		
 	}
 	
 	void gl2_framebuffer_bind(framebuffer_t __this, unsigned long long x, unsigned long long y, unsigned long long width, unsigned long long height) {
-		glBindFramebuffer(GL_FRAMEBUFFER, __this);
-		glViewport(x, y, width, height);
+		glBindFramebuffer(GL_FRAMEBUFFER, (GLint) __this);
+		glViewport((GLint) x, (GLint) y, (GLint) width, (GLint) height);
 		
 	}
 	

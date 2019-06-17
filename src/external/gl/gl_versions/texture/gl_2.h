@@ -1,7 +1,7 @@
 
 #ifndef __AQUA__SDL2_SRC_KOS_GL_VERSIONS_TEXTURE_GL_2_H
 	#define __AQUA__SDL2_SRC_KOS_GL_VERSIONS_TEXTURE_GL_2_H
-	
+
 	static void gl2_texture_parameters(void) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, TEXTURE_WRAP_TYPE); // x axis
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, TEXTURE_WRAP_TYPE); // y axis
@@ -19,7 +19,7 @@
 	}
 	
 	texture_t gl2_texture_create(unsigned long long* _data, unsigned long long bpp, unsigned long long width, unsigned long long height) {
-		unsigned char alpha = bpp % 32;
+		unsigned char alpha = (unsigned char) (bpp % 32);
 		
 		unsigned long long* data = _data;
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -30,7 +30,7 @@
 			
 			unsigned long long i;
 			for (i = 0; i < data_bytes; i++) {
-				((uint8_t*) data)[i] = ((uint16_t*) _data)[i] / 0x100;
+				((uint8_t*) data)[i] = (uint8_t) (((uint16_t*) _data)[i] / 0x100);
 				
 			}
 			

@@ -3,7 +3,7 @@
 	#define __AQUA__KOS_DEVICES_MATH_H
 	
 	#include <math.h>
-	
+
 	typedef struct {
 		char signature[sizeof(uint64_t)];
 		int64_t x;
@@ -37,7 +37,7 @@
 		} else {
 			KOS_DEVICE_COMMAND_WARNING("math")
 			
-		} *result = (unsigned long long*) &kos_bda_implementation.temp_value;
+		} *result = &kos_bda_implementation.temp_value;
 		
 	}
 	

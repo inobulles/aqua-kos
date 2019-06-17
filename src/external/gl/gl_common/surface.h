@@ -1,7 +1,8 @@
 
 #ifndef __AQUA__SDL2_SRC_GL_COMMON_SURFACE_H
 	#define __AQUA__SDL2_SRC_GL_COMMON_SURFACE_H
-	
+
+	#include "texture.h"
 	#define SURFACE_VERTEX_COUNT 4
 	
 	//static unsigned char shader_has_set_locations = 0;
@@ -43,8 +44,8 @@
 	#include "../gl_versions/surface/gl_3.h"
 	#include "../gl_versions/surface/gl_4.h"
 	#include "../gl_versions/surface/gl_5.h"
-	
-	//static unsigned long long resize_count;
+
+//static unsigned long long resize_count;
 	
 	static inline void surface_set_layer_float(unsigned long long ____this, float layer) {
 		surface_t* __this = (surface_t*) ____this;

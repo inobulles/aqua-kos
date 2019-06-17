@@ -13,7 +13,7 @@
 			return 1;
 			
 		}
-		#if defined(__x86_64__) || defined(__i368__) // x86/x64 based platforms
+		#if !KOS_USES_JNI // x86/x64 based platforms
 			else if (platform & PLATFORM_UNIX) { // Unix based platforms (source: https://stackoverflow.com/questions/37122186/c-put-x86-instructions-into-array-and-execute-them)
 				if (!page_size) {
 					page_size = sysconf(_SC_PAGESIZE);
