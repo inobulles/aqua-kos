@@ -1,16 +1,18 @@
 
 #ifndef __AQUA__KOS_DEVICES_DDS_H
 	#define __AQUA__KOS_DEVICES_DDS_H
-	
+
 	#define FOURCC_DXT1 0x31545844 // "DXT1" in ascii
 	#define FOURCC_DXT3 0x33545844 // "DXT3" in ascii
 	#define FOURCC_DXT5 0x35545844 // "DXT5" in ascii
 	
 	static void dds_device_handle(unsigned long long** result, const char* __data) {
 		char* data = (char*) __data;
+		*result = &kos_bda_implementation.temp_value;
 		
 		if (strncmp(data, "DDS ", 4) != 0) {
 			printf("WARNING Data is not DDS\n");
+			kos_bda_implementation.temp_value = 0;
 			return;
 			
 		}
@@ -62,9 +64,7 @@
 		}
 		
 		gl_texture_parameters();
-		
 		kos_bda_implementation.temp_value = (unsigned long long) texture_id;
-		*result = (unsigned long long*) &kos_bda_implementation.temp_value;
 		
 	}
 	

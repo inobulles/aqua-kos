@@ -30,6 +30,7 @@
 	static GLint shader_time_location;
 	static GLint shader_sampler_location;
 	static GLint shader_has_texture_location;
+	static GLint shader_mvp_matrix_location;
 	
 	int glGetUniformLocation();
 	
@@ -39,6 +40,7 @@
 		shader_time_location        = glGetUniformLocation(*program, "time");
 		shader_sampler_location     = glGetUniformLocation(*program, "sampler_texture");
 		shader_has_texture_location = glGetUniformLocation(*program, "has_texture");
+		shader_mvp_matrix_location  = glGetUniformLocation(*program, "mvp_matrix");
 		
 		switch (kos_best_gl_version_major) {
 			case 1: break;

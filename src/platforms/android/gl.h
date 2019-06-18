@@ -145,28 +145,120 @@ GLuint create_program(const char* vertex_code, const char* fragment_code) {
 
 }
 
-GLfloat projection_matrix[16];
+// thx http://www.manpagez.com/man/3/gl*
 
-void ortho(float left, float right, float top, float bottom, float near, float far) {
-	projection_matrix[0]  =  2.0f / (right - left);
-	projection_matrix[5]  =  2.0f / (top - bottom);
-	projection_matrix[10] = -2.0f / (far - near);
-	projection_matrix[15] =  1.0f;
+GLfloat model_view_matrix[16] = {0.999982, 0.000000, 0.000000, 0.000000, 0.000000, -1.000000, 0.000001, 0.000000, 0.000000, -0.000001, -1.000000, 0.000000, 0.000000, 32.000000, -0.000020, 1.000000};
+GLfloat projection_matrix[16] = {0.622719, 0.000000, 0.000000, 0.000000, 0.000000, 0.830289, 0.000000, 0.000000, 0.000000, 0.000000, -1.000400, -1.000000, 0.000000, 0.000000, -0.200040, 0.000000};
 
-	projection_matrix[12] = -((right + left) / (right - left));
-	projection_matrix[13] = -((top + bottom) / (top - bottom));
-	projection_matrix[14] = -((far + near)   / (far - near));
+#define MATRIX_BYTES (sizeof(GLfloat) * 4 * 4)
 
-	projection_matrix[1]  = 0.0f;
-	projection_matrix[2]  = 0.0f;
-	projection_matrix[3]  = 0.0f;
-	projection_matrix[4]  = 0.0f;
-	projection_matrix[6]  = 0.0f;
-	projection_matrix[7]  = 0.0f;
-	projection_matrix[8]  = 0.0f;
-	projection_matrix[9]  = 0.0f;
-	projection_matrix[11] = 0.0f;
+#define GL_MODELVIEW  0
+#define GL_PROJECTION 1
 
+int matrix_mode = GL_MODELVIEW;
+
+void glLoadIdentity(void) {
+	GLfloat* active_matrix = matrix_mode == GL_MODELVIEW ? (GLfloat*) model_view_matrix : (GLfloat*) projection_matrix;
+	memset(active_matrix, 0, MATRIX_BYTES);
+	
+	active_matrix[0]  = 1.0f;
+	active_matrix[5]  = 1.0f;
+	active_matrix[10] = 1.0f;
+	active_matrix[15] = 1.0f;
+	
+}
+
+static inline void multiply_matrix_to(GLfloat* destination, GLfloat* a, GLfloat* b) {
+	float temp[16];
+	for (int i = 0; i < 4; i++) {
+		float* ai = a    + i * 4;
+		float* ti = temp + i * 4;
+		
+		for (int j = 0; j < 4; j++) {
+			float tij = 0.0f;
+			
+			for (int k = 0; k < 4; k++) {
+				tij += ai[k] * b[k * 4 + j];
+				
+			}
+			
+			ti[j] = tij;
+			
+		}
+		
+	}
+	
+	memcpy(destination, temp, MATRIX_BYTES);
+	
+}
+
+void glTranslatef(float x, float y, float z) {
+	GLfloat* active_matrix = matrix_mode == GL_MODELVIEW ? (GLfloat*) model_view_matrix : (GLfloat*) projection_matrix;
+	
+	active_matrix[12] += (active_matrix[0] * x + active_matrix[4] * y + active_matrix[8]  * z);
+	active_matrix[13] += (active_matrix[1] * x + active_matrix[5] * y + active_matrix[9]  * z);
+	active_matrix[14] += (active_matrix[2] * x + active_matrix[6] * y + active_matrix[10] * z);
+	active_matrix[15] += (active_matrix[3] * x + active_matrix[7] * y + active_matrix[11] * z);
+	
+}
+
+void glRotatef(float angle, float x, float y, float z) {
+	double length = sqrt(x * x + y * y + z * z);
+	
+	x /= -length;
+	y /=  length;
+	z /=  length;
+	
+	float c = cos(angle);
+	float s = sin(angle);
+	
+	GLfloat* active_matrix = matrix_mode == GL_MODELVIEW ? (GLfloat*) model_view_matrix : (GLfloat*) projection_matrix;
+	GLfloat transformation_matrix[16] = {x * x * (1 - c) + c, x * y * (1 - c) - z * s, x * z * (1 - c) + y * s, 0, y * x * (1 - c) + z * s, y * y * (1 - c) + c, y * z * (1 - c) - x * s, 0, x * z * (1 - c) - y * s, y * z * (1 - c) + x * s, z * z * (1 - c) + c, 0, 0, 0, 0, 1};
+	multiply_matrix_to(active_matrix, transformation_matrix, active_matrix);
+
+}
+
+void glMatrixMode(GLint mode) {
+	matrix_mode = mode;
+	
+}
+
+void glOrtho(float left, float right, float top, float bottom, float near, float far) {
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
+	float tz = -(far + near) / (far - near);
+	
+	GLfloat* active_matrix = matrix_mode == GL_MODELVIEW ? (GLfloat*) model_view_matrix : (GLfloat*) projection_matrix;
+	GLfloat transformation_matrix[16] = {2.0f / (right - left), 0, 0, tx, 0, 2.0f / (top - bottom), 0, ty, 0, 0, -2.0f / (far - near), tz, 0, 0, 0, 1};
+	multiply_matrix_to(active_matrix, transformation_matrix, active_matrix);
+	
+}
+
+void glFrustum(float left, float right, float top, float bottom, float near, float far) {
+	/*left = (float) -0.160586;
+	right = (float) 0.160586;
+	
+	GLfloat* active_matrix = matrix_mode == GL_MODELVIEW ? (GLfloat*) model_view_matrix : (GLfloat*) projection_matrix;
+	
+	GLfloat identity[] = {1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000};
+	memcpy(active_matrix, identity, MATRIX_BYTES);
+	
+	GLfloat transformation_matrix[16] = {(2.0f * near) / (right - left), 0, (right + left) / (right - left), 0, 0, (2.0f * near) / (top - bottom), (top + bottom) / (top - bottom), 0, 0, 0, -(far + near) / (far - near), -(2.0f * far * near) / (far - near), 0, 0, -1, 0};
+	//multiply_matrix_to(active_matrix, transformation_matrix, active_matrix);
+	memcpy(active_matrix, transformation_matrix, MATRIX_BYTES);
+	
+	ALOGA("ACTIVE %d: %f %f %f %f %f %f\n", matrix_mode == GL_MODELVIEW, left, right, top, bottom, near, far);
+	for (int i = 0; i < 16; i++) {
+		ALOGA("%f\n", active_matrix[i]); // (2 * 0.1) / (0.06022 - -0.06022) =
+		
+	}*/
+	
+	GLfloat _model_view_matrix[16] = {0.999982, 0.000000, 0.000000, 0.000000, 0.000000, -1.000000, 0.000001, 0.000000, 0.000000, -0.000001, -1.000000, 0.000000, 0.000000, 32.000000, -0.000020, 1.000000};
+	GLfloat _projection_matrix[16] = {0.622719, 0.000000, 0.000000, 0.000000, 0.000000, 0.830289, 0.000000, 0.000000, 0.000000, 0.000000, -1.000400, -1.000000, 0.000000, 0.000000, -0.200040, 0.000000};
+	
+	GLfloat* active_matrix = matrix_mode == GL_MODELVIEW ? (GLfloat*) model_view_matrix : (GLfloat*) projection_matrix;
+	memcpy(active_matrix, matrix_mode == GL_MODELVIEW ? (GLfloat*) _model_view_matrix : (GLfloat*) _projection_matrix, MATRIX_BYTES);
+	
 }
 
 #endif

@@ -3,7 +3,7 @@
 	#define __AQUA__KOS_DEVICES_TEXTURE_H
 	
 	#include "../external/gl/gl_common/texture.h"
-	
+
 	texture_t create_texture_from_screenshot(void) {
 		#if KOS_USES_JNI
 			return (texture_t) CALLBACK_INT(java_create_texture_from_screenshot, video_width(), video_height(), TEXTURE_WRAP_TYPE, SHARP_TEXTURES);
@@ -47,8 +47,8 @@
 		if      (command[0] == 'c') { kos_bda_implementation.temp_value = texture_create(command[1], command[2], command[3], command[4]); *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
 		else if (command[0] == 'r') texture_remove(command[1]);
 		
-		else if (strcmp (data, "screenshot") == 0) { kos_bda_implementation.temp_value = create_texture_from_screenshot();                       *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
-		else if (strncmp(data, "sharp ", 6)  == 0) SHARP_TEXTURES = atoi(data + 6);
+		else if (strcmp (data, "screenshot") == 0) { kos_bda_implementation.temp_value = create_texture_from_screenshot(); *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (strncmp(data, "sharp ", 6)  == 0) SHARP_TEXTURES = (unsigned long long) atoi(data + 6);
 		else KOS_DEVICE_COMMAND_WARNING("texture")
 		
 	}

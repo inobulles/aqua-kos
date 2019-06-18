@@ -61,6 +61,12 @@ static int load_rom(const char* path, char** rom, unsigned long long* bytes) {
 	
 }
 
+void main_free(void) {
+	mfree(de_program, sizeof(program_t));
+	free_all_machines();
+	
+}
+
 int main(int argc, char** argv) {
 	first_argv = argv[0];
 	
@@ -137,10 +143,10 @@ int main(int argc, char** argv) {
 	
 		printf("Quitting KOS ...\n");
 		kos_quit(&kos);
+	
+		main_free();
 	#endif
 	
-	mfree(de_program, sizeof(program_t));
-	free_all_machines();
 	return error_code;
 	
 }

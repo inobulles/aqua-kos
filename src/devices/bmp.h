@@ -52,6 +52,7 @@
 		unsigned long long components = info_header.bpp >> 3;
 		unsigned long long pitch = info_header.width * components;
 		
+		/*
 		for (unsigned long long i = 0; i < info_header.image_bytes; i += components) {
 			unsigned long long flipped_i = (info_header.height - (i / (info_header.width * components)) - 1) * pitch + ((i / components) % info_header.width) * components;
 			
@@ -68,9 +69,19 @@
 				
 			}
 			
+		}*/
+		
+		for (unsigned long long i = 0; i < info_header.height; i++) {
+			memcpy(final_data + i * pitch, data8 + (info_header.height - i) * pitch, pitch);
+			
 		}
 		
-		kos_bda_implementation.temp_value_field[0] = texture_create((unsigned long long) final_data, info_header.bpp, info_header.width, info_header.height);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_GREEN);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_ALPHA);
+		
+		kos_bda_implementation.temp_value_field[0] = texture_create((unsigned long long) final_data, info_header.bpp, (unsigned long long) info_header.width, (unsigned long long) info_header.height);
 		*result = (unsigned long long*) kos_bda_implementation.temp_value_field;
 		free(final_data);
 		

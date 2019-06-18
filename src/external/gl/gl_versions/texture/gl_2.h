@@ -37,7 +37,7 @@
 		}
 		
 		GLuint texture_id;
-		glGenTextures(1, (GLuint*) &texture_id);
+		glGenTextures(1, &texture_id);
 		
 		glBindTexture(GL_TEXTURE_2D, (GLuint) texture_id);
 		glTexImage2D (GL_TEXTURE_2D, 0, alpha ? GL_RGB8 : GL_RGBA8, (GLuint) width, (GLuint) height, 0, alpha ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, data);

@@ -26,6 +26,7 @@
 	#define DEVICE_SOCKET          21
 	#define DEVICE_PREDEFINED      22
 	#define DEVICE_BMP             23
+	#define DEVICE_KTX             24
 	
 	// compute devices
 	
@@ -62,6 +63,7 @@
 		else if (strcmp(device, "predefined") == 0) return DEVICE_PREDEFINED;
 		else if (strcmp(device, "bmp")        == 0) return DEVICE_BMP;
 		else if (strcmp(device, "joystick")   == 0) return DEVICE_JOYSTICK;
+			else if (strcmp(device, "ktx") == 0) return DEVICE_KTX;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -69,7 +71,7 @@
 			else if (strcmp(device, "keyboard") == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
 		#endif
 		#if KOS_USES_OPENGL_DESKTOP
-			else if (strcmp(device, "dds") == 0) return DEVICE_DDS;
+			else if (strcmp(device, "dds") == 0) return DEVICE_DDS; /// TODO Add ETC compression for android
 		#endif
 		
 		// compute
@@ -122,8 +124,8 @@
 	#include "../devices/fs.h"
 	#include "../devices/fbo.h"
 	#include "../devices/shader.h"
-	#include "../devices/gl_batch.h"
 	#include "../devices/surface.h"
+	#include "../devices/gl_batch.h"
 	#include "../devices/gl.h"
 	#include "../devices/texture.h"
 	#include "../devices/wm.h"
@@ -133,7 +135,8 @@
 	#include "../devices/socket.h"
 	#include "../devices/bmp.h"
 	#include "../devices/predefined.h"
-	
+	#include "../devices/ktx.h"
+
 	#if KOS_USES_OPENGL_DESKTOP
 		#include "../devices/dds.h"
 	#endif
@@ -150,6 +153,8 @@
 	unsigned long long* send_device(unsigned long long device, unsigned long long __data) {
 		const         char* data   =         (const char*) __data;
 		unsigned long long* result = (unsigned long long*) 0;
+		
+		kos_bda_implementation.temp_value = 0;
 		
 		switch (device) {
 			case DEVICE_CLOCK:                        clock_device_handle(&result, data); break;
@@ -171,6 +176,7 @@
 			case DEVICE_PREDEFINED:              predefined_device_handle(&result, data); break;
 			case DEVICE_BMP:                            bmp_device_handle(&result, data); break;
 			case DEVICE_SOCKET:                      socket_device_handle(&result, data); break;
+			case DEVICE_KTX:                            ktx_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;

@@ -14,7 +14,7 @@
 		
 		if (log_length > 0) {
 			char* error_message = (char*) malloc(log_length + 1);
-			glGetShaderInfoLog(shader, log_length, NULL, (GLchar*) error_message);
+			glGetShaderInfoLog(shader, log_length, NULL, error_message);
 			
 			printf("ERROR Failed to compile shader (%s)\n", error_message);
 			
@@ -32,7 +32,7 @@
 		GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 		GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 		
-		if (gl2_create_shader(vertex_shader, vertex_code)) return 1;
+		if (gl2_create_shader(vertex_shader,     vertex_code)) return 1;
 		if (gl2_create_shader(fragment_shader, fragment_code)) return 1;
 		
 		*program = glCreateProgram();
@@ -49,7 +49,7 @@
 		glGetProgramiv(*program, GL_INFO_LOG_LENGTH, &log_length);
 		
 		if (log_length > 0) {
-			char* error_message = (char*) malloc(log_length + 1);
+			char* error_message = (char*) malloc((unsigned) (log_length + 1));
 			glGetProgramInfoLog(*program, log_length, NULL, error_message);
 			
 			printf("ERROR Failed to link program (%s)\n", error_message);

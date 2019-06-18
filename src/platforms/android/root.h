@@ -165,6 +165,8 @@ static int loop(void) {
 	
 	if (program_run_loop_phase         (de_program)) {
 		ALOGV("DE return code is %d\n", de_program->error_code);
+		mfree(de_program, sizeof(program_t));
+		free_all_machines();
 		return rom_free_last() ?        de_program->error_code : 0;
 		
 	} else {
