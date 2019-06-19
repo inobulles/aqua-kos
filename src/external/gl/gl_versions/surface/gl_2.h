@@ -2,9 +2,12 @@
 #ifndef __AQUA__SDL2_SRC_KOS_GL_VERSIONS_SURFACE_GL_2_H
 	#define __AQUA__SDL2_SRC_KOS_GL_VERSIONS_SURFACE_GL_2_H
 	
+	#if KOS_USES_JNI
+		#include "../../../../platforms/android/gl.h"
+	#endif
+	
 	#include "../../gl_common/shaders.h"
-#include "../../../../platforms/android/gl.h"
-#include <time.h>
+	#include <time.h>
 	
 	int glUniform1i();
 	int glUniform1f();
@@ -12,7 +15,7 @@
 	#if KOS_USES_JNI
 		extern ESMatrix projection_matrix;
 		extern ESMatrix model_view_matrix;
-
+		
 		static inline void vertex_attribute_pointer(GLuint index, int vector_size, void* pointer) {
 			glVertexAttribPointer(index, vector_size, GL_FLOAT, GL_FALSE, vector_size * sizeof(GLfloat), pointer);
 			
