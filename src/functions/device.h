@@ -63,7 +63,7 @@
 		else if (strcmp(device, "predefined") == 0) return DEVICE_PREDEFINED;
 		else if (strcmp(device, "bmp")        == 0) return DEVICE_BMP;
 		else if (strcmp(device, "joystick")   == 0) return DEVICE_JOYSTICK;
-			else if (strcmp(device, "ktx") == 0) return DEVICE_KTX;
+		else if (strcmp(device, "ktx")        == 0) return DEVICE_KTX;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -151,10 +151,10 @@
 	#endif
 	
 	unsigned long long* send_device(unsigned long long device, unsigned long long __data) {
-		const         char* data   =         (const char*) __data;
-		unsigned long long* result = (unsigned long long*) 0;
+		const char* data = (const char*) __data;
 		
 		kos_bda_implementation.temp_value = 0;
+		unsigned long long* result = &kos_bda_implementation.temp_value;
 		
 		switch (device) {
 			case DEVICE_CLOCK:                        clock_device_handle(&result, data); break;
@@ -177,6 +177,7 @@
 			case DEVICE_BMP:                            bmp_device_handle(&result, data); break;
 			case DEVICE_SOCKET:                      socket_device_handle(&result, data); break;
 			case DEVICE_KTX:                            ktx_device_handle(&result, data); break;
+			case DEVICE_MOUSE:                        mouse_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
