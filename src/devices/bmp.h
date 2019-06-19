@@ -52,25 +52,6 @@
 		unsigned long long components = info_header.bpp >> 3;
 		unsigned long long pitch = info_header.width * components;
 		
-		/*
-		for (unsigned long long i = 0; i < info_header.image_bytes; i += components) {
-			unsigned long long flipped_i = (info_header.height - (i / (info_header.width * components)) - 1) * pitch + ((i / components) % info_header.width) * components;
-			
-			if (info_header.bpp == 32) { // has alpha
-				final_data[flipped_i]     = data8[i + 3];
-				final_data[flipped_i + 1] = data8[i + 2];
-				final_data[flipped_i + 2] = data8[i + 1];
-				final_data[flipped_i + 3] = data8[i];
-				
-			} else {
-				final_data[flipped_i]     = data8[i + 2];
-				final_data[flipped_i + 1] = data8[i + 1];
-				final_data[flipped_i + 2] = data8[i];
-				
-			}
-			
-		}*/
-		
 		for (unsigned long long i = 0; i < info_header.height; i++) {
 			memcpy(final_data + i * pitch, data8 + (info_header.height - i) * pitch, pitch);
 			

@@ -43,7 +43,9 @@ esMatrixLoadIdentity(ESMatrix *result);
 void
 esRotate(ESMatrix *result, GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 {
-	angle = 180.0f - angle;
+	x = 0.0f - x;
+	y = 0.0f - y;
+	z = 0.0f - z;
 	GLfloat sinAngle, cosAngle;
 	GLfloat mag = sqrtf(x * x + y * y + z * z);
 	

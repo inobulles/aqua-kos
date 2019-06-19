@@ -70,6 +70,11 @@ static callback_method_t java_joystick_count;
 static callback_method_t java_joystick_button;
 static callback_method_t java_joystick_axis;
 
+static callback_method_t java_mouse_count;
+static callback_method_t java_mouse_button;
+static callback_method_t java_mouse_x;
+static callback_method_t java_mouse_y;
+
 static void init_callback_function(callback_method_t* __this, const char* name, const char* params) {
 	__this->found = false;
 	__this->method = callback_env->GetStaticMethodID(callback_class, name, params);

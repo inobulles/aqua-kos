@@ -27,12 +27,12 @@
 	static void math_device_handle(unsigned long long** result, const char* data) {
 		const math_device_generic_t* device = (const math_device_generic_t*) data;
 		
-		if      (strcmp(data, "sqrt"   ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (sqrt ((double) device->x / FLOAT_ONE)                                 * FLOAT_ONE);
-		else if (strcmp(data, "sin"    ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (sin  ((double) device->x / FLOAT_ONE)                                 * FLOAT_ONE);
-		else if (strcmp(data, "atan2"  ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (atan2((double) device->x / FLOAT_ONE, (double) device->y / FLOAT_ONE) * FLOAT_ONE);
+		if      (strcmp(data, "sqrt"   ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (signed long long) (sqrt ((double) device->x / FLOAT_ONE)                                 * FLOAT_ONE);
+		else if (strcmp(data, "sin"    ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (signed long long) (sin  ((double) device->x / FLOAT_ONE)                                 * FLOAT_ONE);
+		else if (strcmp(data, "atan2"  ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (signed long long) (atan2((double) device->x / FLOAT_ONE, (double) device->y / FLOAT_ONE) * FLOAT_ONE);
 		else if (strcmp(data, "sigmoid") == 0) {
 			double exp = exponential((double) ((int64_t) device->x) / FLOAT_ONE);
-			kos_bda_implementation.temp_value = (unsigned long long) ((((exp / (exp + 1.0f)) - 0.5f) * 2.0f) * FLOAT_ONE);
+			kos_bda_implementation.temp_value = (unsigned long long) (signed long long) ((((exp / (exp + 1.0f)) - 0.5f) * 2.0f) * FLOAT_ONE);
 			
 		} else {
 			KOS_DEVICE_COMMAND_WARNING("math")

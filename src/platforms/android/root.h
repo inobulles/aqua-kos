@@ -111,7 +111,12 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject
 	init_callback_function(&java_package_open,   "package_open",   "(Ljava/lang/String;)V");
 
 	init_callback_function(&java_open_text_input, "open_text_input", CALLBACK_NO_PARAMS);
-
+	
+	init_callback_function(&java_mouse_count,  "mouse_count",  "()I");
+	init_callback_function(&java_mouse_button, "mouse_button", "(II)I");
+	init_callback_function(&java_mouse_x,      "mouse_x",      "(I)I");
+	init_callback_function(&java_mouse_y,      "mouse_y",      "(I)I");
+	
 	init_callback_function(&java_joystick_count,  "joystick_count",  "()I");
 	init_callback_function(&java_joystick_name,   "joystick_name",   "(I)Ljava/lang/String;");
 	init_callback_function(&java_joystick_button, "joystick_button", "(II)Z");
