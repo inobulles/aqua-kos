@@ -76,14 +76,11 @@
 			
 		}
 		
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_GREEN);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_ALPHA);
-		
+		swizzle_abgr = 1;
 		kos_bda_implementation.temp_value_field[0] = texture_create((unsigned long long) final_data, info_header.bpp, (unsigned long long) info_header.width, (unsigned long long) info_header.height);
 		*result = (unsigned long long*) kos_bda_implementation.temp_value_field;
 		free(final_data);
+		swizzle_abgr = 0;
 		
 	}
 	

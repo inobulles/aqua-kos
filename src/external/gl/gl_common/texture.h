@@ -4,7 +4,8 @@
 	
 	#define TEXTURE_WRAP_TYPE GL_MIRRORED_REPEAT // pushes colour to absolute edge, GL_CLAMP_TO_EDGE to wrap colour around
 	static void gl_texture_parameters(void);
-	
+	static unsigned char swizzle_abgr = 0;
+
 	typedef unsigned long long texture_t;
 	
 	#include "../gl_versions/texture/gl_1.h"

@@ -258,7 +258,7 @@
 				
 				glEnable(GL_TEXTURE_2D);
 				glEnable(GL_DEPTH_TEST);
-
+				
 				#if !KOS_USES_SHADER_PIPELINE
 					glEnable(GL_ALPHA_TEST);
 					glAlphaFunc(GL_GREATER, 0.0f);

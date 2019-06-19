@@ -3,14 +3,15 @@
 	#define __AQUA__SDL2_SRC_KOS_GL_VERSIONS_SURFACE_GL_2_H
 	
 	#include "../../gl_common/shaders.h"
-	#include <time.h>
+#include "../../../../platforms/android/gl.h"
+#include <time.h>
 	
 	int glUniform1i();
 	int glUniform1f();
 
 	#if KOS_USES_JNI
-		extern GLfloat projection_matrix[16];
-		extern GLfloat model_view_matrix[16];
+		extern ESMatrix projection_matrix;
+		extern ESMatrix model_view_matrix;
 
 		static inline void vertex_attribute_pointer(GLuint index, int vector_size, void* pointer) {
 			glVertexAttribPointer(index, vector_size, GL_FLOAT, GL_FALSE, vector_size * sizeof(GLfloat), pointer);
@@ -32,9 +33,9 @@
 	int gl2_surface_draw(surface_t* __this) {
 		if (shader_has_set_locations) {
 			#if KOS_USES_JNI
-				GLfloat mvp_matrix[16];
-				multiply_matrix_to(mvp_matrix, model_view_matrix, projection_matrix);
-				glUniformMatrix4fv(shader_mvp_matrix_location, 1, GL_FALSE, mvp_matrix);
+				ESMatrix mvp_matrix;
+				esMatrixMultiply(&mvp_matrix, &model_view_matrix, &projection_matrix);
+				glUniformMatrix4fv(shader_mvp_matrix_location, 1, GL_FALSE, &mvp_matrix.m[0][0]);
 			#endif
 			
 			glUniform1i(shader_time_location, (GLint) clock());

@@ -128,9 +128,9 @@
 					printf("WARNING Shader has not yet set locations\n");
 					
 				} else {
-					GLfloat mvp_matrix[16];
-					multiply_matrix_to(mvp_matrix, model_view_matrix, projection_matrix);
-					glUniformMatrix4fv(shader_mvp_matrix_location, 1, GL_FALSE, mvp_matrix);
+					ESMatrix mvp_matrix;
+					esMatrixMultiply(&mvp_matrix, &model_view_matrix, &projection_matrix);
+					glUniformMatrix4fv(shader_mvp_matrix_location, 1, GL_FALSE, &mvp_matrix.m[0][0]);
 					
 				}
 			
