@@ -9,7 +9,7 @@
 	#define DEVICE_MATH            4
 	#define DEVICE_CLOCK           5
 	#define DEVICE_ANDROID         6
-	#define DEVICE_FBO             7
+	#define DEVICE_FRAMEBUFFER     7
 	#define DEVICE_SHADER          8
 	#define DEVICE_REQUESTS        9
 	#define DEVICE_DISCORD         10
@@ -46,24 +46,24 @@
 	unsigned long long create_device(unsigned long long __device) {
 		const char* device = (const char*) __device;
 		
-		if      (strcmp(device, "texture")    == 0) return DEVICE_TEXTURE;
-		else if (strcmp(device, "wm")         == 0) return DEVICE_WM;
-		else if (strcmp(device, "math")       == 0) return DEVICE_MATH;
-		else if (strcmp(device, "clock")      == 0) return DEVICE_CLOCK;
-		else if (strcmp(device, "fbo")        == 0) return DEVICE_FBO;
-		else if (strcmp(device, "shader")     == 0) return DEVICE_SHADER;
-		else if (strcmp(device, "gl")         == 0) return DEVICE_GL;
-		else if (strcmp(device, "gl batch")   == 0) return DEVICE_GL_BATCH;
-		else if (strcmp(device, "fs")         == 0) return DEVICE_FS;
-		else if (strcmp(device, "debug")      == 0) return DEVICE_DEBUG;
-		else if (strcmp(device, "surface")    == 0) return DEVICE_SURFACE;
-		else if (strcmp(device, "font")       == 0) return DEVICE_FONT;
-		else if (strcmp(device, "mouse")      == 0) return DEVICE_MOUSE;
-		else if (strcmp(device, "socket")     == 0) return DEVICE_SOCKET;
-		else if (strcmp(device, "predefined") == 0) return DEVICE_PREDEFINED;
-		else if (strcmp(device, "bmp")        == 0) return DEVICE_BMP;
-		else if (strcmp(device, "joystick")   == 0) return DEVICE_JOYSTICK;
-		else if (strcmp(device, "ktx")        == 0) return DEVICE_KTX;
+		if      (strcmp(device, "texture")     == 0) return DEVICE_TEXTURE;
+		else if (strcmp(device, "wm")          == 0) return DEVICE_WM;
+		else if (strcmp(device, "math")        == 0) return DEVICE_MATH;
+		else if (strcmp(device, "clock")       == 0) return DEVICE_CLOCK;
+		else if (strcmp(device, "framebuffer") == 0) return DEVICE_FRAMEBUFFER;
+		else if (strcmp(device, "shader")      == 0) return DEVICE_SHADER;
+		else if (strcmp(device, "gl")          == 0) return DEVICE_GL;
+		else if (strcmp(device, "gl batch")    == 0) return DEVICE_GL_BATCH;
+		else if (strcmp(device, "fs")          == 0) return DEVICE_FS;
+		else if (strcmp(device, "debug")       == 0) return DEVICE_DEBUG;
+		else if (strcmp(device, "surface")     == 0) return DEVICE_SURFACE;
+		else if (strcmp(device, "font")        == 0) return DEVICE_FONT;
+		else if (strcmp(device, "mouse")       == 0) return DEVICE_MOUSE;
+		else if (strcmp(device, "socket")      == 0) return DEVICE_SOCKET;
+		else if (strcmp(device, "predefined")  == 0) return DEVICE_PREDEFINED;
+		else if (strcmp(device, "bmp")         == 0) return DEVICE_BMP;
+		else if (strcmp(device, "joystick")    == 0) return DEVICE_JOYSTICK;
+		else if (strcmp(device, "ktx")         == 0) return DEVICE_KTX;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -122,7 +122,7 @@
 	#include "../devices/joystick.h"
 	#include "../devices/compute/cuda.h"
 	#include "../devices/fs.h"
-	#include "../devices/fbo.h"
+	#include "../devices/framebuffer.h"
 	#include "../devices/shader.h"
 	#include "../devices/surface.h"
 	#include "../devices/gl_batch.h"
@@ -164,7 +164,7 @@
 			case DEVICE_COMPUTE_CUDA_COMPILER: cuda_compile_device_handle(&result, data); break;
 			case DEVICE_COMPUTE_CUDA_EXECUTOR: cuda_execute_device_handle(&result, data); break;
 			case DEVICE_FS:                              fs_device_handle(&result, data); break;
-			case DEVICE_FBO:                            fbo_device_handle(&result, data); break;
+			case DEVICE_FRAMEBUFFER:            framebuffer_device_handle(&result, data); break;
 			case DEVICE_SHADER:                      shader_device_handle(&result, data); break;
 			case DEVICE_GL_BATCH:                  gl_batch_device_handle(&result, data); break;
 			case DEVICE_GL:                              gl_device_handle(&result, data); break;

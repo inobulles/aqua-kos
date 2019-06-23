@@ -279,7 +279,6 @@
 				#endif
 
 				glViewport(0, 0, __this->width, __this->height);
-				check_gl_error(__func__);
 				
 				#if KOS_3D_VISUALIZATION && !KOS_USES_SHADER_PIPELINE
 					float fov   = tan(65.0f / 4);
