@@ -35,7 +35,6 @@ bool check_gl_error(const char* function_name) {
 		}
 
 		ALOGE("WARNING GL error (%s) after `%s()` (error = 0x%04x)\n", error_string, function_name, error);
-
 		return true;
 
 	}

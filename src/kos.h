@@ -251,12 +251,13 @@
 			#endif
 			
 			#if KOS_USES_OPENGL
-				glEnable(GL_ALPHA);
-			
+				#if !KOS_USES_JNI
+					glEnable(GL_ALPHA);
+					glEnable(GL_TEXTURE_2D);
+				#endif
+				
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				
-				glEnable(GL_TEXTURE_2D);
 				glEnable(GL_DEPTH_TEST);
 				
 				#if !KOS_USES_SHADER_PIPELINE
@@ -276,6 +277,7 @@
 				#endif
 
 				glViewport(0, 0, __this->width, __this->height);
+				check_gl_error(__func__);
 				
 				#if KOS_3D_VISUALIZATION && !KOS_USES_SHADER_PIPELINE
 					float fov   = tan(65.0f / 4);
@@ -300,12 +302,8 @@
 					glCullFace (GL_BACK);
 					glFrontFace(GL_CCW);
 
-					#if !KOS_USES_SHADER_PIPELINE
-						glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 500.0f);
-						glTranslatef(0.0f, 0.0f, -100.0f);
-					#else
-						//glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 500.0f);
-					#endif
+					glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 500.0f);
+					glTranslatef(0.0f, 0.0f, -100.0f);
 				#endif
 
 				#if !KOS_USES_SHADER_PIPELINE

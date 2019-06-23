@@ -74,6 +74,7 @@ static callback_method_t java_mouse_count;
 static callback_method_t java_mouse_button;
 static callback_method_t java_mouse_x;
 static callback_method_t java_mouse_y;
+static callback_method_t java_clear_mice;
 
 static void init_callback_function(callback_method_t* __this, const char* name, const char* params) {
 	__this->found = false;
