@@ -85,6 +85,7 @@
 	
 	unsigned long long socket_client(unsigned long long ____this, unsigned long long __host_ip, unsigned long long port) {
 		ip_address_t host_ip = (ip_address_t) __host_ip;
+		struct timeval timeout = {0, 16};
 		
 		socket_t* __this = (socket_t*) ____this;
 		__this->port = port;
@@ -106,6 +107,12 @@
 		if (inet_aton((const char*) host_ip, (struct in_addr*) &sock->address.sin_addr.s_addr) == 0) {
 			printf("WARNING Failed to convert host IP address\n");
 			goto error;
+			
+		}
+		
+		temp_error = setsockopt((int) sock->socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+		if (temp_error != 0) {
+			printf("WARNING Failed to set timeout (%d)\n", temp_error);
 			
 		}
 		
