@@ -30,6 +30,7 @@
 	#include <sys/socket.h>
 	#include <netinet/in.h>
 	#include <arpa/inet.h>
+	#include <pthread.h>
 	
 	ssize_t read(int fd, void *buf, size_t count); // from <unistd.h>
 	
@@ -40,6 +41,17 @@
 		struct sockaddr_in address;
 		signed long long   address_length;
 		
+		// parallel stuff
+		
+		unsigned char is_parallel;
+		pthread_t thread;
+		
+		char*              parallel_reception_buffer;
+		unsigned long long parallel_reception_buffer_bytes;
+		
+		char*              parallel_send_buffer;
+		unsigned long long parallel_send_buffer_bytes;
+		
 		char* buffer;
 		char __padding__[SOCKET_DEFAULT_BUFFER_SIZE];
 		
@@ -47,7 +59,7 @@
 	
 	static void socket_socket(unsigned long long ____this) {
 		socket_t* __this = (socket_t*) ____this;
-		__this->__internal_pointer =                   (__internal_socket_t*) malloc(sizeof(__internal_socket_t));
+		__this->__internal_pointer = (__internal_socket_t*) malloc(sizeof(__internal_socket_t));
 		
 		((__internal_socket_t*) __this->__internal_pointer)->buffer = (char*) malloc(SOCKET_DEFAULT_BUFFER_SIZE);
 		memset(((__internal_socket_t*) __this->__internal_pointer)->buffer, '\0',    SOCKET_DEFAULT_BUFFER_SIZE);
@@ -57,6 +69,7 @@
 	static int socket_actor(unsigned long long ____this, int type) {
 		socket_t* __this = (socket_t*) ____this;
 		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
+		sock->is_parallel = 0;
 		
 		__this->type = (unsigned long long) type;
 		sock->type   =                      type;
@@ -77,22 +90,40 @@
 	
 	void socket_close(unsigned long long ____this) {
 		socket_t* __this = (socket_t*) ____this;
+		((__internal_socket_t*) __this->__internal_pointer)->is_parallel = 0;
 		
 		free(__this->__internal_pointer                                  /* sizeof(__internal_socket_t) */);
 		free(((__internal_socket_t*) __this->__internal_pointer)->buffer /* SOCKET_DEFAULT_BUFFER_SIZE  */);
 		
 	}
-	
+
+	unsigned long long socket_timeout(unsigned long long ____this, unsigned long long seconds /* considered as aqua float */) {
+		socket_t* __this = (socket_t*) ____this;
+		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
+		
+		struct timeval tv = {(__kernel_time_t) (seconds / FLOAT_ONE), (__kernel_time_t) (seconds % FLOAT_ONE)};
+		
+		int temp_error = setsockopt((int) sock->socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+		if (temp_error) {
+			printf("WARNING Failed to set socket timeout (%d)\n", temp_error);
+			return 1;
+			
+		} else {
+			return 0;
+			
+		}
+		
+	}
+
 	unsigned long long socket_client(unsigned long long ____this, unsigned long long __host_ip, unsigned long long port) {
 		ip_address_t host_ip = (ip_address_t) __host_ip;
-		struct timeval timeout = {0, 16};
 		
 		socket_t* __this = (socket_t*) ____this;
 		__this->port = port;
 		
 		socket_socket((unsigned long long) __this);
 		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
-
+		
 		int temp_error;
 		if (socket_actor((unsigned long long) __this, SOCKET_CLIENT)) {
 			goto error;
@@ -108,15 +139,7 @@
 			printf("WARNING Failed to convert host IP address\n");
 			goto error;
 			
-		}
-		
-		temp_error = setsockopt((int) sock->socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-		if (temp_error != 0) {
-			printf("WARNING Failed to set timeout (%d)\n", temp_error);
-			
-		}
-		
-		temp_error = connect((int) sock->socket, (struct sockaddr*) &sock->address, sizeof(sock->address));
+		} temp_error = connect((int) sock->socket, (struct sockaddr*) &sock->address, sizeof(sock->address));
 		if (temp_error != 0) {
 			printf("WARNING Failed to connect (%d)\n", temp_error);
 			goto error;
@@ -124,7 +147,6 @@
 		}
 		
 		return 0;
-		
 		error: {
 			socket_close((unsigned long long) __this);
 			return 1;
@@ -148,10 +170,7 @@
 		if (socket_actor((unsigned long long) __this, SOCKET_SERVER)) {
 			goto error;
 			
-		}
-
-		temp_error = setsockopt((int) sock->socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option));
-		
+		} temp_error = setsockopt((int) sock->socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option));
 		if (temp_error) {
 			printf("WARNING Failed to set socket options (%d)\n", temp_error);
 			goto error;
@@ -167,16 +186,12 @@
 			printf("WARNING Failed to bind socket (%d)\n", temp_error);
 			goto error;
 			
-		}
-		
-		temp_error = listen((int) sock->socket, 3);
+		} temp_error = listen((int) sock->socket, 3);
 		if (temp_error < 0) {
 			printf("WARNING Socket failed to listen (%d)\n", temp_error);
 			goto error;
 			
-		}
-		
-		sock->socket = accept((int) sock->socket, (struct sockaddr*) &sock->address, (socklen_t*) &sock->address_length);
+		} sock->socket = accept((int) sock->socket, (struct sockaddr*) &sock->address, (socklen_t*) &sock->address_length);
 		if (sock->socket < 0) {
 			printf("WARNING Socket failed to accept (%lld)\n", sock->socket);
 			goto error;
@@ -184,7 +199,6 @@
 		}
 		
 		return 0;
-		
 		error: {
 			socket_close((unsigned long long) __this);
 			return 1;
@@ -197,7 +211,7 @@
 	unsigned long long socket_send(unsigned long long ____this, unsigned long long __data, unsigned long long bytes) {
 		const char* data = (const char*) __data;
 		socket_t* __this = (socket_t*) ____this;
-		return send((int) ((__internal_socket_t*) __this->__internal_pointer)->socket, data, bytes, MSG_NOSIGNAL) == -1 ? errno : 0;
+		return send((int) ((__internal_socket_t*) __this->__internal_pointer)->socket, data, bytes, MSG_NOSIGNAL) == -1 ? (unsigned long long) errno : 0;
 		
 	}
 	
@@ -206,18 +220,75 @@
 		__internal_socket_t* sock = (__internal_socket_t*) ((socket_t*) ____this)->__internal_pointer;
 		
 		memset(buffer, 0, bytes);
-		return read((int) sock->socket, buffer, bytes) == -1 ? errno : 0;
+		return read((int) sock->socket, buffer, bytes) == -1 ? (unsigned long long) errno : 0;
 		
 	}
 	
+	static void* socket_thread_loop(void* ____this) {
+		socket_t* __this = (socket_t*) ____this;
+		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
+		
+		while (sock->is_parallel) {
+			socket_send   ((unsigned long long) ____this, (unsigned long long) sock->parallel_send_buffer,      sock->parallel_send_buffer_bytes);
+			socket_receive((unsigned long long) ____this, (unsigned long long) sock->parallel_reception_buffer, sock->parallel_reception_buffer_bytes);
+			
+		}
+		
+		pthread_exit(NULL);
+		
+	}
+	
+	unsigned long long socket_pupdate(unsigned long long ____this, unsigned long long reception_buffer, unsigned long long reception_buffer_bytes, unsigned long long send_buffer, unsigned long long send_buffer_bytes) {
+		socket_t* __this = (socket_t*) ____this;
+		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
+	
+		sock->parallel_reception_buffer = (char*) reception_buffer;
+		sock->parallel_send_buffer      = (char*) send_buffer;
+		
+		sock->parallel_reception_buffer_bytes = reception_buffer_bytes;
+		sock->parallel_send_buffer_bytes      = send_buffer_bytes;
+		
+		return 0;
+		
+	}
+
+	unsigned long long socket_parallel(unsigned long long ____this, unsigned long long enable) {
+		socket_t* __this = (socket_t*) ____this;
+		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
+		
+		if (enable == 0) {
+			sock->is_parallel = 0;
+			return 0;
+			
+		} int temp_error = pthread_create(&sock->thread, NULL, socket_thread_loop, (void*) ____this);
+		if (temp_error) {
+			printf("WARNING Failed to create socket thread (%d)\n", temp_error);
+			return 1;
+			
+		}
+		
+		pthread_join(sock->thread, NULL);
+		sock->is_parallel = 1;
+		
+		sock->parallel_reception_buffer = (char*) 0;
+		sock->parallel_send_buffer      = (char*) 0;
+		
+		return 0;
+		
+	}
+
 	static void socket_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
 		
-		if      (command[0] == 's') kos_bda_implementation.temp_value = socket_send   (command[1], command[2], command[3]);
-		else if (command[0] == 'r') kos_bda_implementation.temp_value = socket_receive(command[1], command[2], command[3]);
+		if      (command[0] == 's') kos_bda_implementation.temp_value = socket_send    (command[1], command[2], command[3]);
+		else if (command[0] == 'r') kos_bda_implementation.temp_value = socket_receive (command[1], command[2], command[3]);
 		
-		else if (command[0] == 'v') kos_bda_implementation.temp_value = socket_server (command[1], command[2], command[3]);
-		else if (command[0] == 'l') kos_bda_implementation.temp_value = socket_client (command[1], command[2], command[3]);
+		else if (command[0] == 'v') kos_bda_implementation.temp_value = socket_server  (command[1], command[2], command[3]);
+		else if (command[0] == 'l') kos_bda_implementation.temp_value = socket_client  (command[1], command[2], command[3]);
+		
+		else if (command[0] == 'o') kos_bda_implementation.temp_value = socket_timeout (command[1], command[2]);
+		else if (command[0] == 'p') kos_bda_implementation.temp_value = socket_parallel(command[1], command[2]);
+		else if (command[0] == 'u') kos_bda_implementation.temp_value = socket_pupdate (command[1], command[2], command[3], command[4], command[5]);
 		
 		else if (command[0] == 'c') socket_close(command[1]);
 		

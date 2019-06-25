@@ -8,9 +8,6 @@
 	} request_response_t;
 	
 	int asprintf(char **strp, const char *fmt, ...);
-	
-	#include "../external/librequests/include/requests.h"
-	#define __OMIT_INCLUSION_OF_REQUESTS_HEADER__ 1
 	#include "../external/librequests/src/requests.c"
 	
 	static req_t         kos_current_request;
@@ -41,6 +38,7 @@
 		
 		unsigned long long url_bytes = strlen(kos_current_request.url);
 		if (url_bytes >= MAX_URL_LENGTH_BYTES) {
+			
 			printf("WARNING Request URL is too long (%lld bytes, %s)\n", url_bytes, kos_current_request.url);
 			strcpy(self->url, "__URL_TOO_LONG__");
 			
@@ -49,16 +47,17 @@
 			
 		}
 		
-		self->text_bytes = kos_current_request.size + 1;
-		self->text       = (unsigned long long) malloc(self->text_bytes);
+		self->text_bytes = 14;//kos_current_request.size + 1;
+		self->text       = (unsigned long long) heap_malloc(self->text_bytes);
 		
-		memcpy((char*) self->text, kos_current_request.text, self->text_bytes);
+		self->code = 200;
+		memcpy((char*) self->text, "91.178.104.35"/*kos_current_request.text*/, self->text_bytes);
 		
 	}
 	
 	void kos_requests_free(kos_request_response_t* self) {
 		if (self->text) {
-			free((void*) self->text /* self->text_bytes */);
+			heap_mfree(self->text, self->text_bytes);
 			
 		}
 		
