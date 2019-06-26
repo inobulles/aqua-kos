@@ -7,12 +7,14 @@
 		
 	} request_response_t;
 	
-	int asprintf(char **strp, const char *fmt, ...);
-	#include "../external/librequests/src/requests.c"
-	
-	static req_t         kos_current_request;
-	static CURL*         kos_curl;
-	static unsigned char kos_requests_init = 0;
+	#if !KOS_USES_JNI
+		int asprintf(char **strp, const char *fmt, ...);
+		#include "../external/librequests/src/requests.c"
+		
+		static req_t         kos_current_request;
+		static CURL*         kos_curl;
+		static unsigned char kos_requests_init = 0;
+	#endif
 	
 	typedef struct {
 		unsigned long long code;
@@ -26,31 +28,52 @@
 	} kos_request_response_t;
 	
 	void request_global_free(void) {
-		requests_close(&kos_current_request);
+		#if !KOS_USES_JNI
+			requests_close(&kos_current_request);
+		#endif
 		
 	}
 	
 	void kos_requests_get(kos_request_response_t* self, const char* url) {
-		kos_curl = requests_init(&kos_current_request);
+		#if !KOS_USES_JNI
+			kos_curl = requests_init(&kos_current_request);
+			requests_get(kos_curl, &kos_current_request, (char*) url);
+			self->code = (unsigned long long) kos_current_request.code;
+			unsigned long long url_bytes = strlen(kos_current_request.url);
+		#else
+			self->code = (unsigned long long) CALLBACK_INT(java_requests_get, callback_env->NewStringUTF(url));
+			unsigned long long url_bytes = strlen(url);
+		#endif
 		
-		requests_get(kos_curl, &kos_current_request, (char*) url);
-		self->code = (unsigned long long) kos_current_request.code;
 		
-		unsigned long long url_bytes = strlen(kos_current_request.url);
 		if (url_bytes >= MAX_URL_LENGTH_BYTES) {
-			
-			printf("WARNING Request URL is too long (%lld bytes, %s)\n", url_bytes, kos_current_request.url);
+			printf("WARNING Request URL is too long (%lld bytes, %s)\n", url_bytes, url);
 			strcpy(self->url, "__URL_TOO_LONG__");
 			
 		} else {
-			strcpy(self->url, kos_current_request.url);
+			#if !KOS_USES_JNI
+				strcpy(self->url, kos_current_request.url);
+			#else
+				strcpy(self->url, url);
+			#endif
 			
 		}
 		
-		self->text_bytes = kos_current_request.size + 1;
-		self->text       = (unsigned long long) heap_malloc(self->text_bytes);
+		#if !KOS_USES_JNI
+			self->text_bytes = kos_current_request.size + 1;
+		#else
+			self->text_bytes = (unsigned long long) CALLBACK(java_requests_length, callback_env->CallStaticLongMethod, 0) + 1;
+		#endif
 		
-		memcpy((char*) self->text, kos_current_request.text, self->text_bytes);
+		self->text = (unsigned long long) heap_malloc(self->text_bytes);
+		memset((void*) self->text, 0, self->text_bytes);
+		
+		#if !KOS_USES_JNI
+			memcpy((char*) self->text, kos_current_request.text, self->text_bytes);
+		#else
+			jbyteArray array = (jbyteArray) CALLBACK(java_requests_text, callback_env->CallStaticObjectMethod, 0);
+			if (array) callback_env->GetByteArrayRegion(array, 0, callback_env->GetArrayLength(array), (jbyte*) self->text);
+		#endif
 		
 	}
 	

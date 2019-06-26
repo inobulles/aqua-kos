@@ -76,6 +76,10 @@ static callback_method_t java_mouse_x;
 static callback_method_t java_mouse_y;
 static callback_method_t java_clear_mice;
 
+static callback_method_t java_requests_get;
+static callback_method_t java_requests_length;
+static callback_method_t java_requests_text;
+
 static void init_callback_function(callback_method_t* __this, const char* name, const char* params) {
 	__this->found = false;
 	__this->method = callback_env->GetStaticMethodID(callback_class, name, params);

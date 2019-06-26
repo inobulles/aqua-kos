@@ -123,6 +123,10 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject
 	init_callback_function(&java_joystick_button, "joystick_button", "(II)Z");
 	init_callback_function(&java_joystick_axis,   "joystick_axis",   "(II)F");
 	
+	init_callback_function(&java_requests_get,    "requests_get",    "(Ljava/lang/String;)I");
+	init_callback_function(&java_requests_length, "requests_length", "()J");
+	init_callback_function(&java_requests_text,   "requests_text",   "()[B");
+	
 	// asset manager stuff
 
 	asset_manager = AAssetManager_fromJava(env, java_asset_manager);
