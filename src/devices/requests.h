@@ -47,11 +47,10 @@
 			
 		}
 		
-		self->text_bytes = 14;//kos_current_request.size + 1;
+		self->text_bytes = kos_current_request.size + 1;
 		self->text       = (unsigned long long) heap_malloc(self->text_bytes);
 		
-		self->code = 200;
-		memcpy((char*) self->text, "91.178.104.35"/*kos_current_request.text*/, self->text_bytes);
+		memcpy((char*) self->text, kos_current_request.text, self->text_bytes);
 		
 	}
 	

@@ -45,10 +45,10 @@
 		
 		unsigned long long timeout;
 		unsigned char is_parallel;
+		unsigned long long parallel_delay;
 		unsigned char parallel_ready;
 		
 		pthread_t thread;
-		pthread_mutex_t lock;
 		
 		char*              parallel_reception_buffer;
 		unsigned long long parallel_reception_buffer_bytes;
@@ -97,7 +97,6 @@
 		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
 		
 		sock->is_parallel = 0;
-		pthread_mutex_destroy(&sock->lock);
 		
 		free(__this->__internal_pointer                                  /* sizeof(__internal_socket_t) */);
 		free(((__internal_socket_t*) __this->__internal_pointer)->buffer /* SOCKET_DEFAULT_BUFFER_SIZE  */);
@@ -237,6 +236,8 @@
 		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
 		
 		while (sock->is_parallel) {
+			usleep(sock->parallel_delay);
+			
 			if (sock->parallel_send_buffer && sock->parallel_reception_buffer) {
 				socket_send   ((unsigned long long) ____this, (unsigned long long) sock->parallel_send_buffer,      sock->parallel_send_buffer_bytes);
 				socket_receive((unsigned long long) ____this, (unsigned long long) sock->parallel_reception_buffer, sock->parallel_reception_buffer_bytes);
@@ -258,15 +259,11 @@
 		socket_t* __this = (socket_t*) ____this;
 		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
 		
-		//~ pthread_mutex_lock(&sock->lock);
-		
 		sock->parallel_reception_buffer_bytes = reception_buffer_bytes;
 		sock->parallel_send_buffer_bytes      = send_buffer_bytes;
 		
 		sock->parallel_reception_buffer = (char*) reception_buffer;
 		sock->parallel_send_buffer      = (char*) send_buffer;
-		
-		//~ pthread_mutex_unlock(&sock->lock);
 		
 		unsigned long long temp = sock->parallel_ready;
 		sock->parallel_ready = 0;
@@ -274,7 +271,7 @@
 		
 	}
 
-	unsigned long long socket_parallel(unsigned long long ____this, unsigned long long enable) {
+	unsigned long long socket_parallel(unsigned long long ____this, unsigned long long enable, unsigned long long delay) {
 		socket_t* __this = (socket_t*) ____this;
 		__internal_socket_t* sock = (__internal_socket_t*) __this->__internal_pointer;
 		
@@ -284,19 +281,13 @@
 			
 		}
 		
-		int temp_error = pthread_mutex_init(&sock->lock, NULL);
-		if (temp_error) {
-			printf("WARNING Failed to initialize mutex (%d)\n", temp_error);
-			return 1;
-			
-		}
-		
 		sock->is_parallel = 1;
+		sock->parallel_delay = delay;
 		
 		sock->parallel_reception_buffer = (char*) 0;
 		sock->parallel_send_buffer      = (char*) 0;
 		
-		temp_error = pthread_create(&sock->thread, NULL, socket_thread_loop, (void*) ____this);
+		int temp_error = pthread_create(&sock->thread, NULL, socket_thread_loop, (void*) ____this);
 		if (temp_error) {
 			printf("WARNING Failed to create socket thread (%d)\n", temp_error);
 			return 1;
@@ -317,7 +308,7 @@
 		else if (command[0] == 'l') kos_bda_implementation.temp_value = socket_client  (command[1], command[2], command[3]);
 		
 		else if (command[0] == 'o') kos_bda_implementation.temp_value = socket_timeout (command[1], command[2]);
-		else if (command[0] == 'p') kos_bda_implementation.temp_value = socket_parallel(command[1], command[2]);
+		else if (command[0] == 'p') kos_bda_implementation.temp_value = socket_parallel(command[1], command[2], command[3]);
 		else if (command[0] == 'u') kos_bda_implementation.temp_value = socket_pupdate (command[1], command[2], command[3], command[4], command[5]);
 		
 		else if (command[0] == 'c') socket_close(command[1]);
