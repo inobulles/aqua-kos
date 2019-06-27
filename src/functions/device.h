@@ -27,6 +27,7 @@
 	#define DEVICE_PREDEFINED      22
 	#define DEVICE_BMP             23
 	#define DEVICE_KTX             24
+	#define DEVICE_PLATFORM        25
 	
 	// compute devices
 	
@@ -64,6 +65,7 @@
 		else if (strcmp(device, "bmp")         == 0) return DEVICE_BMP;
 		else if (strcmp(device, "joystick")    == 0) return DEVICE_JOYSTICK;
 		else if (strcmp(device, "ktx")         == 0) return DEVICE_KTX;
+		else if (strcmp(device, "platform")    == 0) return DEVICE_PLATFORM;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -136,6 +138,7 @@
 	#include "../devices/bmp.h"
 	#include "../devices/predefined.h"
 	#include "../devices/ktx.h"
+	#include "../devices/platform.h"
 
 	#if KOS_USES_OPENGL_DESKTOP
 		#include "../devices/dds.h"
@@ -178,6 +181,7 @@
 			case DEVICE_SOCKET:                      socket_device_handle(&result, data); break;
 			case DEVICE_KTX:                            ktx_device_handle(&result, data); break;
 			case DEVICE_MOUSE:                        mouse_device_handle(&result, data); break;
+			case DEVICE_PLATFORM:                  platform_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
