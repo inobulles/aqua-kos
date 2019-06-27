@@ -127,13 +127,15 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject
 	init_callback_function(&java_requests_length, "requests_length", "()J");
 	init_callback_function(&java_requests_text,   "requests_text",   "()[B");
 	
+	init_callback_function(&java_platform, "platform", "(Ljava/lang/String;)Ljava/lang/String;");
+	
 	// asset manager stuff
 
 	asset_manager = AAssetManager_fromJava(env, java_asset_manager);
 	assert(asset_manager != NULL);
 	
 	main(2, (char*[]) {(char*) "./a.out", (char*) "root/rom.zed"});
-
+	
 }
 
 JNIEXPORT void JNICALL JNI_FUNCTION_NAME(start)(JNIEnv* env, jobject obj) {

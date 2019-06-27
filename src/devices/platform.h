@@ -7,9 +7,13 @@
 	#endif
 	
 	static void platform_device_handle(unsigned long long** result, const char* data) {
+		memset(kos_bda_implementation.temp_string, 0, sizeof(kos_bda_implementation.temp_string));
+		
 		if (strcmp(data, "nickname") == 0) {
 			#if KOS_USES_JNI
-				/// TODO android.os.Build.?
+				jstring string = (jstring) CALLBACK(java_platform, callback_env->CallStaticObjectMethod, callback_env->NewStringUTF("nickname"));
+				jboolean is_copy = 0;
+				strncpy(kos_bda_implementation.temp_string, callback_env->GetStringUTFChars(string, &is_copy), sizeof(kos_bda_implementation.temp_string));
 			#else
 				register uid_t uid = geteuid();
 				register struct passwd* password = getpwuid(uid);
@@ -22,7 +26,9 @@
 			
 		} else if (strcmp(data, "model") == 0) {
 			#if KOS_USES_JNI
-				/// TODO android.os.Build.MODEL
+				jstring string = (jstring) CALLBACK(java_platform, callback_env->CallStaticObjectMethod, callback_env->NewStringUTF("model"));
+				jboolean is_copy = 0;
+				strncpy(kos_bda_implementation.temp_string, callback_env->GetStringUTFChars(string, &is_copy), sizeof(kos_bda_implementation.temp_string));
 			#else
 				if (gethostname(kos_bda_implementation.temp_string, sizeof(kos_bda_implementation.temp_string)) == -1) {
 					strcpy(kos_bda_implementation.temp_string, "hostname");
@@ -38,7 +44,9 @@
 			
 		} else if (strcmp(data, "vendor") == 0) {
 			#if KOS_USES_JNI
-				/// TODO android.os.Build.BRAND
+				jstring string = (jstring) CALLBACK(java_platform, callback_env->CallStaticObjectMethod, callback_env->NewStringUTF("vendor"));
+				jboolean is_copy = 0;
+				strncpy(kos_bda_implementation.temp_string, callback_env->GetStringUTFChars(string, &is_copy), sizeof(kos_bda_implementation.temp_string));
 			#else
 				strcpy(kos_bda_implementation.temp_string, "vendor"); /// TODO
 			#endif

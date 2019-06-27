@@ -80,6 +80,8 @@ static callback_method_t java_requests_get;
 static callback_method_t java_requests_length;
 static callback_method_t java_requests_text;
 
+static callback_method_t java_platform;
+
 static void init_callback_function(callback_method_t* __this, const char* name, const char* params) {
 	__this->found = false;
 	__this->method = callback_env->GetStaticMethodID(callback_class, name, params);
