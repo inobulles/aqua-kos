@@ -125,6 +125,13 @@
 				(float) gl_command[9] / FLOAT_ONE  \
 			);
 			
+		} else if (gl_command[0] == 'l') { // scaLe
+			glScalef( \
+				(float) gl_command[7] / FLOAT_ONE, \
+				(float) gl_command[8] / FLOAT_ONE, \
+				(float) gl_command[9] / FLOAT_ONE \
+			);
+			
 		} else {
 			KOS_DEVICE_COMMAND_WARNING("gl");
 

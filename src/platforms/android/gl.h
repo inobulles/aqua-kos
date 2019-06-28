@@ -160,6 +160,7 @@ void glMatrixMode(GLint mode) {
 
 void glLoadIdentity(void) { esMatrixLoadIdentity(matrix_mode == GL_MODELVIEW ? &model_view_matrix : &projection_matrix); }
 
+void glScalef              (float x, float y, float z) { esScale    (matrix_mode == GL_MODELVIEW ? &model_view_matrix : &projection_matrix,        x, y, z); }
 void glTranslatef          (float x, float y, float z) { esTranslate(matrix_mode == GL_MODELVIEW ? &model_view_matrix : &projection_matrix,        x, y, z); }
 void glRotatef(float angle, float x, float y, float z) { esRotate   (matrix_mode == GL_MODELVIEW ? &model_view_matrix : &projection_matrix, angle, x, y, z); }
 
