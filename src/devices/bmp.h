@@ -53,7 +53,7 @@
 		unsigned long long pitch = info_header.width * components;
 		
 		for (unsigned long long i = 0; i < info_header.height; i++) {
-			memcpy(final_data + i * pitch, data8 + (info_header.height - i) * pitch, pitch);
+			memcpy(final_data + i * pitch, data8 + (info_header.height - i - 1) * pitch, pitch);
 			
 		}
 		
