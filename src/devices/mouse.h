@@ -2,7 +2,7 @@
 #ifndef __AQUA__KOS_DEVICES_MOUSE_H
 	#define __AQUA__KOS_DEVICES_MOUSE_H
 
-	static unsigned long long kos_get_mouse_count(void) {
+	static inline unsigned long long kos_get_mouse_count(void) {
 		#if KOS_USES_SDL2
 			return 1;
 		#elif KOS_USES_JNI
@@ -11,7 +11,7 @@
 			return 0;
 		#endif
 		
-	} static unsigned long long kos_get_mouse_button(unsigned long long self, unsigned long long button) {
+	} static inline unsigned long long kos_get_mouse_button(unsigned long long self, unsigned long long button) {
 		#if KOS_USES_SDL2
 			SDL_PumpEvents();
 			return SDL_GetMouseState((int*) 0, (int*) 0) & SDL_BUTTON(button);
@@ -23,7 +23,7 @@
 		
 	}
 	
-	static unsigned long long kos_get_mouse_x(unsigned long long self) {
+	static inline unsigned long long kos_get_mouse_x(unsigned long long self) {
 		#if KOS_USES_SDL2
 			SDL_PumpEvents();
 			int x;
@@ -35,7 +35,7 @@
 			return 0;
 		#endif
 		
-	} static unsigned long long kos_get_mouse_y(unsigned long long self) {
+	} static inline unsigned long long kos_get_mouse_y(unsigned long long self) {
 		#if KOS_USES_SDL2
 			SDL_PumpEvents();
 			int y;

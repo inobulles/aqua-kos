@@ -12,6 +12,14 @@
 		#include <SDL2/SDL_opengl.h>
 	#endif
 	
+	#ifdef __HAS_AUDIO
+		#include <mad.h>
+		
+		#include <pulse/simple.h>
+		#include <pulse/volume.h>
+		#include <pulse/error.h>
+	#endif
+	
 	#if KOS_USES_OPENGL_DESKTOP
 		#include <GL/gl.h>
 		#include <GL/glu.h>

@@ -28,6 +28,8 @@
 	#define DEVICE_BMP             23
 	#define DEVICE_KTX             24
 	#define DEVICE_PLATFORM        25
+	#define DEVICE_SOUND           26
+	#define DEVICE_MP3             27
 	
 	// compute devices
 	
@@ -89,6 +91,10 @@
 		#ifdef __HAS_DISCORD
 			else if (strcmp(device, "discord")  == 0) return DEVICE_DISCORD;
 		#endif
+		#ifdef __HAS_AUDIO
+			else if (strcmp(device, "sound")    == 0) return DEVICE_SOUND;
+			else if (strcmp(device, "mp3")      == 0) return DEVICE_MP3;
+		#endif
 		
 		else return DEVICE_NULL;
 		
@@ -139,7 +145,7 @@
 	#include "../devices/predefined.h"
 	#include "../devices/ktx.h"
 	#include "../devices/platform.h"
-
+	
 	#if KOS_USES_OPENGL_DESKTOP
 		#include "../devices/dds.h"
 	#endif
@@ -148,6 +154,10 @@
 	#endif
 	#ifdef __HAS_DISCORD
 		#include "../devices/discord.h"
+	#endif
+	#ifdef __HAS_AUDIO
+		#include "../devices/sound.h"
+		#include "../devices/mp3.h"
 	#endif
 	#if KOS_USES_JNI
 		#include "../devices/android.h"
@@ -191,6 +201,10 @@
 			#endif
 			#ifdef __HAS_DISCORD
 				case DEVICE_DISCORD: discord_device_handle(&result, data); break;
+			#endif
+			#ifdef __HAS_AUDIO
+				case DEVICE_SOUND: sound_device_handle(&result, data); break;
+				case DEVICE_MP3:     mp3_device_handle(&result, data); break;
 			#endif
 			#if KOS_USES_JNI
 				case DEVICE_ANDROID: android_device_handle(&result, data); break;

@@ -39,6 +39,12 @@
 			#endif
 		#endif
 		
+		#ifdef __HAS_AUDIO
+			struct mad_stream stream;
+			struct mad_synth  synth;
+			struct mad_frame  frame;
+		#endif
+		
 	} kos_t;
 	
 #endif
