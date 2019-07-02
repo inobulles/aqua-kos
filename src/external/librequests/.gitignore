@@ -1,6 +1,0 @@
-build/
-*.dSYM
-test/test
-examples/get
-examples/multi_get
-examples/post
