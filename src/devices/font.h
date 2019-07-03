@@ -189,6 +189,8 @@
 	}
 	
 	void update_all_font_sizes(void) {
+		return;
+		
 		unsigned long long i;
 		for (i = 0; i < KOS_MAX_FONTS; i++) {
 			if (kos_fonts[i].used) {
