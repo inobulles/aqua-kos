@@ -211,6 +211,7 @@
 		#if KOS_USES_JNI
 			return 1; /// TODO
 		#else
+			mad_stream_buffer(&self->stream, (const unsigned char*) self->input_stream, self->meta.st_size);
 			mad_stream_skip(&self->stream, bytes);
 		#endif
 		

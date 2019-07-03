@@ -68,11 +68,11 @@
 		else if (strcmp(device, "joystick")    == 0) return DEVICE_JOYSTICK;
 		else if (strcmp(device, "ktx")         == 0) return DEVICE_KTX;
 		else if (strcmp(device, "platform")    == 0) return DEVICE_PLATFORM;
+		else if (strcmp(device, "keyboard")    == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
 		#else // absolutely not JNI
-			else if (strcmp(device, "keyboard") == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
 		#endif
 		#if KOS_USES_OPENGL_DESKTOP
 			else if (strcmp(device, "dds") == 0) return DEVICE_DDS; /// TODO Add ETC compression for android
