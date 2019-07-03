@@ -104,8 +104,13 @@
 			mad_frame_init (&self->frame);
 			
 			self->fp = fopen(path, "r");
-			self->fd = fileno(self->fp);
+			if (!self->fp) {
+				printf("WARNING Failed to open mp3 file %s\n", path);
+				return -1;
+				
+			}
 			
+			self->fd = fileno(self->fp);
 			if (fstat(self->fd, &self->meta) < 0) {
 				printf("WARNING Failed to stat %s\n", path);
 				fclose(self->fp);

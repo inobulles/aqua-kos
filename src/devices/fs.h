@@ -131,25 +131,17 @@
 		
 	}
 	
-	#include <sys/stat.h>
-	
-	#define FS_LIST_ENTRY_UNKNOWN   0
-	#define FS_LIST_ENTRY_FILE      1
-	#define FS_LIST_ENTRY_DIRECTORY 2
-	
-	char** fs_list(unsigned long long _path) {
+	unsigned long long fs_list(unsigned long long _path, unsigned long long count, unsigned long long __result) {
+		char** result = (char**) __result;
 		GET_PATH((char*) _path);
-		
-		unsigned long long count = fs_list_count(_path);
 		
 		if (count == -1) {
 			printf("WARNING Failed to open current directory");
-			return (char**) 0;
+			return 1;
 			
 		}
 		
 		unsigned long long current = 0;
-		char** result              = (char**) heap_malloc(count * sizeof(char*));
 		
 		DIR* dp = opendir(path);
 		struct dirent* directory;
@@ -158,50 +150,65 @@
 			while ((directory = readdir(dp)) != NULL) {
 				if (FS_LIST_D_NAME_VALID) {
 					unsigned long long bytes = strlen(directory->d_name) + 1;
-					result[current] = (char*) heap_malloc(bytes * sizeof(char) + sizeof(unsigned long long));
-					memcpy((result[current] + sizeof(unsigned long long)), directory->d_name, bytes);
-					
-					#define RESULT_FILE_TYPE *((unsigned long long*) result[current])
-					RESULT_FILE_TYPE = FS_LIST_ENTRY_UNKNOWN;
-					
-					if (directory->d_type == DT_UNKNOWN) {
-						struct stat path_stat;
-						stat(directory->d_name, &path_stat);
-						
-						if      (S_ISDIR(path_stat.st_mode)) RESULT_FILE_TYPE = FS_LIST_ENTRY_DIRECTORY;
-						else if (S_ISREG(path_stat.st_mode)) RESULT_FILE_TYPE = FS_LIST_ENTRY_FILE;
-						
-					}
-					
-					else if (directory->d_type == DT_DIR)    RESULT_FILE_TYPE = FS_LIST_ENTRY_DIRECTORY;
-					else if (directory->d_type == DT_REG)    RESULT_FILE_TYPE = FS_LIST_ENTRY_FILE;
-					
-					current++;
+					result[current] = (char*) heap_malloc(bytes * sizeof(char));
+					memset(result[current], 0, bytes);
+					memcpy(result[current++], directory->d_name, bytes);
 					
 				}
 				
 			}
 			
 			closedir(dp);
-			return result;
 			
 		} else {
 			printf("WARNING Directory `%s` could not be opened (for listing)\n", path);
-			return (char**) 0;
+			return 1;
 			
 		}
+		
+		return 0;
 		
 	}
 	
-	void fs_list_free(unsigned long long list, unsigned long long count) {
-		unsigned long long i;
-		for (i = 0; i < count; i++) {
-			char* entry = ((char**) list)[i];
-			heap_mfree((unsigned long long) entry, strlen(entry + sizeof(unsigned long long)) + sizeof(unsigned char) + sizeof(unsigned long long));
+	#define FS_TYPE_UNKNOWN   0
+	#define FS_TYPE_DIRECTORY 1
+	#define FS_TYPE_FILE      2
+	
+	#include <sys/stat.h>
+	unsigned long long fs_type(unsigned long long __path) {
+		GET_PATH((char*) __path)
+		
+		DIR* dp = opendir(path);
+		struct dirent* directory;
+		
+		unsigned long long result = -1;
+		if (dp) {
+			if ((directory = readdir(dp)) != NULL) {
+				result = FS_TYPE_UNKNOWN;
+				
+				if (directory->d_type == DT_UNKNOWN) {
+					struct stat path_stat;
+					stat(directory->d_name, &path_stat);
+					
+					if      (S_ISDIR(path_stat.st_mode)) result = FS_TYPE_DIRECTORY;
+					else if (S_ISREG(path_stat.st_mode)) result = FS_TYPE_FILE;
+					
+				}
+				
+				else if (directory->d_type == DT_DIR) result = FS_TYPE_DIRECTORY;
+				else if (directory->d_type == DT_REG) result = FS_TYPE_FILE;
+				
+			} else {
+				printf("WARNING fs_type encountered an unknown problem\n");
+				
+			}
+			
+		} else {
+			printf("WARNING Directory `%s` could not be opened (for type querying)\n", path);
 			
 		}
 		
-		heap_mfree((unsigned long long) list, count);
+		return result;
 		
 	}
 	
@@ -266,7 +273,10 @@
 		else if (command[0] == 'm') kos_bda_implementation.temp_value = (unsigned long long) fs_mkdir(path); // make directory
 		else if (command[0] == 'd') kos_bda_implementation.temp_value = (unsigned long long) remove_directory_recursive(path); // delete
 		
+		else if (command[0] == 't') kos_bda_implementation.temp_value = (unsigned long long) fs_type(command[1]); // type
+		
 		else if (command[0] == 'c') kos_bda_implementation.temp_value = (unsigned long long) fs_list_count(command[1]); // count list
+		else if (command[0] == 'l') kos_bda_implementation.temp_value = (unsigned long long) fs_list(command[1], command[2], command[3]); // list
 		
 		else if (command[0] == 'v') { // move
 			GET_PATH_NAME(destination, (char*) command[2]);

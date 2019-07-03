@@ -11,9 +11,11 @@
 	
 	static texture_t predefined_background_texture       = -1;
 	static texture_t predefined_frost_background_texture = -1;
+	static texture_t predefined_white_texture            = -1;
 	
 	static unsigned long long predefined_background_texture_dimensions      [2];
 	static unsigned long long predefined_frost_background_texture_dimensions[2];
+	static unsigned long long predefined_white_texture_dimensions           [2];
 	
 	// live predefined textures
 	
@@ -143,6 +145,14 @@
 			}
 			
 			warning += predefined_frost_background_texture == -1;
+			
+			unsigned long long white_data[] = {0xFFFFFFFFFFFFFFFF};
+			predefined_white_texture = texture_create((unsigned long long) white_data, 64, 1, 1);
+			
+			predefined_white_texture_dimensions[0] = 1;
+			predefined_white_texture_dimensions[1] = 1;
+			
+			warning += predefined_white_texture == -1;
 		#endif
 		
 		return warning;
@@ -164,12 +174,14 @@
 		
 		if (predefined_background_texture       != -1) texture_remove(predefined_background_texture);
 		if (predefined_frost_background_texture != -1) texture_remove(predefined_frost_background_texture);
+		if (predefined_white_texture            != -1) texture_remove(predefined_white_texture);
 		
 	}
 	
 	texture_t get_predefined_texture(const char* name) {
 		if      (strcmp(name, "wallpaper") == 0) return predefined_background_texture;
 		else if (strcmp(name, "frost")     == 0) return predefined_frost_background_texture;
+		else if (strcmp(name, "white")     == 0) return predefined_white_texture;
 		
 		return (texture_t) -1;
 		
@@ -178,6 +190,7 @@
 	static unsigned long long* get_predefined_texture_size(const char* name) {
 		if      (strcmp(name, "wallpaper") == 0) return predefined_background_texture_dimensions;
 		else if (strcmp(name, "frost")     == 0) return predefined_frost_background_texture_dimensions;
+		else if (strcmp(name, "white")     == 0) return predefined_white_texture_dimensions;
 		
 		return (unsigned long long*) 0;
 		
@@ -215,14 +228,13 @@
 	static void predefined_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
 		kos_bda_implementation.temp_value = 0;
+		*result = (unsigned long long*) &kos_bda_implementation.temp_value;
 		
 		if      (command[0] == 'w') kos_bda_implementation.temp_value = get_predefined_texture_size((const char*) command[1])[0];
 		else if (command[0] == 'h') kos_bda_implementation.temp_value = get_predefined_texture_size((const char*) command[1])[1];
 		
 		else if (command[0] == 'g') kos_bda_implementation.temp_value = get_predefined_texture((const char*) command[1]);
 		else KOS_DEVICE_COMMAND_WARNING("predefined")
-		
-		*result = (unsigned long long*) &kos_bda_implementation.temp_value;
 		
 	}
 	

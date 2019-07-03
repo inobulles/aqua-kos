@@ -247,7 +247,7 @@
 		
 	} static inline double sound_value(unsigned long long __self, unsigned long long channel) {
 		sound_t* self = (sound_t*) __self;
-		return (double) (self->values[channel] + 0x8000) / 0x10000;
+		return (double) self->values[channel] / 0x8000;
 		
 	}
 	

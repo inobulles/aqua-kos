@@ -57,7 +57,7 @@
 			
 		}
 		
-		swizzle_abgr = 1;
+		swizzle_abgr = info_header.bpp == 32;
 		kos_bda_implementation.temp_value_field[0] = texture_create((unsigned long long) final_data, info_header.bpp, (unsigned long long) info_header.width, (unsigned long long) info_header.height);
 		*result = (unsigned long long*) kos_bda_implementation.temp_value_field;
 		free(final_data);
