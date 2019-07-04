@@ -64,36 +64,22 @@
 			
 			#define BYTES (1152 * 4)
 			
-			static char stream[BYTES];
-			if (pcm->channels == 2) {
+			static short stream[BYTES / 2];
+			if (pcm->channels == 2) { // stereo
 				while (sample_count--) {
-					signed int sample = (self->values[0] = sound_scale(*left++)) * self->left_volume;
-					
-					stream[(pcm->length - sample_count) * 4]     = ((sample >> 0) & 0xFF);
-					stream[(pcm->length - sample_count) * 4 + 1] = ((sample >> 8) & 0xFF);
-					
-					sample = (self->values[1] = sound_scale(*right++)) * self->right_volume;
-					
-					stream[(pcm->length - sample_count) * 4 + 2] = ((sample >> 0) & 0xFF);
-					stream[(pcm->length - sample_count) * 4 + 3] = ((sample >> 8) & 0xFF);
-					
-				} if (pa_simple_write(pulse_device, stream, (size_t) BYTES, &pulse_error)) {
-					printf("WARNING PulseAudio failed to write (%s)\n", pa_strerror(pulse_error));
+					stream[(pcm->length - sample_count) * 2    ] = (self->values[0] = sound_scale(* left++)) * self-> left_volume;;
+					stream[(pcm->length - sample_count) * 2 + 1] = (self->values[1] = sound_scale(*right++)) * self->right_volume;
 					
 				}
 				
-			} else {
+			} else { // mono
 				while (sample_count--) {
-					signed int sample = (self->values[0] = self->values[1] = sound_scale(*left++)) * ((self->left_volume + self->right_volume) / 2);
-					
-					stream[(pcm->length - sample_count) * 4]     = ((sample >> 0) & 0xFF);
-					stream[(pcm->length - sample_count) * 4 + 1] = ((sample >> 8) & 0xFF);
-					stream[(pcm->length - sample_count) * 4 + 2] = ((sample >> 0) & 0xFF);
-					stream[(pcm->length - sample_count) * 4 + 3] = ((sample >> 8) & 0xFF);
-				} if (pa_simple_write(pulse_device, stream, (size_t) 1152 * 4, &pulse_error)) {
-					printf("WARNING PulseAudio failed to write (%s)\n", pa_strerror(pulse_error));
+					stream[(pcm->length - sample_count) * 2] = stream[(pcm->length - sample_count) * 2 + 1] = (self->values[0] = self->values[1] = sound_scale(*left++)) * ((self->left_volume + self->right_volume) / 2);
 					
 				}
+				
+			} if (pa_simple_write(pulse_device, stream, (size_t) BYTES, &pulse_error)) {
+				printf("WARNING PulseAudio failed to write (%s)\n", pa_strerror(pulse_error));
 				
 			}
 			
