@@ -83,7 +83,17 @@
 				}
 				
 			} else {
-				printf("WARNING Mono is not supported\n");
+				while (sample_count--) {
+					signed int sample = (self->values[0] = self->values[1] = sound_scale(*left++)) * ((self->left_volume + self->right_volume) / 2);
+					
+					stream[(pcm->length - sample_count) * 4]     = ((sample >> 0) & 0xFF);
+					stream[(pcm->length - sample_count) * 4 + 1] = ((sample >> 8) & 0xFF);
+					stream[(pcm->length - sample_count) * 4 + 2] = ((sample >> 0) & 0xFF);
+					stream[(pcm->length - sample_count) * 4 + 3] = ((sample >> 8) & 0xFF);
+				} if (pa_simple_write(pulse_device, stream, (size_t) 1152 * 4, &pulse_error)) {
+					printf("WARNING PulseAudio failed to write (%s)\n", pa_strerror(pulse_error));
+					
+				}
 				
 			}
 			

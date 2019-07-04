@@ -273,11 +273,11 @@
 
 					glHint(GL_POINT_SMOOTH,   GL_NICEST);
 					glHint(GL_LINE_SMOOTH,    GL_NICEST);
-					//~ glHint(GL_POLYGON_SMOOTH, GL_NICEST);
+					glHint(GL_POLYGON_SMOOTH, GL_NICEST);
 
 					glEnable(GL_POINT_SMOOTH);
 					glEnable(GL_LINE_SMOOTH);
-					//~ glEnable(GL_POLYGON_SMOOTH);
+					glEnable(GL_POLYGON_SMOOTH);
 
 					glMatrixMode(GL_PROJECTION);
 					glLoadIdentity();
