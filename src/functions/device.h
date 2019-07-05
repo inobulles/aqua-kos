@@ -30,6 +30,8 @@
 	#define DEVICE_PLATFORM        25
 	#define DEVICE_SOUND           26
 	#define DEVICE_MP3             27
+	#define DEVICE_JPG             28
+	#define DEVICE_PNG             29
 	
 	// compute devices
 	
@@ -69,6 +71,8 @@
 		else if (strcmp(device, "ktx")         == 0) return DEVICE_KTX;
 		else if (strcmp(device, "platform")    == 0) return DEVICE_PLATFORM;
 		else if (strcmp(device, "keyboard")    == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
+		else if (strcmp(device, "jpg")         == 0) return DEVICE_JPG;
+		else if (strcmp(device, "png")         == 0) return DEVICE_PNG;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -145,6 +149,8 @@
 	#include "../devices/predefined.h"
 	#include "../devices/ktx.h"
 	#include "../devices/platform.h"
+	#include "../devices/jpg.h"
+	//~ #include "../devices/png.h"
 	
 	#if KOS_USES_OPENGL_DESKTOP
 		#include "../devices/dds.h"
@@ -192,6 +198,8 @@
 			case DEVICE_KTX:                            ktx_device_handle(&result, data); break;
 			case DEVICE_MOUSE:                        mouse_device_handle(&result, data); break;
 			case DEVICE_PLATFORM:                  platform_device_handle(&result, data); break;
+			case DEVICE_JPG:                            jpg_device_handle(&result, data); break;
+			//~ case DEVICE_PNG:                            png_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
