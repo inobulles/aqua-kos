@@ -150,7 +150,7 @@
 	#include "../devices/ktx.h"
 	#include "../devices/platform.h"
 	#include "../devices/jpg.h"
-	//~ #include "../devices/png.h"
+	#include "../devices/png.h"
 	
 	#if KOS_USES_OPENGL_DESKTOP
 		#include "../devices/dds.h"
@@ -199,7 +199,7 @@
 			case DEVICE_MOUSE:                        mouse_device_handle(&result, data); break;
 			case DEVICE_PLATFORM:                  platform_device_handle(&result, data); break;
 			case DEVICE_JPG:                            jpg_device_handle(&result, data); break;
-			//~ case DEVICE_PNG:                            png_device_handle(&result, data); break;
+			case DEVICE_PNG:                            png_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
