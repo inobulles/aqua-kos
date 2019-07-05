@@ -30,7 +30,7 @@
 			free(pixels);
 			free(data);
 			
-			if (texture == -1ull) {
+			if (!texture) {
 				printf("WARNING Could not create texture from screenshot\n");
 				return 0;
 				

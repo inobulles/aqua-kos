@@ -9,9 +9,9 @@
 	
 	// predefined textures
 	
-	static texture_t predefined_background_texture       = -1;
-	static texture_t predefined_frost_background_texture = -1;
-	static texture_t predefined_white_texture            = -1;
+	static texture_t predefined_background_texture       = 0;
+	static texture_t predefined_frost_background_texture = 0;
+	static texture_t predefined_white_texture            = 0;
 	
 	static unsigned long long predefined_background_texture_dimensions      [2];
 	static unsigned long long predefined_frost_background_texture_dimensions[2];
@@ -123,7 +123,8 @@
 			unsigned long long bytes;
 			
 			fs_read((unsigned long long) "config/wallpaper/wallpaper.bmp", (unsigned long long) &data, (unsigned long long) &bytes);
-			bmp_device_handle(&result, (const char*) data);
+			unsigned long long command[] = {(unsigned long long) data, bytes};
+			bmp_device_handle(&result, (const char*) command);
 			
 			if (result) {
 				predefined_background_texture               = result[0];
@@ -132,10 +133,11 @@
 				
 			}
 			
-			warning += predefined_background_texture == -1;
+			warning += !predefined_background_texture;
 			
 			fs_read((unsigned long long) "config/wallpaper/frost.bmp", (unsigned long long) &data, (unsigned long long) &bytes);
-			bmp_device_handle(&result, (const char*) data);
+			unsigned long long command2[] = {(unsigned long long) data, bytes};
+			bmp_device_handle(&result, (const char*) command2);
 			
 			if (result) {
 				predefined_frost_background_texture               = result[0];
@@ -144,7 +146,7 @@
 				
 			}
 			
-			warning += predefined_frost_background_texture == -1;
+			warning += !predefined_frost_background_texture;
 			
 			unsigned long long white_data[] = {0xFFFFFFFFFFFFFFFF};
 			predefined_white_texture = texture_create((unsigned long long) white_data, 64, 1, 1);
@@ -152,7 +154,7 @@
 			predefined_white_texture_dimensions[0] = 1;
 			predefined_white_texture_dimensions[1] = 1;
 			
-			warning += predefined_white_texture == -1;
+			warning += !predefined_white_texture;
 		#endif
 		
 		return warning;
@@ -183,7 +185,7 @@
 		else if (strcmp(name, "frost")     == 0) return predefined_frost_background_texture;
 		else if (strcmp(name, "white")     == 0) return predefined_white_texture;
 		
-		return (texture_t) -1;
+		return 0;
 		
 	}
 	

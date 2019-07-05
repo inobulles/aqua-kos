@@ -23,7 +23,8 @@
 	#pragma pack(pop)
 	
 	static void bmp_device_handle(unsigned long long** result, const char* __data) {
-		char* data = (char*) __data;
+		unsigned long long* command = (unsigned long long*) __data;
+		char* data = (char*) command[0];
 		if (!data) {
 			*result = (unsigned long long*) 0;
 			return;
@@ -41,7 +42,7 @@
 		}
 		
 		bitmap_info_header_t info_header = *((bitmap_info_header_t*) data);
-		data = (char*) __data + header.offset;
+		data = (char*) command[0] + header.offset;
 		
 		uint8_t* data8 = (uint8_t*) data;
 		char* final_data = (char*) malloc(info_header.image_bytes);

@@ -30,15 +30,15 @@
 		}
 		
 		switch (kos_best_gl_version_major) {
-			case 1: return (texture_t) -1;
+			case 1: return 0;
 			case 2: return gl2_texture_create(data, bpp, width, height);
-			case 3: return (texture_t) -1;
-			case 4: return (texture_t) -1;
-			case 5: return (texture_t) -1;
+			case 3: return 0;
+			case 4: return 0;
+			case 5: return 0;
 			
 			default: {
 				KOS_WARN_NO_GL_VERSION
-				return (texture_t) -1;
+				return 0;
 				
 			}
 			

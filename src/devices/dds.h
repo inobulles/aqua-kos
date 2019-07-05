@@ -7,7 +7,8 @@
 	#define FOURCC_DXT5 0x35545844 // "DXT5" in ascii
 	
 	static void dds_device_handle(unsigned long long** result, const char* __data) {
-		char* data = (char*) __data;
+		unsigned long long* command = (unsigned long long*) __data;
+		char* data = (char*) command[0];
 		*result = &kos_bda_implementation.temp_value;
 		
 		if (strncmp(data, "DDS ", 4) != 0) {

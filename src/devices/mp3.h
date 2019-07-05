@@ -106,7 +106,7 @@
 			self->fp = fopen(path, "r");
 			if (!self->fp) {
 				printf("WARNING Failed to open mp3 file %s\n", path);
-				return -1;
+				return 0;
 				
 			}
 			
@@ -114,7 +114,7 @@
 			if (fstat(self->fd, &self->meta) < 0) {
 				printf("WARNING Failed to stat %s\n", path);
 				fclose(self->fp);
-				return 1;
+				return 0;
 				
 			}
 			
