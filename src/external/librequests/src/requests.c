@@ -27,6 +27,8 @@
 #include "../include/requests.h"
 static int IS_FIRST = 1;
 
+static char* custom_ua = (char*) 0;
+
 /*
  * Prototypes
  */
@@ -173,6 +175,7 @@ CURLcode requests_get(CURL *curl, req_t *req, char *url)
     req->ok = check_ok(code);
     curl_easy_cleanup(curl);
     free(ua);
+    custom_ua = (char*) 0;
 
     return rc;
 }
@@ -222,6 +225,7 @@ CURLcode requests_get_headers(CURL *curl, req_t *req, char *url,
     req->ok = check_ok(code);
     curl_easy_cleanup(curl);
     free(ua);
+    custom_ua = (char*) 0;
 
     return rc;
 }
@@ -374,6 +378,7 @@ static CURLcode requests_pt(CURL *curl, req_t *req, char *url, char *data,
     if (slist != NULL)
         curl_slist_free_all(slist);
     free(ua);
+    custom_ua = (char*) 0;
     curl_easy_cleanup(curl);
 
     return rc;
@@ -452,17 +457,21 @@ static void common_opt(CURL *curl, req_t *req)
 /*
  * user_agent - Creates custom user agent.
  *
- * Returns a char* containing the user agent, or NULL on failure.
+ * Returns a char* containing the user agent, NULL on failure, or custom_ua if it's not NULL
  */
 static char *user_agent(void)
 {
-    struct utsname name;
-    uname(&name);
-    char *kernel = name.sysname;
-    char *version = name.release;
-    char *ua;
-    asprintf(&ua, "librequests/%s %s/%s", __LIBREQ_VERS__, kernel, version);
-    return ua;
+    if (!custom_ua) {
+		struct utsname name;
+		uname(&name);
+		char *kernel = name.sysname;
+		char *version = name.release;
+		char *ua;
+		asprintf(&ua, "librequests/%s %s/%s", __LIBREQ_VERS__, kernel, version);
+		return ua;
+	} else {
+		return custom_ua;
+	}
 }
 
 /*

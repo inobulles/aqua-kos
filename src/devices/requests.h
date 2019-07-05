@@ -45,7 +45,6 @@
 			unsigned long long url_bytes = strlen(url);
 		#endif
 		
-		
 		if (url_bytes >= MAX_URL_LENGTH_BYTES) {
 			printf("WARNING Request URL is too long (%lld bytes, %s)\n", url_bytes, url);
 			strcpy(self->url, "__URL_TOO_LONG__");
@@ -90,6 +89,7 @@
 		
 		if      (command[0] == 'g') kos_requests_get ((kos_request_response_t*) command[1], (const char*) command[2]);
 		else if (command[0] == 'f') kos_requests_free((kos_request_response_t*) command[1]);
+		else if (command[0] == 'u') asprintf(&custom_ua, "%s", (const char*) command[1]);
 		else KOS_DEVICE_COMMAND_WARNING("requests")
 		
 	}
