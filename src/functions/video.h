@@ -37,7 +37,6 @@
 		} last_ns = ns;
 		
 		// flip
-		
 		video_flip_called = 1;
 		
 		#if KOS_USES_SDL2 && KOS_USES_OPENGL

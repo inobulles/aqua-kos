@@ -16,7 +16,7 @@
 		}
 		
 		stbi_set_flip_vertically_on_load(0);
-		unsigned char* image = stbi_load_from_memory((const stbi_uc*) command[0], command[1], (int*) &kos_bda_implementation.temp_value_field[1], (int*) &kos_bda_implementation.temp_value_field[2], (int*) &kos_bda_implementation.temp_value_field[3], STBI_rgb);
+		unsigned char* image = stbi_load_from_memory((const stbi_uc*) command[0], command[1], (int*) &kos_bda_implementation.temp_value_field[1], (int*) &kos_bda_implementation.temp_value_field[2], (int*) &kos_bda_implementation.temp_value_field[3], 0);
 		
 		kos_bda_implementation.temp_value_field[0] = texture_create((unsigned long long) image, kos_bda_implementation.temp_value_field[3] * 8, kos_bda_implementation.temp_value_field[1], kos_bda_implementation.temp_value_field[2]);
 		*result = (unsigned long long*) kos_bda_implementation.temp_value_field;

@@ -11,7 +11,12 @@
 		kos_time = time(NULL);
 		kos_tm_struct = localtime(&kos_time);
 		
-		if (strcmp(data, "current") == 0) {
+		if (strcmp(data, "unix") == 0) {
+			struct timespec now;
+			clock_gettime(CLOCK_MONOTONIC, &now);
+			kos_bda_implementation.temp_value = now.tv_sec * 1000000000ull + now.tv_nsec;
+			
+		} else if (strcmp(data, "current") == 0) {
 			kos_bda_implementation.temp_value_field[0] = (unsigned long long) kos_tm_struct->tm_hour;
 			kos_bda_implementation.temp_value_field[1] = (unsigned long long) kos_tm_struct->tm_min;
 			kos_bda_implementation.temp_value_field[2] = (unsigned long long) kos_tm_struct->tm_sec;

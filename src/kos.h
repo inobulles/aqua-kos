@@ -162,6 +162,16 @@
 		
 		if (!__this->text_only) {
 			#if KOS_USES_SDL2
+				SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      5);
+				SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    6);
+				SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     5);
+				
+				SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
+				SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
+				
+				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+				
 				__this->window = SDL_CreateWindow("AQUA 3.X SDL2 KOS", \
 					SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, \
 					__this->width, __this->height, \
@@ -191,13 +201,6 @@
 					KOS_ERROR
 					
 				}
-				
-				SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      5);
-				SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    6);
-				SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     5);
-				
-				SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
-				SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
 			#endif
 			
 			#if KOS_USES_OPENGL
@@ -266,11 +269,12 @@
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glEnable(GL_DEPTH_TEST);
+				glEnable(GL_MULTISAMPLE);
 				
 				#if !KOS_USES_SHADER_PIPELINE
 					glEnable(GL_ALPHA_TEST);
 					glAlphaFunc(GL_GREATER, 0.0f);
-
+					
 					glHint(GL_POINT_SMOOTH,   GL_NICEST);
 					glHint(GL_LINE_SMOOTH,    GL_NICEST);
 					glHint(GL_POLYGON_SMOOTH, GL_NICEST);
