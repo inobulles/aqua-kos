@@ -68,7 +68,10 @@
 		
 		#ifdef __HAS_AUDIO
 			printf("Freeing audio ...\n");
-			if (pulse_device) pa_simple_free(pulse_device);
+			
+			#if !KOS_USES_JNI
+				pulse_free();
+			#endif
 		#endif
 		
 		#ifdef __HAS_CURL
