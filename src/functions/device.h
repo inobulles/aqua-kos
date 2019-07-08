@@ -32,6 +32,7 @@
 	#define DEVICE_MP3             27
 	#define DEVICE_JPG             28
 	#define DEVICE_PNG             29
+	#define DEVICE_CLIPBOARD       30
 	
 	// compute devices
 	
@@ -73,6 +74,7 @@
 		else if (strcmp(device, "keyboard")    == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
 		else if (strcmp(device, "jpg")         == 0) return DEVICE_JPG;
 		else if (strcmp(device, "png")         == 0) return DEVICE_PNG;
+		else if (strcmp(device, "clipboard")   == 0) return DEVICE_CLIPBOARD;
 		
 		#if KOS_USES_JNI // JNI specific
 			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
@@ -151,6 +153,7 @@
 	#include "../devices/platform.h"
 	#include "../devices/jpg.h"
 	#include "../devices/png.h"
+	#include "../devices/clipboard.h"
 	
 	#if KOS_USES_OPENGL_DESKTOP
 		#include "../devices/dds.h"
@@ -200,6 +203,7 @@
 			case DEVICE_PLATFORM:                  platform_device_handle(&result, data); break;
 			case DEVICE_JPG:                            jpg_device_handle(&result, data); break;
 			case DEVICE_PNG:                            png_device_handle(&result, data); break;
+			case DEVICE_CLIPBOARD:                clipboard_device_handle(&result, data); break;
 			
 			#if KOS_USES_OPENGL_DESKTOP
 				case DEVICE_DDS: dds_device_handle(&result, data); break;
