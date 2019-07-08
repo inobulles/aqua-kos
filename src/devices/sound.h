@@ -7,6 +7,13 @@
 	#include <sys/stat.h>
 	#include <sys/mman.h>
 	
+	#if !KOS_USES_JNI
+		#include <mad.h>
+		
+		#include <pulse/simple.h>
+		#include <pulse/error.h>
+	#endif
+	
 	typedef struct {
 		unsigned long long bytes;
 		
@@ -23,6 +30,7 @@
 		double right_volume;
 		
 		signed int values[2];
+		unsigned long long bytes;
 		
 		double ecart;
 		unsigned long long checkpoint_count;
@@ -57,24 +65,22 @@
 			return sample >> (MAD_F_FRACBITS + 1 - 16);
 			
 		} static void sound_output(sound_t* self, struct mad_header const* header, struct mad_pcm* pcm) {
-			register int sample_count = pcm->length;
-			
-			mad_fixed_t const* left  = pcm->samples[0];
-			mad_fixed_t const* right = pcm->samples[1];
+			const mad_fixed_t* left  = pcm->samples[0];
+			const mad_fixed_t* right = pcm->samples[1];
 			
 			#define BYTES (1152 * 4)
 			
 			static short stream[BYTES / 2];
 			if (pcm->channels == 2) { // stereo
-				while (sample_count--) {
-					stream[(pcm->length - sample_count) * 2    ] = (self->values[0] = sound_scale(* left++)) * self-> left_volume;;
-					stream[(pcm->length - sample_count) * 2 + 1] = (self->values[1] = sound_scale(*right++)) * self->right_volume;
+				for (int i = 0; i < pcm->length + 1; i++) {
+					stream[i * 2    ] = (self->values[0] = sound_scale(* left++)) * self-> left_volume;;
+					stream[i * 2 + 1] = (self->values[1] = sound_scale(*right++)) * self->right_volume;
 					
 				}
 				
 			} else { // mono
-				while (sample_count--) {
-					stream[(pcm->length - sample_count) * 2] = stream[(pcm->length - sample_count) * 2 + 1] = (self->values[0] = self->values[1] = sound_scale(*left++)) * ((self->left_volume + self->right_volume) / 2);
+				for (int i = 0; i < pcm->length + 1; i++) {
+					stream[i * 2] = stream[i * 2 + 1] = (self->values[0] = self->values[1] = sound_scale(*left++)) * ((self->left_volume + self->right_volume) / 2);
 					
 				}
 				
@@ -207,7 +213,7 @@
 		#if KOS_USES_JNI
 			return 1; /// TODO
 		#else
-			mad_stream_buffer(&self->stream, (const unsigned char*) self->input_stream, self->meta.st_size);
+			mad_stream_buffer(&self->stream, (const unsigned char*) self->input_stream, self->bytes);
 			mad_stream_skip(&self->stream, bytes);
 		#endif
 		

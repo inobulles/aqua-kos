@@ -118,12 +118,13 @@
 				
 			}
 			
-			unsigned char* buffer = (unsigned char*) malloc(self->meta.st_size);
-			fread(buffer, 1, self->meta.st_size, self->fp);
+			self->bytes = self->meta.st_size;
+			unsigned char* buffer = (unsigned char*) malloc(self->bytes);
+			fread(buffer, 1, self->bytes, self->fp);
 			
 			unsigned char* a = buffer;
 			unsigned char* c = buffer;
-			unsigned char* b = buffer + self->meta.st_size - 2;
+			unsigned char* b = buffer + self->bytes - 2;
 			
 			mp3_header_t header;
 			self->ecart = 1.0; // one second span between each checkpoint
@@ -174,10 +175,10 @@
 			}
 			
 			self->frequency = header.freq;
-			mfree(buffer, self->meta.st_size);
+			mfree(buffer, self->bytes);
 			
-			self->input_stream = mmap(0, self->meta.st_size, PROT_READ, MAP_SHARED, self->fd, 0);
-			mad_stream_buffer(&self->stream, (const unsigned char*) self->input_stream, self->meta.st_size);
+			self->input_stream = mmap(0, self->bytes, PROT_READ, MAP_SHARED, self->fd, 0);
+			mad_stream_buffer(&self->stream, (const unsigned char*) self->input_stream, self->bytes);
 			
 			return (unsigned long long) self;
 		#endif
