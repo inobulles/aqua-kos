@@ -110,12 +110,11 @@
 					kos_is_mouse_pressed = 0;
 					break;
 					
-				} else if (event.type == SDL_KEYDOWN) {
-					get_device_keyboard_key = event.key.keysym.scancode;
-					break;
-					
 				} else if (event.type == SDL_TEXTINPUT) {
-					get_device_keyboard_keycode = *event.text.text;
+					if (text_input_buffer) mfree(text_input_buffer, text_input_buffer_bytes);
+					text_input_buffer_bytes = strlen(event.text.text) + 1;
+					text_input_buffer = (char*) malloc(text_input_buffer_bytes); // not freeing 'cause im a frickin madlad
+					memcpy(text_input_buffer, event.text.text, text_input_buffer_bytes);
 					break;
 					
 				}

@@ -73,7 +73,7 @@
 			static short stream[BYTES / 2];
 			if (pcm->channels == 2) { // stereo
 				for (int i = 0; i < pcm->length + 1; i++) {
-					stream[i * 2    ] = (self->values[0] = sound_scale(* left++)) * self-> left_volume;;
+					stream[i * 2    ] = (self->values[0] = sound_scale(* left++)) * self-> left_volume;
 					stream[i * 2 + 1] = (self->values[1] = sound_scale(*right++)) * self->right_volume;
 					
 				}
