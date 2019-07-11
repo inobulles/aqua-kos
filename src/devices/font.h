@@ -237,7 +237,7 @@
 			memcpy(__this->text, text,    bytes);
 			
 			#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-				SDL_Surface* temp = TTF_RenderUTF8_Blended(__this->font, text, kos_font_colour);
+				SDL_Surface* temp = TTF_RenderUTF8_Blended_Wrapped(__this->font, text, kos_font_colour, video_width());
 				__this->surface = SDL_CreateRGBSurface(0, temp->w, temp->h, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 				
 				SDL_BlitSurface(temp, NULL, __this->surface, NULL);
