@@ -263,10 +263,10 @@
 		
 	}
 
-	unsigned long long fs_access(const char* root) {
+	unsigned long long fs_access(unsigned long long root) {
 		#if SYSTEM_ACCESS
-			strncpy(access_root_path,      root ? root : default_access_root_path,      sizeof(access_root_path));
-			strncpy(access_root_path_name, root ? root : default_access_root_path_name, sizeof(access_root_path_name));
+			strncpy(access_root_path,      root ? (const char*) root : default_access_root_path,      sizeof(access_root_path));
+			strncpy(access_root_path_name, root ? (const char*) root : default_access_root_path_name, sizeof(access_root_path_name));
 			
 			return 0;
 		#endif
@@ -277,22 +277,22 @@
 	
 	static void fs_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
-		GET_PATH((char*) command[1]);
 		
-		if      (command[0] == 'r') kos_bda_implementation.temp_value = (unsigned long long) fs_read (command[1], command[2], command[3]); // read
-		else if (command[0] == 'w') kos_bda_implementation.temp_value = (unsigned long long) fs_write(command[1], command[2], command[3]); // write
+		if      (command[0] == 'r') { GET_PATH((char*) command[1]); kos_bda_implementation.temp_value = (unsigned long long) fs_read (command[1], command[2], command[3]); } // read
+		else if (command[0] == 'w') { GET_PATH((char*) command[1]); kos_bda_implementation.temp_value = (unsigned long long) fs_write(command[1], command[2], command[3]); } // write
 		
-		else if (command[0] == 'm') kos_bda_implementation.temp_value = (unsigned long long) fs_mkdir(path); // make directory
-		else if (command[0] == 'd') kos_bda_implementation.temp_value = (unsigned long long) remove_directory_recursive(path); // delete
+		else if (command[0] == 'm') { GET_PATH((char*) command[1]); kos_bda_implementation.temp_value = (unsigned long long) fs_mkdir(path); } // make directory
+		else if (command[0] == 'd') { GET_PATH((char*) command[1]); kos_bda_implementation.temp_value = (unsigned long long) remove_directory_recursive(path); } // delete
 		
-		else if (command[0] == 't') kos_bda_implementation.temp_value = (unsigned long long) fs_type(command[1]); // type
+		else if (command[0] == 't') { GET_PATH((char*) command[1]); kos_bda_implementation.temp_value = (unsigned long long) fs_type(command[1]); } // type
 		
-		else if (command[0] == 'c') kos_bda_implementation.temp_value = (unsigned long long) fs_list_count(command[1]); // count list
-		else if (command[0] == 'l') kos_bda_implementation.temp_value = (unsigned long long) fs_list(command[1], command[2], command[3]); // list
+		else if (command[0] == 'c') { GET_PATH((char*) command[1]); kos_bda_implementation.temp_value = (unsigned long long) fs_list_count(command[1]); } // count list
+		else if (command[0] == 'l') { GET_PATH((char*) command[1]); kos_bda_implementation.temp_value = (unsigned long long) fs_list(command[1], command[2], command[3]); } // list
 		
-		else if (command[0] == 'a') kos_bda_implementation.temp_value = (unsigned long long) fs_access((const char*) command[1]); // access
+		else if (command[0] == 'a') kos_bda_implementation.temp_value = (unsigned long long) fs_access(command[1]); // access
 		
 		else if (command[0] == 'v') { // move
+			GET_PATH((char*) command[1]);
 			GET_PATH_NAME(destination, (char*) command[2]);
 			kos_bda_implementation.temp_value = (unsigned long long) rename(path, destination);
 			
