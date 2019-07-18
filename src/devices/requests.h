@@ -88,7 +88,7 @@
 	
 	void kos_requests_ua(const char* ua) {
 		#if !KOS_USES_JNI
-			asprintf(&custom_ua, "%s", (const char*) command[1]);
+			asprintf(&custom_ua, "%s", ua);
 		#else
 			CALLBACK_VOID(java_requests_ua, callback_env->NewStringUTF(ua));
 		#endif
