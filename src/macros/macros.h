@@ -30,13 +30,25 @@
 
 	#define MAX_PATH_LENGTH 4096
 
+	#define default_access_root_path_name "root/"
+	#if KOS_USES_JNI
+		#define default_access_root_path "root/root/"
+	#else
+		#define default_access_root_path default_access_root_path_name
+	#endif
+
+	static char access_root_path_name[MAX_PATH_LENGTH] = default_access_root_path_name;
+	static char access_root_path     [MAX_PATH_LENGTH] = default_access_root_path;
+
 	#define GET_PATH_NAME(name, _path) \
-		char name[MAX_PATH_LENGTH] = "root/"; \
+		char name[MAX_PATH_LENGTH]; \
+		strncpy(name, access_root_path_name, sizeof(name)); \
 		strncat(name, (char*) (_path), MAX_PATH_LENGTH - strlen(name)); \
 
 	#if KOS_USES_JNI
 		#define GET_PATH(_path) \
-			char path[MAX_PATH_LENGTH] = "root/root/"; \
+			char path[MAX_PATH_LENGTH]; \
+			strncpy(path, access_root_path, sizeof(path)); \
 		    strncat(path, (char*) (_path), MAX_PATH_LENGTH - strlen(path));
 	#else
 		#define GET_PATH(_path) GET_PATH_NAME(path, _path)

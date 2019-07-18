@@ -285,11 +285,11 @@
 					glEnable(GL_POINT_SMOOTH);
 					glEnable(GL_LINE_SMOOTH);
 					glEnable(GL_POLYGON_SMOOTH);
-
-					glMatrixMode(GL_PROJECTION);
-					glLoadIdentity();
 				#endif
-
+			
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+			
 				glViewport(0, 0, __this->width, __this->height);
 				
 				#if KOS_3D_VISUALIZATION
@@ -311,21 +311,16 @@
 					
 					glTranslatef(0.0f, 0.0f, -10.0f);
 				#else
-					//glEnable   (GL_CULL_FACE);
-					//glCullFace (GL_BACK);
-					//glFrontFace(GL_CCW);
-					
-					glMatrixMode(GL_MODELVIEW);
-					glLoadIdentity();
+					glEnable   (GL_CULL_FACE);
+					glCullFace (GL_BACK);
+					glFrontFace(GL_CCW);
 					
 					glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 500.0f);
 					glTranslatef(0.0f, 0.0f, -100.0f);
 				#endif
 
-				#if !KOS_USES_SHADER_PIPELINE
-					glMatrixMode(GL_MODELVIEW);
-					glLoadIdentity();
-				#endif
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
 			#endif
 			
 			#if KOS_USES_SDL2

@@ -80,7 +80,7 @@
 				#define KOS_INFO_INTERFACE "plain"
 			#endif
 			
-			strcpy(kos_bda_implementation.temp_string, "\"Mega\" (universal) KOS using " KOS_INFO_GLIB_STRING " (" KOS_INFO_GLIB_MORE_STRING ") with the " KOS_INFO_INTERFACE " interface");
+			sprintf(kos_bda_implementation.temp_string, "\"Mega\" (universal) KOS using %s with the " KOS_INFO_INTERFACE " interface", glGetString(GL_VERSION));
 			
 		} else {
 			KOS_DEVICE_COMMAND_WARNING("platform")
