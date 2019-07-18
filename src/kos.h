@@ -173,7 +173,7 @@
 				SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
 				
 				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
 				
 				__this->window = SDL_CreateWindow("AQUA 3.X SDL2 KOS", \
 					SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, \
@@ -280,11 +280,11 @@
 					
 					glHint(GL_POINT_SMOOTH,   GL_NICEST);
 					glHint(GL_LINE_SMOOTH,    GL_NICEST);
-					glHint(GL_POLYGON_SMOOTH, GL_NICEST);
-
+					//~ glHint(GL_POLYGON_SMOOTH, GL_NICEST);
+ 
 					glEnable(GL_POINT_SMOOTH);
 					glEnable(GL_LINE_SMOOTH);
-					glEnable(GL_POLYGON_SMOOTH);
+					//~ glEnable(GL_POLYGON_SMOOTH);
 
 					glMatrixMode(GL_PROJECTION);
 					glLoadIdentity();

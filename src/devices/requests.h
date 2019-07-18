@@ -35,6 +35,8 @@
 	}
 	
 	void kos_requests_get(kos_request_response_t* self, const char* url) {
+		memset(self, 0, sizeof(*self));
+		
 		#if !KOS_USES_JNI
 			kos_curl = requests_init(&kos_current_request);
 			requests_get(kos_curl, &kos_current_request, (char*) url);
