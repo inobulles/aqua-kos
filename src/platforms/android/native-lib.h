@@ -79,6 +79,7 @@ static callback_method_t java_clear_mice;
 static callback_method_t java_requests_get;
 static callback_method_t java_requests_length;
 static callback_method_t java_requests_text;
+static callback_method_t java_requests_ua;
 
 static callback_method_t java_platform;
 

@@ -237,8 +237,8 @@
 				int error = 0;
 				default_assets = true;
 				
-				error += load_asset("es2_vertex_shader.glsl",   &__this->vertex_shader);
-				error += load_asset("es2_fragment_shader.glsl", &__this->fragment_shader);
+				error += load_asset("vert.glsl",   &__this->vertex_shader);
+				error += load_asset("frag.glsl", &__this->fragment_shader);
 			
 				if (error > 1) {
 					printf("WARNING Failed to load shader assets, incrementing __this->warning_count ...\n");
@@ -272,9 +272,9 @@
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glEnable(GL_DEPTH_TEST);
-				glEnable(GL_MULTISAMPLE);
 				
 				#if !KOS_USES_SHADER_PIPELINE
+					glEnable(GL_MULTISAMPLE);
 					glEnable(GL_ALPHA_TEST);
 					glAlphaFunc(GL_GREATER, 0.0f);
 					
@@ -285,14 +285,14 @@
 					glEnable(GL_POINT_SMOOTH);
 					glEnable(GL_LINE_SMOOTH);
 					//~ glEnable(GL_POLYGON_SMOOTH);
-
-					glMatrixMode(GL_PROJECTION);
-					glLoadIdentity();
 				#endif
-
+			
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+			
 				glViewport(0, 0, __this->width, __this->height);
 				
-				#if KOS_3D_VISUALIZATION && !KOS_USES_SHADER_PIPELINE
+				#if KOS_3D_VISUALIZATION
 					float fov   = tan(65.0f / 4);
 					float ratio = 1.0f;
 					
@@ -314,15 +314,13 @@
 					glEnable   (GL_CULL_FACE);
 					glCullFace (GL_BACK);
 					glFrontFace(GL_CCW);
-
+					
 					glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 500.0f);
 					glTranslatef(0.0f, 0.0f, -100.0f);
 				#endif
 
-				#if !KOS_USES_SHADER_PIPELINE
-					glMatrixMode(GL_MODELVIEW);
-					glLoadIdentity();
-				#endif
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
 			#endif
 			
 			#if KOS_USES_SDL2

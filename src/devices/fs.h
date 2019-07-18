@@ -181,7 +181,7 @@
 		DIR* dp = opendir(path);
 		struct dirent* directory;
 		
-		unsigned long long result = -1;
+		unsigned long long result = (unsigned long long) -1;
 		if (dp) {
 			if ((directory = readdir(dp)) != NULL) {
 				result = FS_TYPE_UNKNOWN;
@@ -216,7 +216,7 @@
 		char* path = (char*) __path;
 		int error = 0;
 		
-		int path_length = strlen(path);
+		size_t path_length = strlen(path);
 		for (int i = 0; i < path_length; i++) {
 			if (path[i] == '/') {
 				path[i] = 0;
@@ -262,6 +262,18 @@
 		return errors;
 		
 	}
+
+	unsigned long long fs_access(const char* root) {
+		#if SYSTEM_ACCESS
+			strncpy(access_root_path,      root ? root : default_access_root_path,      sizeof(access_root_path));
+			strncpy(access_root_path_name, root ? root : default_access_root_path_name, sizeof(access_root_path_name));
+			
+			return 0;
+		#endif
+		
+		return 1;
+		
+	}
 	
 	static void fs_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
@@ -277,6 +289,8 @@
 		
 		else if (command[0] == 'c') kos_bda_implementation.temp_value = (unsigned long long) fs_list_count(command[1]); // count list
 		else if (command[0] == 'l') kos_bda_implementation.temp_value = (unsigned long long) fs_list(command[1], command[2], command[3]); // list
+		
+		else if (command[0] == 'a') kos_bda_implementation.temp_value = (unsigned long long) fs_access((const char*) command[1]); // access
 		
 		else if (command[0] == 'v') { // move
 			GET_PATH_NAME(destination, (char*) command[2]);
