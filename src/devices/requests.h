@@ -84,12 +84,21 @@
 		
 	}
 	
+	void kos_requests_ua(const char* ua) {
+		#if !KOS_USES_JNI
+			asprintf(&custom_ua, "%s", (const char*) command[1]);
+		#else
+			CALLBACK_VOID(java_requests_ua, callback_env->NewStringUTF(ua));
+		#endif
+		
+	}
+
 	static void requests_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
 		
 		if      (command[0] == 'g') kos_requests_get ((kos_request_response_t*) command[1], (const char*) command[2]);
 		else if (command[0] == 'f') kos_requests_free((kos_request_response_t*) command[1]);
-		else if (command[0] == 'u') asprintf(&custom_ua, "%s", (const char*) command[1]);
+		else if (command[0] == 'u') kos_requests_ua  ((const char*) command[1]);
 		else KOS_DEVICE_COMMAND_WARNING("requests")
 		
 	}

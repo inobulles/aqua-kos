@@ -126,6 +126,7 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject
 	init_callback_function(&java_requests_get,    "requests_get",    "(Ljava/lang/String;)I");
 	init_callback_function(&java_requests_length, "requests_length", "()J");
 	init_callback_function(&java_requests_text,   "requests_text",   "()[B");
+	init_callback_function(&java_requests_ua,     "requests_ua",     "(Ljava/lang/String;)V");
 	
 	init_callback_function(&java_platform, "platform", "(Ljava/lang/String;)Ljava/lang/String;");
 	
