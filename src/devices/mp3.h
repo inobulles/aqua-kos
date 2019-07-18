@@ -3,98 +3,100 @@
 
 #ifndef __AQUA__KOS_DEVICES_MP3_H
 	#define __AQUA__KOS_DEVICES_MP3_H
-	
-	typedef struct {
-		int version;
-		int layer;
-		int errp;
-		int bitrate;
-		int freq;
-		int pad;
-		int priv;
-		int mode;
-		int modex;
-		int copyright;
-		int original;
-		int emphasis;
-		
-	} mp3_header_t;
-	
-	static inline void mp3_parse(const unsigned char* pointer, mp3_header_t* header) {
-		const int bitrates   [16] = {0,  32000,  40000,  48000,  56000,  64000,  80000,  96000, 112000, 128000, 160000, 192000, 224000, 256000, 320000, 0};
-		const int samplerates[4]  = {44100, 48000, 32000};
-		
-		header->version =      (pointer[1] & 0x08) >> 3;
-		header->layer   = 4 - ((pointer[1] & 0x06) >> 1);
-		header->errp    =      (pointer[1] & 0x01);
-		
-		header->bitrate =    bitrates[(pointer[2] & 0xF0) >> 4];
-		header->freq    = samplerates[(pointer[2] & 0x0C) >> 2];
-		header->pad     =             (pointer[2] & 0x02) >> 1;
-		header->priv    =             (pointer[2] & 0x01);
-		
-		header->mode      = (pointer[3] & 0xC0) >> 6;
-		header->modex     = (pointer[3] & 0x30) >> 4;
-		header->copyright = (pointer[3] & 0x08) >> 3;
-		header->original  = (pointer[3] & 0x04) >> 2;
-		header->emphasis  = (pointer[3] & 0x03);
-		
-	} static inline int mp3_framesize(mp3_header_t* header) {
-		int size = header->bitrate * (header->layer == 1 ? 48 : 144) / header->freq;
-		size += !!header->pad;
-		return size;
-		
-	} static inline double mp3_header_duration(mp3_header_t* header) {
-		return (double) mp3_framesize(header) * 8 / header->bitrate;
-		
-	} static inline unsigned char mp3_mpcom(unsigned char command, const unsigned char* a, const unsigned char* b) {
-		if     (a > b) return 0;
-		if (b - a < 4) return 0;
-		
-		return a[0] == 0x00 && a[1] == 0x00 && a[2] == 0x01 && a[3] == command;
-		
-	}
-	
-	static inline unsigned char mp3_mpack(const unsigned char* a, const unsigned char* b) { return mp3_mpcom(0xBA, a, b); }
-	static inline unsigned char mp3_mpsys(const unsigned char* a, const unsigned char* b) { return mp3_mpcom(0xBB, a, b); }
-	static inline unsigned char mp3_mpmap(const unsigned char* a, const unsigned char* b) { return mp3_mpcom(0xBC, a, b); }
-	
-	static inline unsigned char mp3_mp3(const unsigned char* a, const unsigned char* b) {
-		if     (a > b) return 0;
-		if (b - a < 4) return 0;
-		
-		if (a[0] == 0xFF && (a[1] & 0xE0) == 0xE0) {
-			if (((a[1] & 0x06) >> 1) == 0)  return 0;
-			if (((a[2] & 0xF0) >> 4) == 15) return 0;
-			if (((a[2] & 0x0C) >> 2) == 3)  return 0;
+
+	#if !KOS_USES_JNI
+		typedef struct {
+			int version;
+			int layer;
+			int errp;
+			int bitrate;
+			int freq;
+			int pad;
+			int priv;
+			int mode;
+			int modex;
+			int copyright;
+			int original;
+			int emphasis;
 			
-			return 1;
+		} mp3_header_t;
+		
+		static inline void mp3_parse(const unsigned char* pointer, mp3_header_t* header) {
+			const int bitrates   [16] = {0,  32000,  40000,  48000,  56000,  64000,  80000,  96000, 112000, 128000, 160000, 192000, 224000, 256000, 320000, 0};
+			const int samplerates[4]  = {44100, 48000, 32000};
+			
+			header->version =      (pointer[1] & 0x08) >> 3;
+			header->layer   = 4 - ((pointer[1] & 0x06) >> 1);
+			header->errp    =      (pointer[1] & 0x01);
+			
+			header->bitrate =    bitrates[(pointer[2] & 0xF0) >> 4];
+			header->freq    = samplerates[(pointer[2] & 0x0C) >> 2];
+			header->pad     =             (pointer[2] & 0x02) >> 1;
+			header->priv    =             (pointer[2] & 0x01);
+			
+			header->mode      = (pointer[3] & 0xC0) >> 6;
+			header->modex     = (pointer[3] & 0x30) >> 4;
+			header->copyright = (pointer[3] & 0x08) >> 3;
+			header->original  = (pointer[3] & 0x04) >> 2;
+			header->emphasis  = (pointer[3] & 0x03);
+			
+		} static inline int mp3_framesize(mp3_header_t* header) {
+			int size = header->bitrate * (header->layer == 1 ? 48 : 144) / header->freq;
+			size += !!header->pad;
+			return size;
+			
+		} static inline double mp3_header_duration(mp3_header_t* header) {
+			return (double) mp3_framesize(header) * 8 / header->bitrate;
+			
+		} static inline unsigned char mp3_mpcom(unsigned char command, const unsigned char* a, const unsigned char* b) {
+			if     (a > b) return 0;
+			if (b - a < 4) return 0;
+			
+			return (unsigned char) (a[0] == 0x00 && a[1] == 0x00 && a[2] == 0x01 && a[3] == command);
 			
 		}
 		
-		return 0;
+		static inline unsigned char mp3_mpack(const unsigned char* a, const unsigned char* b) { return mp3_mpcom(0xBA, a, b); }
+		static inline unsigned char mp3_mpsys(const unsigned char* a, const unsigned char* b) { return mp3_mpcom(0xBB, a, b); }
+		static inline unsigned char mp3_mpmap(const unsigned char* a, const unsigned char* b) { return mp3_mpcom(0xBC, a, b); }
 		
-	} static inline unsigned char mp3_id3(const unsigned char* a, const unsigned char* b) {
-		if     (a >  b) return 0;
-		if (b - a < 10) return 0;
-		
-		if (a[0] == 'I' && a[1] == 'D' && a[2] == '3') {
-			if (a[3] == 0xFF || a[4] == 0xFF) return 0;
-			if (a[6] &  0x80 || a[7] &  0x80 || a[8] & 0x80) return 0;
+		static inline unsigned char mp3_mp3(const unsigned char* a, const unsigned char* b) {
+			if     (a > b) return 0;
+			if (b - a < 4) return 0;
 			
-			return 1;
+			if (a[0] == 0xFF && (a[1] & 0xE0) == 0xE0) {
+				if (((a[1] & 0x06) >> 1) == 0)  return 0;
+				if (((a[2] & 0xF0) >> 4) == 15) return 0;
+				if (((a[2] & 0x0C) >> 2) == 3)  return 0;
+				
+				return 1;
+				
+			}
+			
+			return 0;
+			
+		} static inline unsigned char mp3_id3(const unsigned char* a, const unsigned char* b) {
+			if     (a >  b) return 0;
+			if (b - a < 10) return 0;
+			
+			if (a[0] == 'I' && a[1] == 'D' && a[2] == '3') {
+				if (a[3] == 0xFF || a[4] == 0xFF) return 0;
+				if (a[6] &  0x80 || a[7] &  0x80 || a[8] & 0x80) return 0;
+				
+				return 1;
+				
+			}
+			
+			return 0;
 			
 		}
-		
-		return 0;
-		
-	}
+	#endif
 	
 	static inline unsigned long long mp3_load(unsigned long long __path) {
 		GET_PATH(__path)
 		
 		#if KOS_USES_JNI
-			/// TODO
+			return (unsigned long long) CALLBACK(java_mp3_load, callback_env->CallStaticLongMethod, callback_env->NewStringUTF(path));
 		#else
 			sound_t* self = (sound_t*) malloc(sizeof(sound_t));
 			memset(self, 0, sizeof(sound_t));

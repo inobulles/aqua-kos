@@ -128,6 +128,16 @@ JNIEXPORT void JNICALL JNI_FUNCTION_NAME(init)(JNIEnv* env, jobject obj, jobject
 	init_callback_function(&java_requests_text,   "requests_text",   "()[B");
 	init_callback_function(&java_requests_ua,     "requests_ua",     "(Ljava/lang/String;)V");
 	
+	init_callback_function(&java_mp3_load,          "mp3_load",          "(Ljava/lang/String;)J");
+	init_callback_function(&java_sound_dispose,     "sound_dispose",     "(J)V");
+	init_callback_function(&java_sound_get_seconds, "sound_get_seconds", "(J)D");
+	init_callback_function(&java_sound_play,        "sound_play",        "(J)V");
+	init_callback_function(&java_sound_stop,        "sound_stop",        "(J)V");
+	init_callback_function(&java_sound_pause,       "sound_pause",       "(J)V");
+	init_callback_function(&java_sound_volume,      "sound_volume",      "(JD)V");
+	init_callback_function(&java_sound_position,    "sound_position",    "(JD)V");
+	init_callback_function(&java_sound_frequency,   "sound_frequency",   "(J)J");
+	
 	init_callback_function(&java_platform, "platform", "(Ljava/lang/String;)Ljava/lang/String;");
 	
 	// asset manager stuff

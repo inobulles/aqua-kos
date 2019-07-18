@@ -222,7 +222,7 @@
 			
 					if      (strstr(version_string, "OpenGL ES 3.") && gl3_stub_init()) printf("Using OpenGL ES version 3.X\n");
 					else if (strstr(version_string, "OpenGL ES 2."))                    printf("Using OpenGL ES version 2.X\n");
-					else                                                                printf("ERROR Unsuppoted OpenGL ES version (%s)\n", version_string);
+					else                                                                printf("ERROR Unsupported OpenGL ES version (%s)\n", version_string);
 			
 					KOS_BEST_GL_VERSION
 				#endif

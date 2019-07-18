@@ -81,6 +81,16 @@ static callback_method_t java_requests_length;
 static callback_method_t java_requests_text;
 static callback_method_t java_requests_ua;
 
+static callback_method_t java_mp3_load;
+static callback_method_t java_sound_dispose;
+static callback_method_t java_sound_get_seconds;
+static callback_method_t java_sound_play;
+static callback_method_t java_sound_stop;
+static callback_method_t java_sound_pause;
+static callback_method_t java_sound_volume;
+static callback_method_t java_sound_position;
+static callback_method_t java_sound_frequency;
+
 static callback_method_t java_platform;
 
 static void init_callback_function(callback_method_t* __this, const char* name, const char* params) {
@@ -153,7 +163,7 @@ static bool load_asset_bytes(const char* path, char** buffer, unsigned long long
 	SET_FINAL_PATH
 
 	FILE* file = fopen(final_path, "rb");
-	free(              final_path);
+	free              (final_path);
 
 	if (file) {
 		fseek(file, 0L, SEEK_END);

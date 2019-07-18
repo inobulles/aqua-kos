@@ -3,40 +3,38 @@
 #ifndef __AQUA__KOS_DEVICES_SOUND_H
 	#define __AQUA__KOS_DEVICES_SOUND_H
 	
-	#include <pthread.h>
-	#include <sys/stat.h>
-	#include <sys/mman.h>
-	
 	#if !KOS_USES_JNI
+		#include <pthread.h>
+		#include <sys/stat.h>
+		#include <sys/mman.h>
+		
 		#include <mad.h> // for mp3.h
 		
 		#include <pulse/simple.h>
 		#include <pulse/error.h>
-	#endif
-	
-	typedef struct {
-		unsigned long long bytes;
 		
-	} sound_checkpoint_t;
-	
-	typedef struct {
-		double seconds;
-		int frequency;
+		typedef struct {
+			unsigned long long bytes;
+			
+		} sound_checkpoint_t;
 		
-		unsigned char paused;
-		unsigned char playing;
-		
-		double  left_volume;
-		double right_volume;
-		
-		signed int values[2];
-		unsigned long long bytes;
-		
-		double ecart;
-		unsigned long long checkpoint_count;
-		sound_checkpoint_t* checkpoints;
-		
-		#if !KOS_USES_JNI
+		typedef struct {
+			double seconds;
+			int frequency;
+			
+			unsigned char paused;
+			unsigned char playing;
+			
+			double  left_volume;
+			double right_volume;
+			
+			signed int values[2];
+			unsigned long long bytes;
+			
+			double ecart;
+			unsigned long long checkpoint_count;
+			sound_checkpoint_t* checkpoints;
+			
 			FILE* fp;
 			int fd;
 			
@@ -48,11 +46,9 @@
 			struct mad_frame  frame;
 			
 			pthread_t thread;
-		#endif
+			
+		} sound_t;
 		
-	} sound_t;
-	
-	#if !KOS_USES_JNI
 		static pa_simple* pulse_device = (pa_simple*) 0;
 		static int        pulse_error  = 0;
 		
@@ -124,7 +120,6 @@
 	
 	static inline unsigned long long sound_settings(unsigned long long frequency, unsigned long long channels, unsigned long long format) {
 		#if KOS_USES_JNI
-			return 1; /// TODO
 		#else
 			pulse_free();
 			
@@ -139,11 +134,13 @@
 		return 0;
 		
 	} static inline unsigned long long sound_action(unsigned long long __self, unsigned long long action) {
-		sound_t* self = (sound_t*) __self;
+		#if !KOS_USES_JNI
+			sound_t* self = (sound_t*) __self;
+		#endif
 		
 		if (action == 0) { // stop
 			#if KOS_USES_JNI
-				return 1; /// TODO
+				CALLBACK_VOID(java_sound_stop, __self);
 			#else
 				self->playing = 0;
 				
@@ -156,14 +153,14 @@
 			
 		} else if (action == 1) { // pause
 			#if KOS_USES_JNI
-				return 1; /// TODO
+				CALLBACK_VOID(java_sound_pause, __self);
 			#else
 				self->paused = 1;
 			#endif
 			
 		} else if (action == 2) { // resume
 			#if KOS_USES_JNI
-				return 1; /// TODO
+				CALLBACK_VOID(java_sound_play, __self);
 			#else
 				self->paused = 0;
 			#endif
@@ -177,11 +174,11 @@
 		return 0;
 		
 	} static inline unsigned long long sound_volume(unsigned long long __self, double volume) {
-		sound_t* self = (sound_t*) __self;
-		
 		#if KOS_USES_JNI
-			return 1; /// TODO
+			CALLBACK_VOID(java_sound_volume, __self, volume);
 		#else
+			sound_t* self = (sound_t*) __self;
+			
 			self-> left_volume = volume;
 			self->right_volume = volume;
 		#endif
@@ -189,14 +186,14 @@
 		return 0;
 		
 	} static inline unsigned long long sound_play(unsigned long long __self) {
-		sound_t* self = (sound_t*) __self;
-		
-		self->paused = 0;
-		self->playing = 1;
-		
 		#if KOS_USES_JNI
-			return 1; /// TODO
+			CALLBACK_VOID(java_sound_play, __self);
 		#else
+			sound_t* self = (sound_t*) __self;
+			
+			self->paused = 0;
+			self->playing = 1;
+			
 			int temp_error = pthread_create(&self->thread, NULL, sound_loop, (void*) self);
 			if (temp_error) {
 				printf("WARNING Failed to play sound (%d)\n", temp_error);
@@ -210,12 +207,12 @@
 	} static inline unsigned long long sound_position(unsigned long long __self, double fraction) {
 		fraction = fraction > 1.0 || fraction < 0.0 ? 0.0 : fraction;
 		
-		sound_t* self = (sound_t*) __self;
-		unsigned long long bytes = self->checkpoints[(unsigned long long) (self->seconds * fraction / self->ecart)].bytes;
-		
 		#if KOS_USES_JNI
-			return 1; /// TODO
+			CALLBACK_VOID(java_sound_position, __self, fraction);
 		#else
+			sound_t* self = (sound_t*) __self;
+			unsigned long long bytes = self->checkpoints[(unsigned long long) (self->seconds * fraction / self->ecart)].bytes;
+	
 			mad_stream_buffer(&self->stream, (const unsigned char*) self->input_stream, self->bytes);
 			mad_stream_skip(&self->stream, bytes);
 		#endif
@@ -225,35 +222,48 @@
 	}
 	
 	static inline unsigned long long sound_remove(unsigned long long __self) {
-		sound_t* self = (sound_t*) __self;
 		sound_action(__self, 0);
 		
 		#if KOS_USES_JNI
-			return 1; /// TODO
+			CALLBACK_VOID(java_sound_dispose, __self);
 		#else
+			sound_t* self = (sound_t*) __self;
+			
 			mad_stream_finish(&self->stream);
 			mad_synth_finish (&self->synth);
 			mad_frame_finish (&self->frame);
 			
 			fclose(self->fp);
-		#endif
 		
-		mfree(self->checkpoints, self->checkpoint_count * sizeof(sound_checkpoint_t));
-		mfree(self, sizeof(sound_t));
+			mfree(self->checkpoints, self->checkpoint_count * sizeof(sound_checkpoint_t));
+			mfree(self, sizeof(sound_t));
+		#endif
 		
 		return 0;
 		
 	} static inline double sound_length(unsigned long long __self) {
-		sound_t* self = (sound_t*) __self;
-		return self->seconds;
+		#if KOS_USES_JNI
+			return CALLBACK(java_sound_get_seconds, callback_env->CallStaticDoubleMethod, __self);
+		#else
+			sound_t* self = (sound_t*) __self;
+			return self->seconds;
+		#endif
 		
-	} static inline double sound_frequency(unsigned long long __self) {
-		sound_t* self = (sound_t*) __self;
-		return self->frequency;
+	} static inline unsigned long long sound_frequency(unsigned long long __self) {
+		#if KOS_USES_JNI
+			return (unsigned long long) CALLBACK(java_sound_frequency, callback_env->CallStaticLongMethod, __self);
+		#else
+			sound_t* self = (sound_t*) __self;
+			return self->frequency;
+		#endif
 		
 	} static inline double sound_value(unsigned long long __self, unsigned long long channel) {
-		sound_t* self = (sound_t*) __self;
-		return (double) self->values[channel] / 0x8000;
+		#if KOS_USES_JNI
+			return 0.0f; /// TODO
+		#else
+			sound_t* self = (sound_t*) __self;
+			return (double) self->values[channel] / 0x8000;
+		#endif
 		
 	}
 	

@@ -176,6 +176,7 @@
 	
 	#include <sys/stat.h>
 	unsigned long long fs_type(unsigned long long __path) {
+		return FS_TYPE_FILE;
 		GET_PATH((char*) __path)
 		
 		DIR* dp = opendir(path);
