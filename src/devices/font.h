@@ -151,7 +151,7 @@
 			
 		#else
 			unsigned long long i;
-			for (i = 0; i < KOS_MAX_FONTS; i++) {
+			for (i = 1; i < KOS_MAX_FONTS; i++) {
 				if (kos_fonts[i].used == 0) {
 					kos_fonts[i].used =  1;
 					
@@ -172,7 +172,7 @@
 						printf("WARNING Font could not be loaded (possibly an incorrect path? `%s`)\n", path);
 						kos_fonts[i].used = 0;
 						
-						return (font_t) -1;
+						return 0;
 						
 					}
 					
@@ -183,7 +183,7 @@
 			}
 			
 			printf("WARNING You have surpassed the maximum font count (KOS_MAX_FONTS = %d)\n", KOS_MAX_FONTS);
-			return (font_t) -1;
+			return 0;
 		#endif
 		
 	}
