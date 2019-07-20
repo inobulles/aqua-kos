@@ -95,7 +95,7 @@
 			self->text = (char*) malloc(bytes);
 			memcpy(self->text, text, bytes);
 			int ascent;
-			float scale = stbtt_ScaleForPixelHeight(&self->font, self->size * video_width());
+			float scale = stbtt_ScaleForPixelHeight(&self->font, (int) (self->size * video_width()));
 			stbtt_GetFontVMetrics(&self->font, &ascent, 0, 0);
 			int baseline = scale * ascent;
 			
@@ -105,7 +105,7 @@
 			float x = 2.0f, y = 2.0f;
 			self->surface.w = self->surface.h = 0;
 			
-			for (unsigned long long i = 0; i < bytes - 1; i++) {
+			for (unsigned long long i = 0; i < bytes - 1; i++) { /// TODO UTF-8
 				int current = self->text[i];
 				int next    = self->text[i + 1];
 				
@@ -121,13 +121,16 @@
 				bitmaps = (kos_font_surface_t*) realloc(bitmaps, (bitmap_count + 1) * sizeof(kos_font_surface_t));
 				
 				int w, h;
-				bitmaps[bitmap_count].pixels = stbtt_GetCodepointBitmap(&self->font, 0, scale, current, &w, &h, 0, 0);
+				int offx, offy;
+				bitmaps[bitmap_count].pixels = (unsigned long long*) stbtt_GetCodepointBitmapSubpixel(&self->font, scale, scale, shiftx, shifty, current, &w, &h, &offx, &offy);
 				
 				bitmaps[bitmap_count].w = w;
 				bitmaps[bitmap_count].h = h;
 				
-				bitmaps[bitmap_count].x = x;
-				bitmaps[bitmap_count].y = y;
+				bitmaps[bitmap_count].x = offx + x;
+				bitmaps[bitmap_count].y = baseline + y0;
+				
+				y = fmax(y, bitmaps[bitmap_count].h + bitmaps[bitmap_count].y);
 				
 				bitmap_count++;
 				x += scale * advance_width;
@@ -140,17 +143,18 @@
 			}
 			
 			self->surface.w = x + bitmaps[bitmap_count - 1].w;
-			self->surface.h = y + bitmaps[bitmap_count - 1].h;
+			self->surface.h = y/* + bitmaps[bitmap_count - 1].h*/;
 			
 			bytes = self->surface.w * self->surface.h * 4;
 			self->surface.pixels = (unsigned long long*) malloc(bytes);
 			memset(self->surface.pixels, 0xFF, bytes);
+			for (unsigned long long i = 0; i < self->surface.w * self->surface.h; i++) ((char*) self->surface.pixels)[i * 4 + 3] = 0x00;
 			
 			for (unsigned long long i = 0; i < bitmap_count; i++) {
-				for (unsigned long long j = 0; j < self->surface.w * self->surface.h; j++) {
+				for (unsigned long long j = 0; j < bitmaps[i].w * bitmaps[i].h; j++) {
 					if (bitmaps[i].w) {
-						unsigned long long k = (bitmaps[i].x + j % bitmaps[i].w + (bitmaps[i].y + j / bitmaps[i].w) * bitmaps[i].w) * 4 + 3;
-						if (k < bytes) ((char*) self->surface.pixels)[k] = bitmaps[i].pixels[j];
+						unsigned long long k = (bitmaps[i].x + j % bitmaps[i].w + (bitmaps[i].y + j / bitmaps[i].w) * self->surface.w) * 4 + 3;
+						if (k < bytes) ((char*) self->surface.pixels)[k] = ((char*) bitmaps[i].pixels)[j];
 						
 					}
 					
