@@ -2,454 +2,196 @@
 #ifndef __AQUA__SDL2_SRC_FUNCTIONS_FONT_H
 	#define __AQUA__SDL2_SRC_FUNCTIONS_FONT_H
 	
+	#ifndef STB_TRUETYPE_IMPLEMENTATION
+		#define STB_TRUETYPE_IMPLEMENTATION
+		#include "../external/libstb/stb_truetype.h"
+	#endif
+	
+	#include <locale.h>
 	typedef unsigned long long font_t;
 	
-	#if KOS_USES_SDL2
-		#ifdef __USE_SDL_TTF
-			#include <SDL2/SDL_ttf.h>
-			#warning "WARNING Using the SDL_ttf library may cause problems on some platforms"
-		#else
-			#include "../external/freetype2/ft2build.h"
-			#include FT_FREETYPE_H
-			
-			#include "../external/SDL_ttf/SDL_ttf.c"
-		#endif
-	#endif
-	
-	#define __USE_SDL_TTF_PROVIDED 1
-	
-	#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-		typedef SDL_Surface* kos_font_surface_t;
-	#else
-		typedef struct {
-			unsigned long long* pixels;
-			
-			unsigned long long  w;
-			unsigned long long  h;
-			
-		} kos_font_surface_t;
-	#endif
+	typedef struct {
+		unsigned long long* pixels;
+		unsigned long long w, h;
+		unsigned long long x, y;
+		
+	} kos_font_surface_t;
 	
 	typedef struct {
 		unsigned char used;
 		
 		float size;
-		char  path[MAX_PATH_LENGTH];
 		char* text;
 		
+		stbtt_fontinfo font;
 		kos_font_surface_t surface;
-		
-		#if KOS_USES_SDL2
-			#ifdef __USE_SDL_TTF_PROVIDED
-				TTF_Font* font;
-			#else
-				FT_Face font;
-			#endif
-		#endif
 		
 	} kos_font_t;
 	
-	#ifndef KOS_MAX_FONTS
-		#define KOS_MAX_FONTS 4096
-	#endif
+	static unsigned long long kos_font_count = 0;
+	static kos_font_t* kos_fonts = (kos_font_t*) 0;
 	
-	static kos_font_t kos_fonts[KOS_MAX_FONTS];
-	
-	#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-		static SDL_Color kos_font_colour;
-	#elif KOS_USES_SDL2
-		static FT_Library kos_freetype_library;
-	#endif
-	
-	#ifndef KOS_CHECK_FONT
-		#define KOS_CHECK_FONT(return_value) { \
-			if (__this < 0 && __this >= KOS_MAX_FONTS && !kos_fonts[__this].used) { \
-				printf("WARNING Font %lld does not exist\n", __this); \
-				return (return_value); \
-			} \
-		}
-	#endif
-	
-	static void kos_unuse_font(kos_font_t* __this) {
-		__this->used = 0;
-		__this->text = NULL;
-		
-		#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-			__this->font    = NULL;
-			__this->surface = NULL;
-		#endif
+	void kos_init_fonts(void) {
+		kos_font_count = 1;
+		kos_fonts = (kos_font_t*) malloc(kos_font_count * sizeof(kos_font_t));
+		memset(&*kos_fonts, 0, sizeof(*kos_fonts));
 		
 	}
 	
-	void kos_init_fonts(void) { /// TO... IMPLEMENT?
-		#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-			kos_font_colour.r = 0xFF;
-			kos_font_colour.g = 0xFF;
-			kos_font_colour.b = 0xFF;
-			kos_font_colour.a = 0xFF;
-		#else
-		#endif
-		
-		unsigned long long i;
-		for (i = 0; i < KOS_MAX_FONTS; i++) {
-			kos_unuse_font(&kos_fonts[i]);
+	static inline void font_remove_internal(kos_font_t* self) {
+		if (self->text) {
+			free(self->text);
+			self->text = (char*) 0;
+			
+		} if (self->surface.pixels) {
+			free(self->surface.pixels);
+			self->surface.pixels = (unsigned long long*) 0;
 			
 		}
 		
-		#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-			if (TTF_Init() == -1) {
-				printf("WARNING SDL2 TTF could not initialize (%s)\n", TTF_GetError());
-				return;
-				
-			}
-		#elif KOS_USES_SDL2
-			if (FT_Init_FreeType(&kos_freetype_library)) {
-				printf("WARNING FreeType could not initialize\n");
-				return;
-				
-			}
-		#endif
+	}
+	
+	unsigned long long font_remove(font_t __self) {
+		kos_font_t* self = &kos_fonts[__self];
+		
+		if (self->used) {
+			self->used = 0;
+			font_remove_internal(self);
+			return 0;
+			
+		}
+		
+		return 1;
 		
 	}
 	
 	void kos_destroy_fonts(void) {
-		#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-			TTF_Quit();
-		#elif KOS_USES_SDL2
-			FT_Done_FreeType(kos_freetype_library);
-		#endif
+		for (unsigned long long i = 0; i < kos_font_count; i++) font_remove(i);
+		mfree(kos_fonts, kos_font_count * sizeof(kos_font_t));
 		
 	}
 	
-	#if !(__USE_SDL_TTF_PROVIDED) && KOS_USES_SDL2
-		unsigned long long kos_freetype_new_font(const char* path, unsigned long long size, FT_Face* font) {
-			unsigned long long font_loading_error = FT_New_Face(kos_freetype_library, path, 0, font);
-			
-			if (font_loading_error == FT_Err_Unknown_File_Format) printf("WARNING Font could not be loaded (unknown file format)\n");
-			if (FT_Set_Char_Size(*font, 0, size << 6, 300, 300))  printf("WARNING Failed to set font size\n");
-			
-			return font_loading_error;
-			
-		}
-	#endif
+	font_t new_font(unsigned long long data, unsigned long long bytes, unsigned long long size) {
+		kos_fonts = (kos_font_t*) realloc(kos_fonts, (kos_font_count + 1) * sizeof(kos_font_t));
+		kos_font_t* self = &kos_fonts[kos_font_count];
+		memset(self, 0, sizeof(*self));
+		
+		self->used = 1;
+		self->size = (float) size / _UI64_MAX;
+		
+		stbtt_InitFont(&self->font, (const unsigned char*) data, stbtt_GetFontOffsetForIndex((const unsigned char*) data, 0));
+		return kos_font_count++;
+		
+	}
 	
 	unsigned long long video_width(void);
-	
-	font_t new_font(unsigned long long ___path, unsigned long long size) {
-		const char* _path = (const char*) ___path;
-		GET_PATH((char*) _path);
-		
-		#if KOS_USES_JNI
-			jint error = CALLBACK_INT(java_new_font, (jint) (((float) size / _UI64_MAX) * (float) video_width()), callback_env->NewStringUTF(path));
-			
-			if (error < 0) {
-				ALOGE("WARNING Java had a problem loading the font\n");
-				
-			}
-		
-			return (font_t) error;
-			
-		#else
-			unsigned long long i;
-			for (i = 1; i < KOS_MAX_FONTS; i++) {
-				if (kos_fonts[i].used == 0) {
-					kos_fonts[i].used =  1;
-					
-					memcpy(kos_fonts[i].path, path, MAX_PATH_LENGTH * sizeof(char));
-					
-					kos_fonts[i].size = (float) size / _UI64_MAX;
-					unsigned char font_loading_error = 0;
-					unsigned long long _size = (unsigned long long) (kos_fonts[i].size * video_width());
-					
-					#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-						kos_fonts[i].font  = TTF_OpenFont(kos_fonts[i].path, _size);
-						font_loading_error = !kos_fonts[i].font;
-					#elif KOS_USES_SDL2
-						font_loading_error = kos_freetype_new_font(kos_fonts[i].path, _size, &kos_fonts[i].font);
-					#endif
-					
-					if (font_loading_error) {
-						printf("WARNING Font could not be loaded (possibly an incorrect path? `%s`)\n", path);
-						kos_fonts[i].used = 0;
-						
-						return 0;
-						
-					}
-					
-					return i;
-					
-				}
-				
-			}
-			
-			printf("WARNING You have surpassed the maximum font count (KOS_MAX_FONTS = %d)\n", KOS_MAX_FONTS);
-			return 0;
-		#endif
-		
-	}
-	
-	void update_all_font_sizes(void) {
-		return;
-		
-		unsigned long long i;
-		for (i = 0; i < KOS_MAX_FONTS; i++) {
-			if (kos_fonts[i].used) {
-				unsigned char font_loading_error = 0;
-				unsigned long long size = (unsigned long long) (kos_fonts[i].size * video_width());
-				
-				#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-					TTF_CloseFont(kos_fonts[i].font);
-					kos_fonts[i].font = TTF_OpenFont(kos_fonts[i].path, size);
-				#elif KOS_USES_SDL2
-					FT_Done_Face(kos_fonts[i].font);
-					kos_freetype_new_font(kos_fonts[i].path, size, &kos_fonts[i].font);
-				#endif
-				
-			}
-			
-		}
-		
-	}
-	
-	static void kos_font_create_text(kos_font_t* __this, unsigned long long __text) {
+	static void kos_font_create_text(kos_font_t* self, unsigned long long __text) {
 		char* text = (char*) __text;
 		
-		if (
-		#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-			!__this->surface ||
-		#endif
-			(__this->text == NULL || strcmp(text, __this->text) != 0)) {
-			#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-				if (__this->surface) {
-					SDL_FreeSurface(__this->surface);
-					__this->surface = NULL;
-					
-				}
-			#endif
-			
-			if      (__this->text) {
-				free(__this->text);
-				
-			}
+		if (self->text == (char*) 0 || strcmp(text, self->text) != 0) {
+			font_remove_internal(self);
 			
 			unsigned long long bytes = strlen(text) + 1;
-			__this->text = (char*) malloc(bytes);
-			memcpy(__this->text, text,    bytes);
+			self->text = (char*) malloc(bytes);
+			memcpy(self->text, text, bytes);
+			int ascent;
+			float scale = stbtt_ScaleForPixelHeight(&self->font, self->size * video_width());
+			stbtt_GetFontVMetrics(&self->font, &ascent, 0, 0);
+			int baseline = scale * ascent;
 			
-			#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-				SDL_Surface* temp = TTF_RenderUTF8_Blended_Wrapped(__this->font, text, kos_font_colour, video_width());
-				__this->surface = SDL_CreateRGBSurface(0, temp->w, temp->h, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+			unsigned long long bitmap_count = 0;
+			kos_font_surface_t* bitmaps = (kos_font_surface_t*) malloc((bitmap_count + 1) * sizeof(kos_font_surface_t));
+			
+			float x = 2.0f, y = 2.0f;
+			self->surface.w = self->surface.h = 0;
+			
+			for (unsigned long long i = 0; i < bytes - 1; i++) {
+				int current = self->text[i];
+				int next    = self->text[i + 1];
 				
-				SDL_BlitSurface(temp, NULL, __this->surface, NULL);
-				SDL_FreeSurface(temp);
+				float shiftx = x - (float) floor(x);
+				float shifty = y - (float) floor(y);
 				
-				if (!__this->surface) {
-					printf("WARNING Could not create the font surface (SDL `%s`, TTF `%s`)\n", SDL_GetError(), TTF_GetError());
-					__this->used = 0;
-					
-					return;
+				int advance_width, left_side_bearing;
+				stbtt_GetCodepointHMetrics(&self->font, current, &advance_width, &left_side_bearing);
+				
+				int x0, y0, x1, y1;
+				stbtt_GetCodepointBitmapBoxSubpixel(&self->font, current, scale, scale, shiftx, shifty, &x0, &y0, &x1, &y1);
+				
+				bitmaps = (kos_font_surface_t*) realloc(bitmaps, (bitmap_count + 1) * sizeof(kos_font_surface_t));
+				
+				int w, h;
+				bitmaps[bitmap_count].pixels = stbtt_GetCodepointBitmap(&self->font, 0, scale, current, &w, &h, 0, 0);
+				
+				bitmaps[bitmap_count].w = w;
+				bitmaps[bitmap_count].h = h;
+				
+				bitmaps[bitmap_count].x = x;
+				bitmaps[bitmap_count].y = y;
+				
+				bitmap_count++;
+				x += scale * advance_width;
+				
+				if (next) {
+					x += scale * stbtt_GetCodepointKernAdvance(&self->font, current, next);
 					
 				}
 				
-				SDL_LockSurface(__this->surface);
-				uint64_t* pixels = (uint64_t*) __this->surface->pixels;
-				
-				unsigned long long i;
-				for (i = 0; i < (__this->surface->w * __this->surface->h) / 2; i++) {
-					pixels[i] &= 0xFF000000FF000000;
-					pixels[i] += 0x00FFFFFF00FFFFFF;
-					
-				}
-			#elif KOS_USES_SDL2
-				FT_Matrix matrix;
-				
-				matrix.xx = (FT_Fixed) (1 * 0x10000L);
-				matrix.xy = (FT_Fixed) (0 * 0x10000L);
-				matrix.yx = (FT_Fixed) (0 * 0x10000L);
-				matrix.yy = (FT_Fixed) (1 * 0x10000L);
-				
-				FT_Vector position;
-				
-				position.x = 0;
-				position.y = 0;
-				
-				FT_GlyphSlot slot = __this->font->glyph;
-				
-				__this->surface.w = 1000;
-				__this->surface.h = 1000;
-				__this->surface.pixels = (unsigned long long*) malloc(__this->surface.w * __this->surface.h * 4);
-				
-				unsigned long long i;
-				for (i = 0; i < strlen(text) - 1; i++) {
-					FT_Set_Transform(__this->font, &matrix, &position);
-					
-					if (FT_Load_Char(__this->font, text[i], FT_LOAD_RENDER)) {
-						printf("WARNING Failed to load \"%d\" (or %c) character\n", text[i], text[i]);
-						continue;
+			}
+			
+			self->surface.w = x + bitmaps[bitmap_count - 1].w;
+			self->surface.h = y + bitmaps[bitmap_count - 1].h;
+			
+			bytes = self->surface.w * self->surface.h * 4;
+			self->surface.pixels = (unsigned long long*) malloc(bytes);
+			memset(self->surface.pixels, 0xFF, bytes);
+			
+			for (unsigned long long i = 0; i < bitmap_count; i++) {
+				for (unsigned long long j = 0; j < self->surface.w * self->surface.h; j++) {
+					if (bitmaps[i].w) {
+						unsigned long long k = (bitmaps[i].x + j % bitmaps[i].w + (bitmaps[i].y + j / bitmaps[i].w) * bitmaps[i].w) * 4 + 3;
+						if (k < bytes) ((char*) self->surface.pixels)[k] = bitmaps[i].pixels[j];
 						
 					}
 					
-					FT_Bitmap bitmap = slot->bitmap;
-					
-					unsigned long long ox = slot->bitmap_left;
-					unsigned long long oy = slot->bitmap_top;
-					
-					unsigned long long xmax = ox + bitmap.width;
-					unsigned long long ymax = oy + bitmap.rows;
-					
-					unsigned long long x;
-					unsigned long long y;
-					
-					unsigned long long p;
-					unsigned long long q;
-					
-					printf("%lld %lld\n", xmax, ymax);
-					
-					for (x = ox; x < xmax; x++, p++) {
-						for (y = oy; y < ymax; y++, q++) {
-							if (x < 0 || y < 0) continue;
-							((char*) __this->surface.pixels)[q * bitmap.width + p] |= bitmap.buffer[q * bitmap.width + p];
-							
-						}
-						
-					}
-					
-					position.x += slot->advance.x;
-					position.y += slot->advance.y;
-					
 				}
-			#endif
+				
+				mfree(bitmaps[i].pixels, bitmaps[i].w * bitmaps[i].h);
+				
+			}
 			
 		}
 		
 	}
 	
-	unsigned long long font_remove(font_t __this) {
-		#if KOS_USES_JNI
-			//CALLBACK_VOID(java_font_remove, font); // This was replaced by Lib.clear_fonts, called in InstanceActivity.dispose_all
-		#else
-			KOS_CHECK_FONT(-1)
-			
-			if (kos_fonts[__this].text != NULL) {
-				free(kos_fonts[__this].text);
-				
-			}
-			
-			#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-				if (kos_fonts[__this].surface) {
-					SDL_FreeSurface(kos_fonts[__this].surface);
-					
-				}
-				
-				TTF_CloseFont(kos_fonts[__this].font);
-			#elif KOS_USES_SDL2
-				FT_Done_Face(kos_fonts[__this].font);
-			#endif
-			
-			kos_unuse_font(&kos_fonts[__this]);
-		#endif
+	unsigned long long get_font_width(font_t self, unsigned long long text) {
+		kos_font_create_text(&kos_fonts[self], text);
+		return kos_fonts[self].surface.w;
 		
-		return 0;
+	} unsigned long long get_font_height(font_t self, unsigned long long text) {
+		kos_font_create_text(&kos_fonts[self], text);
+		return kos_fonts[self].surface.h;
 		
 	}
 
-	unsigned long long get_font_width(font_t __this, unsigned long long __text) {
-		char* text = (char*) __text;
-		
-		#if KOS_USES_JNI
-			return (unsigned long long) CALLBACK_INT(java_get_font_width, (jint) __this, callback_env->NewStringUTF((const char*) text));
-		#else
-			KOS_CHECK_FONT(-1)
-			
-			kos_font_t* font = &kos_fonts[__this];
-			kos_font_create_text(font, (unsigned long long) text);
-			
-			#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-				return font->surface->w;
-			#elif KOS_USES_SDL2
-				return font->surface.w;
-			#else
-				return 100;
-			#endif
-		#endif
+	texture_t create_texture_from_font(font_t __self, unsigned long long text) {
+		kos_font_t* self = &kos_fonts[__self];
+		kos_font_create_text(self, text);
+		return __texture_create(self->surface.pixels, 32, self->surface.w, self->surface.h, 0);
 		
 	}
-	
-	unsigned long long get_font_height(font_t __this, unsigned long long __text) {
-		char* text = (char*) __text;
-		
-		#if KOS_USES_JNI
-			return (unsigned long long) CALLBACK_INT(java_get_font_height, (jint) __this, callback_env->NewStringUTF((const char*) text));
-		#else
-			KOS_CHECK_FONT(-1)
-			
-			kos_font_t* font = &kos_fonts[__this];
-			kos_font_create_text(font, (unsigned long long) text);
-			
-			#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-				return font->surface->h;
-			#elif KOS_USES_SDL2
-				return font->surface.h;
-			#else
-				return 100;
-			#endif
-		#endif
-		
-	}
-
-	texture_t create_texture_from_font(font_t __this, unsigned long long __text) {
-		char* text = (char*) __text;
-		
-		#if KOS_USES_JNI
-			texture_t texture = 0;
-			jint      error   = 1;
-		
-			unsigned long long width  = get_font_width (__this, (unsigned long long) text);
-			unsigned long long height = get_font_height(__this, (unsigned long long) text);
-		
-			if (!(width <= 0 || height <= 0)) {
-				error = CALLBACK_INT(java_create_texture_from_font, (jint) __this, callback_env->NewStringUTF((const char*) text), TEXTURE_WRAP_TYPE, SHARP_TEXTURES);
-				
-			}
-		
-			if (error < 0) ALOGE("WARNING Java had a problem loading the font\n");
-			else           texture = (texture_t) error;
-		
-			return texture;
-		#else
-			KOS_CHECK_FONT(0)
-			
-			kos_font_t* font = &kos_fonts[__this];
-			kos_font_create_text(font, (unsigned long long) text);
-			
-			#if __USE_SDL_TTF_PROVIDED && KOS_USES_SDL2
-				return __texture_create(font->surface->pixels, 32, font->surface->w, font->surface->h, 0);
-			#elif KOS_USES_SDL2
-				return __texture_create(font->surface.pixels, 32, font->surface.w, font->surface.h, 0);
-			#else
-				return 0;
-			#endif
-		#endif
-		
-	}
-	
-	typedef struct {
-		unsigned long long command;
-		unsigned long long self;
-		unsigned long long argument;
-		
-	} font_device_t;
 	
 	static void font_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
+		*result = (unsigned long long*) &kos_bda_implementation.temp_value;
 		
-		if      (command[0] == 'c') { kos_bda_implementation.temp_value = new_font(command[1], command[2]);                 *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
-		else if (command[0] == 'r') font_remove(command[1]);
+		if      (command[0] == 'c') kos_bda_implementation.temp_value = new_font(command[1], command[2], command[3]);
+		else if (command[0] == 'r') kos_bda_implementation.temp_value = font_remove(command[1]);
 		
-		else if (command[0] == 'w') { kos_bda_implementation.temp_value = get_font_width (command[1], command[2]);          *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
-		else if (command[0] == 'h') { kos_bda_implementation.temp_value = get_font_height(command[1], command[2]);          *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command[0] == 'w') kos_bda_implementation.temp_value = get_font_width (command[1], command[2]);
+		else if (command[0] == 'h') kos_bda_implementation.temp_value = get_font_height(command[1], command[2]);
 		
-		else if (command[0] == 't') { kos_bda_implementation.temp_value = create_texture_from_font(command[1], command[2]); *result = (unsigned long long*) &kos_bda_implementation.temp_value; }
+		else if (command[0] == 't') kos_bda_implementation.temp_value = create_texture_from_font(command[1], command[2]);
 		else KOS_DEVICE_COMMAND_WARNING("font")
 		
 	}
