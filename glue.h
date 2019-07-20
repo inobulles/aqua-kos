@@ -16,7 +16,7 @@ static char* first_argv;
 #include "zvm/zvm.h"
 
 static kos_t kos;
-#define ROM_PATH "ROM.zed" /// TODO make this rom.zed
+#define ROM_PATH "rom.zed"
 static program_t* de_program;
 
 static int load_rom(const char* path, char** rom, unsigned long long* bytes) {
