@@ -105,7 +105,7 @@
 			float x = 2.0f, y = 2.0f;
 			self->surface.w = self->surface.h = 0;
 			
-			for (unsigned long long i = 0; i < bytes - 1; i++) { /// TODO UTF-8
+			for (unsigned long long i = 0; i < bytes - 1; i++) { /// TODO UTF-8, wrapped text, vertical text
 				int current = self->text[i];
 				int next    = self->text[i + 1];
 				
