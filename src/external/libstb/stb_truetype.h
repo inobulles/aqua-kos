@@ -3529,6 +3529,7 @@ STBTT_DEF void stbtt_FreeBitmap(unsigned char *bitmap, void *userdata)
    STBTT_free(bitmap, userdata);
 }
 
+float STBTT_FLATNESS = 0.35f;
 STBTT_DEF unsigned char *stbtt_GetGlyphBitmapSubpixel(const stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int glyph, int *width, int *height, int *xoff, int *yoff)
 {
    int ix0,iy0,ix1,iy1;
@@ -3562,7 +3563,7 @@ STBTT_DEF unsigned char *stbtt_GetGlyphBitmapSubpixel(const stbtt_fontinfo *info
       if (gbm.pixels) {
          gbm.stride = gbm.w;
 
-         stbtt_Rasterize(&gbm, 0.35f, vertices, num_verts, scale_x, scale_y, shift_x, shift_y, ix0, iy0, 1, info->userdata);
+         stbtt_Rasterize(&gbm, STBTT_FLATNESS, vertices, num_verts, scale_x, scale_y, shift_x, shift_y, ix0, iy0, 1, info->userdata);
       }
    }
    STBTT_free(vertices, info->userdata);

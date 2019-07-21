@@ -86,6 +86,7 @@
 	
 	unsigned long long video_width(void);
 	static void kos_font_create_text(kos_font_t* self, unsigned long long __text) {
+		STBTT_FLATNESS = 0.2f;
 		char* text = (char*) __text;
 		
 		if (self->text == (char*) 0 || strcmp(text, self->text) != 0) {

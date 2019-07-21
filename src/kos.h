@@ -175,7 +175,7 @@
 				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
 				
-				__this->window = SDL_CreateWindow("AQUA 3.X SDL2 KOS", \
+				__this->window = SDL_CreateWindow("AQUA", \
 					SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, \
 					__this->width, __this->height, \
 					SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
