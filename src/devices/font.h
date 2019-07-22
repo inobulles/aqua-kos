@@ -95,10 +95,17 @@
 			unsigned long long bytes = strlen(text) + 1;
 			self->text = (char*) malloc(bytes);
 			memcpy(self->text, text, bytes);
-			int ascent;
+			
+			int __ascent, __descent, __line_gap;
 			float scale = stbtt_ScaleForPixelHeight(&self->font, (int) (self->size * video_width()));
-			stbtt_GetFontVMetrics(&self->font, &ascent, 0, 0);
-			int baseline = scale * ascent;
+			stbtt_GetFontVMetrics(&self->font, &__ascent, &__descent, &__line_gap);
+			
+			float ascent   = scale * __ascent;
+			float descent  = scale * __descent;
+			float line_gap = scale * __line_gap;
+			
+			float baseline = ascent;
+			float line_spacing = ascent - descent + line_gap;
 			
 			unsigned long long bitmap_count = 0;
 			kos_font_surface_t* bitmaps = (kos_font_surface_t*) malloc((bitmap_count + 1) * sizeof(kos_font_surface_t));
@@ -106,45 +113,52 @@
 			float x = 2.0f, y = 2.0f;
 			self->surface.w = self->surface.h = 0;
 			
-			for (unsigned long long i = 0; i < bytes - 1; i++) { /// TODO UTF-8, wrapped text, vertical text
+			for (unsigned long long i = 0; i < bytes - 1; i++) { /// TODO UTF-8, wrapped text
 				int current = self->text[i];
-				int next    = self->text[i + 1];
 				
-				float shiftx = x - (float) floor(x);
-				float shifty = y - (float) floor(y);
-				
-				int advance_width, left_side_bearing;
-				stbtt_GetCodepointHMetrics(&self->font, current, &advance_width, &left_side_bearing);
-				
-				int x0, y0, x1, y1;
-				stbtt_GetCodepointBitmapBoxSubpixel(&self->font, current, scale, scale, shiftx, shifty, &x0, &y0, &x1, &y1);
-				
-				bitmaps = (kos_font_surface_t*) realloc(bitmaps, (bitmap_count + 1) * sizeof(kos_font_surface_t));
-				
-				int w, h;
-				int offx, offy;
-				bitmaps[bitmap_count].pixels = (unsigned long long*) stbtt_GetCodepointBitmapSubpixel(&self->font, scale, scale, shiftx, shifty, current, &w, &h, &offx, &offy);
-				
-				bitmaps[bitmap_count].w = w;
-				bitmaps[bitmap_count].h = h;
-				
-				bitmaps[bitmap_count].x = offx + x;
-				bitmaps[bitmap_count].y = baseline + y0;
-				
-				y = fmax(y, bitmaps[bitmap_count].h + bitmaps[bitmap_count].y);
-				
-				bitmap_count++;
-				x += scale * advance_width;
-				
-				if (next) {
-					x += scale * stbtt_GetCodepointKernAdvance(&self->font, current, next);
+				if (current == '\n') {
+					y += line_spacing;
+					self->surface.w = fmax(self->surface.w, x + bitmaps[bitmap_count - 1].w);
+					x = 2.0f;
+					
+				} else {
+					int next    = self->text[i + 1];
+					
+					float shiftx = x - (float) floor(x);
+					float shifty = y - (float) floor(y);
+					
+					int advance_width, left_side_bearing;
+					stbtt_GetCodepointHMetrics(&self->font, current, &advance_width, &left_side_bearing);
+					
+					int x0, y0, x1, y1;
+					stbtt_GetCodepointBitmapBoxSubpixel(&self->font, current, scale, scale, shiftx, shifty, &x0, &y0, &x1, &y1);
+					
+					bitmaps = (kos_font_surface_t*) realloc(bitmaps, (bitmap_count + 1) * sizeof(kos_font_surface_t));
+					
+					int w, h;
+					int offx, offy;
+					bitmaps[bitmap_count].pixels = (unsigned long long*) stbtt_GetCodepointBitmapSubpixel(&self->font, scale, scale, shiftx, shifty, current, &w, &h, &offx, &offy);
+					
+					bitmaps[bitmap_count].w = w;
+					bitmaps[bitmap_count].h = h;
+					
+					bitmaps[bitmap_count].x = offx + x;
+					bitmaps[bitmap_count].y = y + baseline + y0;
+					
+					bitmap_count++;
+					x += scale * advance_width;
+					
+					if (next) {
+						x += scale * stbtt_GetCodepointKernAdvance(&self->font, current, next);
+						
+					}
 					
 				}
 				
 			}
 			
-			self->surface.w = x + bitmaps[bitmap_count - 1].w;
-			self->surface.h = y/* + bitmaps[bitmap_count - 1].h*/;
+			self->surface.w = fmax(self->surface.w, x + bitmaps[bitmap_count - 1].w);
+			self->surface.h = y + line_spacing;
 			
 			bytes = self->surface.w * self->surface.h * 4;
 			self->surface.pixels = (unsigned long long*) malloc(bytes);
