@@ -171,7 +171,7 @@
 				for (unsigned long long j = 0; j < bitmaps[i].w * bitmaps[i].h; j++) {
 					if (bitmaps[i].w) {
 						unsigned long long k = (bitmaps[i].x + j % bitmaps[i].w + (bitmaps[i].y + j / bitmaps[i].w) * self->surface.w) * 4 + 3;
-						if (k < bytes) ((char*) self->surface.pixels)[k] = ((char*) bitmaps[i].pixels)[j];
+						if (k < bytes) ((char*) self->surface.pixels)[k] += ((char*) bitmaps[i].pixels)[j];
 						
 					}
 					
