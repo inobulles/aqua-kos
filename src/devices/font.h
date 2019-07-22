@@ -82,6 +82,7 @@
 		
 	} unsigned long long font_size(unsigned long long __self, unsigned long long size) {
 		kos_fonts[__self].size = (float) size / _UI64_MAX;
+		kos_fonts[__self].text = (char*) 0;
 		return 0;
 		
 	}
