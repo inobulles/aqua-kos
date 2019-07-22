@@ -8,7 +8,6 @@
 	#endif
 	
 	#include <locale.h>
-	typedef unsigned long long font_t;
 	
 	typedef struct {
 		unsigned long long* pixels;
@@ -51,7 +50,7 @@
 		
 	}
 	
-	unsigned long long font_remove(font_t __self) {
+	unsigned long long font_remove(unsigned long long __self) {
 		kos_font_t* self = &kos_fonts[__self];
 		
 		if (self->used) {
@@ -71,16 +70,19 @@
 		
 	}
 	
-	font_t new_font(unsigned long long data, unsigned long long bytes, unsigned long long size) {
+	unsigned long long new_font(unsigned long long data, unsigned long long bytes) {
 		kos_fonts = (kos_font_t*) realloc(kos_fonts, (kos_font_count + 1) * sizeof(kos_font_t));
 		kos_font_t* self = &kos_fonts[kos_font_count];
 		memset(self, 0, sizeof(*self));
 		
 		self->used = 1;
-		self->size = (float) size / _UI64_MAX;
+		self->size = 0.05f;
 		
-		stbtt_InitFont(&self->font, (const unsigned char*) data, stbtt_GetFontOffsetForIndex((const unsigned char*) data, 0));
-		return kos_font_count++;
+		return stbtt_InitFont(&self->font, (const unsigned char*) data, stbtt_GetFontOffsetForIndex((const unsigned char*) data, 0)) ? kos_font_count++ : 0;
+		
+	} unsigned long long font_size(unsigned long long __self, unsigned long long size) {
+		kos_fonts[__self].size = (float) size / _UI64_MAX;
+		return 0;
 		
 	}
 	
@@ -116,13 +118,13 @@
 			for (unsigned long long i = 0; i < bytes - 1; i++) { /// TODO UTF-8, wrapped text
 				int current = self->text[i];
 				
-				if (current == '\n') {
+				if (current == '\n' ) {
 					y += line_spacing;
-					self->surface.w = fmax(self->surface.w, x + bitmaps[bitmap_count - 1].w);
+					if (bitmap_count) self->surface.w = fmax(self->surface.w, x + bitmaps[bitmap_count - 1].w);
 					x = 2.0f;
 					
 				} else {
-					int next    = self->text[i + 1];
+					int next = self->text[i + 1];
 					
 					float shiftx = x - (float) floor(x);
 					float shifty = y - (float) floor(y);
@@ -179,21 +181,23 @@
 				
 			}
 			
+			mfree(bitmaps, (bitmap_count + 1) * sizeof(*bitmaps));
+			
 		}
 		
 	}
 	
-	unsigned long long get_font_width(font_t self, unsigned long long text) {
+	unsigned long long get_font_width(unsigned long long self, unsigned long long text) {
 		kos_font_create_text(&kos_fonts[self], text);
 		return kos_fonts[self].surface.w;
 		
-	} unsigned long long get_font_height(font_t self, unsigned long long text) {
+	} unsigned long long get_font_height(unsigned long long self, unsigned long long text) {
 		kos_font_create_text(&kos_fonts[self], text);
 		return kos_fonts[self].surface.h;
 		
 	}
 
-	texture_t create_texture_from_font(font_t __self, unsigned long long text) {
+	texture_t create_texture_from_font(unsigned long long __self, unsigned long long text) {
 		kos_font_t* self = &kos_fonts[__self];
 		kos_font_create_text(self, text);
 		return __texture_create(self->surface.pixels, 32, self->surface.w, self->surface.h, 0);
@@ -204,8 +208,10 @@
 		unsigned long long* command = (unsigned long long*) data;
 		*result = (unsigned long long*) &kos_bda_implementation.temp_value;
 		
-		if      (command[0] == 'c') kos_bda_implementation.temp_value = new_font(command[1], command[2], command[3]);
+		if      (command[0] == 'c') kos_bda_implementation.temp_value = new_font(command[1], command[2]);
 		else if (command[0] == 'r') kos_bda_implementation.temp_value = font_remove(command[1]);
+		
+		else if (command[0] == 's') kos_bda_implementation.temp_value = font_size(command[1], command[2]);
 		
 		else if (command[0] == 'w') kos_bda_implementation.temp_value = get_font_width (command[1], command[2]);
 		else if (command[0] == 'h') kos_bda_implementation.temp_value = get_font_height(command[1], command[2]);
