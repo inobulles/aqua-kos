@@ -118,6 +118,13 @@
 				(float) gl_command[10] / FLOAT_ONE  \
 			);
 
+		} else if (gl_command[0] == 's') { // scale
+			glScalef( \
+				(float) gl_command[7]  / FLOAT_ONE, \
+				(float) gl_command[8]  / FLOAT_ONE, \
+				(float) gl_command[9]  / FLOAT_ONE  \
+			);
+
 		} else if (gl_command[0] == 'm') { // translate (move)
 			glTranslatef( \
 				(float) gl_command[7] / FLOAT_ONE, \

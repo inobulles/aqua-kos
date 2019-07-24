@@ -8,7 +8,7 @@
 		const unsigned long long* shader_command = (const unsigned long long*) data;
 		
 		if (shader_command[0] == 'c') { // create
-			kos_bda_implementation.temp_value = gl_load_shaders((GLuint*) shader_command[1], (char*) shader_command[3], (char*) shader_command[4]);
+			kos_bda_implementation.temp_value = gl_load_shaders((GLuint*) shader_command[1], (char*) shader_command[2], (char*) shader_command[3]);
 			*result = (unsigned long long*) &kos_bda_implementation.temp_value;
 			
 		}
