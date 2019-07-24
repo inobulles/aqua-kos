@@ -13,7 +13,7 @@
 			
 		}
 			
-		else if (framebuffer_command[0] == 'b') framebuffer_bind  (framebuffer_command[1], framebuffer_command[4], framebuffer_command[5], framebuffer_command[2], framebuffer_command[3]);
+		else if (framebuffer_command[0] == 'b') framebuffer_bind  (framebuffer_command[1], framebuffer_command[2], framebuffer_command[3], framebuffer_command[4], framebuffer_command[5]);
 		else if (framebuffer_command[0] == 'r') framebuffer_remove(framebuffer_command[1]);
 		else KOS_DEVICE_COMMAND_WARNING("framebuffer");
 		
