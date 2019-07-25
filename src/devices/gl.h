@@ -9,6 +9,7 @@
 			glBindTexture  (GL_TEXTURE_2D, (GLenum) gl_command[24]);
 			
 		} else if (gl_command[0] == 'f') { // frustum
+			glDisable(GL_CULL_FACE);
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 
@@ -109,6 +110,10 @@
 
 		} else if (gl_command[0] == 'i') { // load identity
 			glLoadIdentity();
+			
+		} else if (gl_command[0] == 'h') { // depth
+			if (gl_command[23]) glEnable (GL_DEPTH_TEST);
+			else                glDisable(GL_DEPTH_TEST);
 			
 		} else if (gl_command[0] == 'r') { // rotate
 			glRotatef( \

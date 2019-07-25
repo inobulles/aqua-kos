@@ -17,7 +17,7 @@
 		int glGenFramebuffers        ();
 	#endif
 	
-	framebuffer_t gl2_framebuffer_create(texture_t texture) {
+	framebuffer_t gl2_framebuffer_create(texture_t texture, texture_t depth_texture) {
 		#if KOS_USES_OPENGL_DESKTOP
 			GLint                                  old_framebuffer;
 			glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer);
@@ -25,8 +25,11 @@
 			GLuint framebuffer_id = 0;
 			glGenFramebuffers(1, &framebuffer_id);
 			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
-			glBindFramebuffer   (GL_FRAMEBUFFER, old_framebuffer);
+			
+			if (texture)       glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+			if (depth_texture) glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_texture, 0);
+			
+			glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer);
 
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 				printf("WARNING Failed to create framebuffer\n");

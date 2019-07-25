@@ -8,7 +8,7 @@
 		unsigned long long* framebuffer_command = (unsigned long long*) data;
 		
 		if (framebuffer_command[0] == 'c') { // create
-			kos_bda_implementation.temp_value = framebuffer_create(framebuffer_command[1]);
+			kos_bda_implementation.temp_value = framebuffer_create(framebuffer_command[1], framebuffer_command[2]);
 			*result = (unsigned long long*) &kos_bda_implementation.temp_value;
 			
 		}

@@ -38,18 +38,26 @@
 	}
 	
 	texture_t gl2_texture_create(unsigned long long* _data, unsigned long long bpp, unsigned long long width, unsigned long long height) {
-		unsigned char alpha = (unsigned char) (bpp % 32);
-		
 		unsigned long long* data = _data;
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		
-		if (bpp > 32) { // assuming > 32 BPPs are unsupported by the HW ...
-			unsigned long long data_bytes = width * height * (bpp >> 4);
-			data = (unsigned long long*) malloc(data_bytes);
+		unsigned char depth_buffer = bpp == 320;
+		unsigned char alpha;
+		
+		if (depth_buffer) {
 			
-			unsigned long long i;
-			for (i = 0; i < data_bytes; i++) {
-				((uint8_t*) data)[i] = (uint8_t) (((uint16_t*) _data)[i] / 0x100);
+		} else {
+			alpha = (unsigned char) (bpp % 32);
+			
+			if (bpp > 32) { // assuming > 32 BPPs are unsupported by the HW ...
+				unsigned long long data_bytes = width * height * (bpp >> 4);
+				data = (unsigned long long*) malloc(data_bytes);
+				
+				unsigned long long i;
+				for (i = 0; i < data_bytes; i++) {
+					((uint8_t*) data)[i] = (uint8_t) (((uint16_t*) _data)[i] / 0x100);
+					
+				}
 				
 			}
 			
@@ -59,10 +67,17 @@
 		glGenTextures(1, &texture_id);
 		
 		glBindTexture(GL_TEXTURE_2D, (GLuint) texture_id);
-		glTexImage2D (GL_TEXTURE_2D, 0, alpha ? GL_RGB8 : GL_RGBA8, (GLuint) width, (GLuint) height, 0, alpha ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, data);
 		
-		if (bpp > 32) {
-			free(data);
+		if (depth_buffer) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, (GLuint) width, (GLuint) height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, data);
+			
+		} else {
+			glTexImage2D(GL_TEXTURE_2D, 0, alpha ? GL_RGB8 : GL_RGBA8, (GLuint) width, (GLuint) height, 0, alpha ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, data);
+			
+			if (bpp > 32) {
+				free(data);
+				
+			}
 			
 		}
 		

@@ -14,10 +14,10 @@
 	#include "../gl_versions/framebuffer/gl_4.h"
 	#include "../gl_versions/framebuffer/gl_5.h"
 	
-	framebuffer_t framebuffer_create(texture_t texture) {
+	framebuffer_t framebuffer_create(texture_t texture, texture_t depth_texture) {
 		switch (kos_best_gl_version_major) {
 			case 1: return -1;
-			case 2: return gl2_framebuffer_create(texture);
+			case 2: return gl2_framebuffer_create(texture, depth_texture);
 			case 3: return -1;
 			case 4: return -1;
 			case 5: return -1;
