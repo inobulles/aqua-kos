@@ -87,7 +87,7 @@
 		
 	}
 	
-	unsigned long long video_width(void);
+	unsigned long long kos_video_width(void);
 	static void kos_font_create_text(kos_font_t* self, unsigned long long __text) {
 		STBTT_FLATNESS = 0.2f;
 		char* text = (char*) __text;
@@ -100,7 +100,7 @@
 			memcpy(self->text, text, bytes);
 			
 			int __ascent, __descent, __line_gap;
-			float scale = stbtt_ScaleForPixelHeight(&self->font, (int) (self->size * video_width()));
+			float scale = stbtt_ScaleForPixelHeight(&self->font, (int) (self->size * kos_video_width()));
 			stbtt_GetFontVMetrics(&self->font, &__ascent, &__descent, &__line_gap);
 			
 			float ascent   = scale * __ascent;

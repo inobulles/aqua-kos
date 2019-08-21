@@ -4,9 +4,9 @@
 	#include <sys/mman.h>
 	static size_t page_size = 0;
 	
-	unsigned long long native(unsigned long long platform, unsigned long long __pointer, unsigned long long bytes) {
+	unsigned long long kos_native(unsigned long long platform, unsigned long long __pointer, unsigned long long bytes) {
 		unsigned char* pointer = (unsigned char*) __pointer;
-		unsigned long long system_platform = get_platform();
+		unsigned long long system_platform = kos_get_platform();
 		
 		if (platform != system_platform) {
 			printf("WARNING Provided code is for platform 0x%llx, not 0x%llx (system platform)\n", platform, system_platform);

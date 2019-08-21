@@ -33,7 +33,7 @@
 
 	int gl_resize = 0;
 	
-	void get_events(unsigned long long ____this) { /// TODO mouse device
+	void kos_get_events(unsigned long long ____this) { /// TODO mouse device
 		events_t* __this = (events_t*) ____this;
 		
 		unsigned long long half_width  = (unsigned long long) (current_kos->width  >> 1);
@@ -136,8 +136,8 @@
 			gl_resize = 0;
 		#endif
 
-		//~ __this->pointer_x = __this->pointer_x >= video_width()  ? half_width  : __this->pointer_x;
-		//~ __this->pointer_y = __this->pointer_y >= video_height() ? half_height : __this->pointer_y;
+		//~ __this->pointer_x = __this->pointer_x >= kos_video_width()  ? half_width  : __this->pointer_x;
+		//~ __this->pointer_y = __this->pointer_y >= kos_video_height() ? half_height : __this->pointer_y;
 		
 	}
 	

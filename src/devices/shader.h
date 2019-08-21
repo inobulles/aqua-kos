@@ -14,6 +14,7 @@
 		}
 			
 		else if (shader_command[0] == 'u') gl_use_shader_program   ((GLuint*) shader_command[1]);
+		else if (shader_command[0] == 'l') gl_shader_locations     ((GLuint ) shader_command[1], (GLint) shader_command[2], (float) shader_command[3] / FLOAT_ONE);
 		else if (shader_command[0] == 'r') gl_delete_shader_program((GLuint*) shader_command[1]);
 		else KOS_DEVICE_COMMAND_WARNING("shader");
 		

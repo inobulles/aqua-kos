@@ -17,7 +17,7 @@ static char* first_argv;
 
 static kos_t kos;
 #define ROM_PATH "rom.zed"
-static program_t* de_program;
+static zvm_program_t* de_program;
 
 static int load_rom(const char* path, char** rom, unsigned long long* bytes) {
 	#if KOS_USES_JNI
@@ -62,7 +62,7 @@ static int load_rom(const char* path, char** rom, unsigned long long* bytes) {
 }
 
 void main_free(void) {
-	mfree(de_program, sizeof(program_t));
+	mfree(de_program, sizeof(zvm_program_t));
 	free_all_machines();
 	
 }
@@ -121,20 +121,20 @@ int main(int argc, char** argv) {
 	printf("Creating root machine ...\n");
 	root_mid = !root_mid ? __create_machine((unsigned long long) path, (unsigned long long) kos.width, (unsigned long long) kos.height, 0) : root_mid;
 	
-	de_program = (program_t*) malloc(sizeof(program_t));
-	memset(de_program, 0, sizeof(program_t));
+	de_program = (zvm_program_t*) malloc(sizeof(zvm_program_t));
+	memset(de_program, 0, sizeof(zvm_program_t));
 	de_program->pointer = rom;
 	
 	printf("Starting run setup phase ...\n");
-	program_run_setup_phase(de_program);
+	zvm_program_run_setup_phase(de_program);
 	
 	#if KOS_USES_JNI
 		error_code = 0;
 	#else
-		while (!program_run_loop_phase(de_program));
+		while (!zvm_program_run_loop_phase(de_program));
 		error_code = de_program->error_code;
 		
-		program_free(de_program);
+		//~ program_free(de_program);
 		mfree(rom, bytes);
 	#endif
 	
