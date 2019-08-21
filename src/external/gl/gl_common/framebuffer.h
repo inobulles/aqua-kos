@@ -4,8 +4,8 @@
 	
 	typedef unsigned long long framebuffer_t;
 	
-	unsigned long long kos_video_width (void);
-	unsigned long long kos_video_height(void);
+	unsigned long long video_width (void);
+	unsigned long long video_height(void);
 	unsigned long long video_bpp   (void);
 	
 	#include "../gl_versions/framebuffer/gl_1.h"

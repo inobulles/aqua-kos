@@ -65,8 +65,8 @@
 		
 	}
 	
-	unsigned long long kos_video_width (void);
-	unsigned long long kos_video_height(void);
+	unsigned long long video_width (void);
+	unsigned long long video_height(void);
 	
 	static inline void surface_update_vertices(unsigned long long ____this) {
 		surface_t* __this = (surface_t*) ____this;
@@ -83,8 +83,8 @@
 
 		#if SURFACE_VERTEX_PIXEL_ALIGN
 			if (__this->vertex_pixel_align) {
-				half_vwidth  = kos_video_width () >> 1;
-				half_vheight = kos_video_height() >> 1;
+				half_vwidth  = video_width () >> 1;
+				half_vheight = video_height() >> 1;
 				
 			}
 		#endif

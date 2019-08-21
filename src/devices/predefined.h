@@ -43,11 +43,11 @@
 		#if KOS_SUB2PEWDS
 			predefined_textures_live = 1;
 			
-			predefined_background_texture_dimensions      [0] = kos_video_width();
-			predefined_background_texture_dimensions      [1] = kos_video_height();
+			predefined_background_texture_dimensions      [0] = video_width();
+			predefined_background_texture_dimensions      [1] = video_height();
 			
-			predefined_frost_background_texture_dimensions[0] = kos_video_width();
-			predefined_frost_background_texture_dimensions[1] = kos_video_height();
+			predefined_frost_background_texture_dimensions[0] = video_width();
+			predefined_frost_background_texture_dimensions[1] = video_height();
 			
 			int bpp = 32;
 			
@@ -202,25 +202,25 @@
 		if (predefined_textures_live) { // normal background
 			GLuint default_shader = 0;
 			
-			framebuffer_bind(predefined_background_texture_framebuffer, 0, 0, kos_video_width(), kos_video_height());
+			framebuffer_bind(predefined_background_texture_framebuffer, 0, 0, video_width(), video_height());
 			gl_use_shader_program((GLuint*) &predefined_background_texture_shader);
 			
 			video_clear(0, 0, 0, 0);
 			surface_draw((unsigned long long) &predefined_texture_surface_dummy);
 			
-			framebuffer_bind(0, 0, 0, kos_video_width(), kos_video_height());
+			framebuffer_bind(0, 0, 0, video_width(), video_height());
 			gl_use_shader_program((GLuint*) &default_shader);
 			
 		} if (predefined_textures_live) { // frosted background
 			GLuint default_shader = 0;
 			
-			framebuffer_bind(predefined_frost_background_texture_framebuffer, 0, 0, kos_video_width(), kos_video_height());
+			framebuffer_bind(predefined_frost_background_texture_framebuffer, 0, 0, video_width(), video_height());
 			gl_use_shader_program((GLuint*) &predefined_frost_background_texture_shader);
 			
 			video_clear(0, 0, 0, 0);
 			surface_draw((unsigned long long) &predefined_texture_surface_dummy);
 			
-			framebuffer_bind(0, 0, 0, kos_video_width(), kos_video_height());
+			framebuffer_bind(0, 0, 0, video_width(), video_height());
 			gl_use_shader_program((GLuint*) &default_shader);
 			
 		}

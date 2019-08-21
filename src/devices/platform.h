@@ -48,9 +48,9 @@
 			#endif
 			
 		} else if (strcmp(data, "vm vstring") == 0) {
-			unsigned long long zvm_version     (void) { return 4; } /// TODO
-			unsigned long long zvm_stack_bytes (void) { return 0; } /// TODO
-			const char*        zvm_acceleration(void) { return "none"; } /// TODO
+			unsigned long long zvm_version     (void);
+			unsigned long long zvm_stack_bytes (void);
+			const char*        zvm_acceleration(void);
 			
 			sprintf(kos_bda_implementation.temp_string, "ZVM (Zed Virtual Machine) v%lld (0x%llxb stack, %s acceleration)", zvm_version(), zvm_stack_bytes(), zvm_acceleration());
 			

@@ -66,7 +66,7 @@
 			self->text_bytes = (unsigned long long) CALLBACK(java_requests_length, callback_env->CallStaticLongMethod, 0) + 1;
 		#endif
 		
-		self->text = (unsigned long long) zvm_malloc(0, self->text_bytes);
+		self->text = (unsigned long long) heap_malloc(self->text_bytes);
 		memset((void*) self->text, 0, self->text_bytes);
 		
 		#if !KOS_USES_JNI
@@ -80,7 +80,7 @@
 	
 	void kos_requests_free(kos_request_response_t* self) {
 		if (self->text) {
-			zvm_mfree(0, self->text, self->text_bytes);
+			heap_mfree(self->text, self->text_bytes);
 			
 		}
 		

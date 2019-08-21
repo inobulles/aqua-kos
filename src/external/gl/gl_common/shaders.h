@@ -2,21 +2,6 @@
 #ifndef __AQUA__SDL2_SRC_GL_COMMON_SHADERS_H
 	#define __AQUA__SDL2_SRC_GL_COMMON_SHADERS_H
 	
-	static unsigned char shader_has_set_locations;
-	
-	static GLint shader_mvp_matrix_location;
-	static GLint shader_time_location;
-	
-	static GLint shader_sampler_location;
-	static GLint shader_aux_location;
-	static GLint shader_has_texture_location;
-	
-	static GLint shader_width_location;
-	static GLint shader_height_location;
-	
-	static GLint shader_threshold_location;
-	static GLint shader_radius_location;
-	
 	#include "../gl_versions/shaders/gl_1.h"
 	#include "../gl_versions/shaders/gl_2.h"
 	#include "../gl_versions/shaders/gl_3.h"
@@ -40,30 +25,26 @@
 		
 	}
 	
+	static unsigned char shader_has_set_locations;
+	
+	static GLint shader_time_location;
+	static GLint shader_sampler_location;
+	static GLint shader_has_texture_location;
+	static GLint shader_mvp_matrix_location;
+	
 	int glGetUniformLocation();
 	
 	void gl_use_shader_program(GLuint* program) {
+		shader_has_set_locations = 1;
+		
+		shader_time_location        = glGetUniformLocation(*program, "time");
+		shader_sampler_location     = glGetUniformLocation(*program, "sampler_texture");
+		shader_has_texture_location = glGetUniformLocation(*program, "has_texture");
+		shader_mvp_matrix_location  = glGetUniformLocation(*program, "mvp_matrix");
+		
 		switch (kos_best_gl_version_major) {
 			case 1: break;
 			case 2: gl2_use_shader_program(program); break;
-			case 3: break;
-			case 4: break;
-			case 5: break;
-			
-			default: {
-				KOS_WARN_NO_GL_VERSION
-				break;
-				
-			}
-			
-		}
-		
-	}
-	
-	void gl_shader_locations(GLuint aux, GLfloat radius, GLfloat threshold) {
-		switch (kos_best_gl_version_major) {
-			case 1: break;
-			case 2: gl2_shader_locations(aux, radius, threshold); break;
 			case 3: break;
 			case 4: break;
 			case 5: break;

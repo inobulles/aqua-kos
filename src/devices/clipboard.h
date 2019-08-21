@@ -11,7 +11,7 @@
 		
 	}
 	
-	void* zvm_malloc(uint64_t self, uint64_t bytes);
+	void* heap_malloc(unsigned long long bytes);
 	
 	static void clipboard_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
@@ -29,7 +29,7 @@
 			#endif
 			
 			unsigned long long bytes = buffer ? strlen(buffer) + 1 : 1;
-			kos_bda_implementation.temp_value = (unsigned long long) zvm_malloc(0, bytes);
+			kos_bda_implementation.temp_value = (unsigned long long) heap_malloc(bytes);
 			memcpy((void*) kos_bda_implementation.temp_value, bytes == 1 ? "" : buffer, bytes);
 			
 		} else if (command[0] == 's') {
@@ -47,4 +47,3 @@
 	}
 	
 #endif
-

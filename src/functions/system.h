@@ -19,7 +19,7 @@
 	#define PLATFORM_ANDROID PLATFORM_KNOWN | PLATFORM_64BIT | PLATFORM_UNIX | PLATFORM_MOBILE
 	#define PLATFORM_AQUA PLATFORM_KNOWN | PLATFORM_CUSTOM
 	
-	unsigned long long kos_get_platform(void) {
+	unsigned long long get_platform(void) {
 		#if KOS_USES_JNI
 			return PLATFORM_ANDROID;
 		#else
@@ -53,7 +53,7 @@
 		
 	}
 
-	unsigned long long kos_platform_command(unsigned long long __command) {
+	unsigned long long platform_system(unsigned long long __command) {
 		const char* command = (const char*) __command;
 		
 		#if SYSTEM_ACCESS

@@ -16,11 +16,11 @@
 		#define FS_MALLOC_FUNCTION(       bytes) (malloc(bytes))
 		#define FS_FREE_FUNCTION(pointer, bytes) (free  (pointer))
 	#else
-		void* zvm_malloc                           (uint64_t self, uint64_t bytes);
-		void  zvm_mfree(uint64_t self, uint64_t pointer, uint64_t bytes);
+		void* heap_malloc                           (unsigned long long bytes);
+		void  heap_mfree(unsigned long long pointer, unsigned long long bytes);
 		
-		#define FS_MALLOC_FUNCTION(       bytes) (zvm_malloc                             (0, bytes))
-		#define FS_FREE_FUNCTION(pointer, bytes) (zvm_mfree(0, (unsigned long long) pointer, bytes))
+		#define FS_MALLOC_FUNCTION(       bytes) (heap_malloc                             (bytes))
+		#define FS_FREE_FUNCTION(pointer, bytes) (heap_mfree((unsigned long long) pointer, bytes))
 	#endif
 	
 	static unsigned long long __fs_read(unsigned long long _path, unsigned long long data, unsigned long long bytes, unsigned long long offset) {
@@ -150,7 +150,7 @@
 			while ((directory = readdir(dp)) != NULL) {
 				if (FS_LIST_D_NAME_VALID) {
 					unsigned long long bytes = strlen(directory->d_name) + 1;
-					result[current] = (char*) zvm_malloc(0, bytes * sizeof(char));
+					result[current] = (char*) heap_malloc(bytes * sizeof(char));
 					memset(result[current], 0, bytes);
 					memcpy(result[current++], directory->d_name, bytes);
 					

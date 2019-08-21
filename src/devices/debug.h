@@ -7,12 +7,12 @@
 	
 	static void debug_device_handle(unsigned long long** result, const char* data) {
 		if (strcmp(data, "mem.snap.start") == 0) {
-			printf("=== debug.mem.snap.start ===\n"); /// TODO
-			//~ heap_memory_snapshot_start();
+			printf("=== debug.mem.snap.start ===\n");
+			heap_memory_snapshot_start();
 			
 		} else if (strcmp(data, "mem.snap.end") == 0) {
-			printf("=== debug.mem.snap.end ===\n"); /// TODO
-			//~ heap_memory_snapshot_end();
+			printf("=== debug.mem.snap.end ===\n");
+			heap_memory_snapshot_end();
 			
 		} else {
 			KOS_DEVICE_COMMAND_WARNING("debug")

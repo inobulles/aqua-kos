@@ -49,7 +49,7 @@
 	}*/
 	
 	#include <sys/wait.h>
-	static unsigned long long kos_execute_machine(unsigned long long mid, unsigned long long _wait) {
+	static unsigned long long execute_machine(unsigned long long mid, unsigned long long _wait) {
 		char ascii_width    [16];
 		char ascii_height   [16];
 		char ascii_text_only[2] = {machines[mid].text_only ? 'x' : 'g', 0};
@@ -80,7 +80,7 @@
 		
 	}
 	
-	unsigned long long kos_create_machine(unsigned long long __path, unsigned long long width, unsigned long long height, unsigned long long text_only) {
+	unsigned long long create_machine(unsigned long long __path, unsigned long long width, unsigned long long height, unsigned long long text_only) {
 		GET_PATH(__path)
 		unsigned long long mid = __create_machine((unsigned long long) path, width, height, text_only);
 		return mid;
@@ -103,18 +103,18 @@
 	}
 	
 	#include <signal.h>
-	void kos_kill_machine(unsigned long long mid) {
+	void kill_machine(unsigned long long mid) {
 		if (machines[mid].exists) kill(machines[mid].pid, SIGKILL);
 		else printf("WARNING Machine (%lld) does not exist\n", mid);
 		
 	}
 	
-	void kos_give_machine_events(unsigned long long mid, events_t* events) {
+	void give_machine_events(unsigned long long mid, events_t* events) {
 		printf("TODO %s\n", __func__);
 		
 	}
 	
-	unsigned long long kos_current_machine(void) {
+	unsigned long long current_machine(void) {
 		return root_mid;
 		
 	}
