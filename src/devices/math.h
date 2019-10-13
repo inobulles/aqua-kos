@@ -29,6 +29,7 @@
 		
 		if      (strcmp(data, "sqrt"   ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (signed long long) (sqrt ((double) device->x / FLOAT_ONE)                                 * FLOAT_ONE);
 		else if (strcmp(data, "sin"    ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (signed long long) (sin  ((double) device->x / FLOAT_ONE)                                 * FLOAT_ONE);
+		else if (strcmp(data, "asin"   ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (signed long long) (asin ((double) device->x / FLOAT_ONE)                                 * FLOAT_ONE);
 		else if (strcmp(data, "atan2"  ) == 0) kos_bda_implementation.temp_value = (unsigned long long) (signed long long) (atan2((double) device->x / FLOAT_ONE, (double) device->y / FLOAT_ONE) * FLOAT_ONE);
 		else if (strcmp(data, "sigmoid") == 0) {
 			double exp = exponential((double) ((int64_t) device->x) / FLOAT_ONE);
