@@ -27,9 +27,9 @@
 			SDL_PumpEvents();
 			int x;
 			SDL_GetMouseState(&x, (int*) 0);
-			return (x * FLOAT_ONE) / kos_video_width() * 2 - FLOAT_ONE;
+			return (x * FLOAT_ONE) / kos_video_width(0) * 2 - FLOAT_ONE;
 		#elif KOS_USES_JNI
-			return (unsigned long long) (signed long long) (((float) CALLBACK_INT(java_mouse_x, (jint) self) / kos_video_width() * FLOAT_ONE) * 2 - FLOAT_ONE);
+			return (unsigned long long) (signed long long) (((float) CALLBACK_INT(java_mouse_x, (jint) self) / kos_video_width(0) * FLOAT_ONE) * 2 - FLOAT_ONE);
 		#else
 			return 0;
 		#endif
@@ -39,9 +39,9 @@
 			SDL_PumpEvents();
 			int y;
 			SDL_GetMouseState((int*) 0, &y);
-			return -((y * FLOAT_ONE) / kos_video_height() * 2 - FLOAT_ONE);
+			return -((y * FLOAT_ONE) / kos_video_height(0) * 2 - FLOAT_ONE);
 		#elif KOS_USES_JNI
-			return (unsigned long long) (signed long long) -(((float) CALLBACK_INT(java_mouse_y, (jint) self) / kos_video_height() * FLOAT_ONE) * 2 - FLOAT_ONE);
+			return (unsigned long long) (signed long long) -(((float) CALLBACK_INT(java_mouse_y, (jint) self) / kos_video_height(0) * FLOAT_ONE) * 2 - FLOAT_ONE);
 		#else
 			return 0;
 		#endif

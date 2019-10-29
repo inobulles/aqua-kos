@@ -65,8 +65,13 @@
 		
 	}
 	
+<<<<<<< HEAD
 	unsigned long long video_width (void);
 	unsigned long long video_height(void);
+=======
+	unsigned long long kos_video_width (unsigned long long zvm);
+	unsigned long long kos_video_height(unsigned long long zvm);
+>>>>>>> adapt
 	
 	static inline void surface_update_vertices(unsigned long long ____this) {
 		surface_t* __this = (surface_t*) ____this;

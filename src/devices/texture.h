@@ -6,6 +6,7 @@
 
 	texture_t create_texture_from_screenshot(void) {
 		#if KOS_USES_JNI
+<<<<<<< HEAD
 			return (texture_t) CALLBACK_INT(java_create_texture_from_screenshot, video_width(), video_height(), TEXTURE_WRAP_TYPE, SHARP_TEXTURES);
 		#else
 			unsigned long long bpp   = 32;
@@ -26,6 +27,28 @@
 			}
 			
 			texture_t texture = texture_create((unsigned long long) data, bpp, video_width(), video_height());
+=======
+			return (texture_t) CALLBACK_INT(java_create_texture_from_screenshot, kos_video_width(0), kos_video_height(0), TEXTURE_WRAP_TYPE, SHARP_TEXTURES);
+		#else
+			unsigned long long bpp   = 32;
+			unsigned long long bytes = kos_video_width(0) * kos_video_height(0) * (bpp >> 3);
+			
+			unsigned char* pixels = (unsigned char*) malloc(bytes);
+			glReadBuffer(GL_FRONT);
+			glReadPixels(0, 0, (GLsizei) kos_video_width(0), (GLsizei) kos_video_height(0), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+			
+			unsigned long long* data  = (unsigned long long*) malloc(bytes);
+			unsigned char*      data8 = (unsigned char*)      data;
+			unsigned long long  pitch = kos_video_width(0) * (bpp / 8);
+			
+			int y;
+			for (y = 0; y < kos_video_height(0); y++) {
+				memcpy(data8 + (kos_video_height(0) - y - 1) * pitch, pixels + y * pitch, pitch);
+				
+			}
+			
+			texture_t texture = texture_create((unsigned long long) data, bpp, kos_video_width(0), kos_video_height(0));
+>>>>>>> adapt
 			
 			free(pixels);
 			free(data);
