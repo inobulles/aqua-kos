@@ -74,8 +74,8 @@
 		glUniform1i(shader_time_location, (GLint) clock());
 		glUniform1i(shader_aux_location, aux);
 		
-		glUniform1i(shader_width_location,  (GLint) kos_video_width ());
-		glUniform1i(shader_height_location, (GLint) kos_video_height());
+		glUniform1i(shader_width_location,  (GLint) kos_video_width (0));
+		glUniform1i(shader_height_location, (GLint) kos_video_height(0));
 		
 		glUniform1i(shader_radius_location, radius);
 		glUniform1f(shader_threshold_location, threshold);
