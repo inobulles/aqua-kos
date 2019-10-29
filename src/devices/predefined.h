@@ -2,7 +2,7 @@
 #ifndef __AQUA__KOS_DEVICES_PREDEFINED_H
 	#define __AQUA__KOS_DEVICES_PREDEFINED_H
 	
-	void video_clear(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a);
+	void kos_video_clear(unsigned long long self, unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a);
 	
 	static unsigned char predefined_textures_live = 0;
 	static surface_t predefined_texture_surface_dummy;
@@ -205,7 +205,7 @@
 			framebuffer_bind(predefined_background_texture_framebuffer, 0, 0, video_width(), video_height());
 			gl_use_shader_program((GLuint*) &predefined_background_texture_shader);
 			
-			video_clear(0, 0, 0, 0);
+			kos_video_clear(0, 0, 0, 0, 0);
 			surface_draw((unsigned long long) &predefined_texture_surface_dummy);
 			
 			framebuffer_bind(0, 0, 0, video_width(), video_height());
@@ -217,7 +217,7 @@
 			framebuffer_bind(predefined_frost_background_texture_framebuffer, 0, 0, video_width(), video_height());
 			gl_use_shader_program((GLuint*) &predefined_frost_background_texture_shader);
 			
-			video_clear(0, 0, 0, 0);
+			kos_video_clear(0, 0, 0, 0, 0);
 			surface_draw((unsigned long long) &predefined_texture_surface_dummy);
 			
 			framebuffer_bind(0, 0, 0, video_width(), video_height());

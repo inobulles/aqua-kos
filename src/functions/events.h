@@ -33,7 +33,7 @@
 
 	int gl_resize = 0;
 	
-	void get_events(unsigned long long ____this) { /// TODO mouse device
+	void kos_get_events(uint64_t self, unsigned long long ____this) {
 		events_t* __this = (events_t*) ____this;
 		
 		unsigned long long half_width  = (unsigned long long) (current_kos->width  >> 1);

@@ -49,7 +49,7 @@
 	
 	#define KOS_DEVICE_COMMAND_WARNING(device_name) printf("WARNING The command you have passed to the " device_name " device (%s) is unrecognized\n", (const char*) data);
 	
-	unsigned long long create_device(unsigned long long __device) {
+	unsigned long long kos_create_device(unsigned long long self, unsigned long long __device) {
 		const char* device = (const char*) __device;
 		
 		if      (strcmp(device, "texture")     == 0) return DEVICE_TEXTURE;
@@ -172,7 +172,11 @@
 		#include "../devices/android.h"
 	#endif
 	
+<<<<<<< HEAD
 	unsigned long long* send_device(unsigned long long device, unsigned long long __data) {
+=======
+	unsigned long long* kos_send_device(unsigned long long self, unsigned long long device, unsigned long long __data) {
+>>>>>>> zvm-v4
 		const char* data = (const char*) __data;
 		
 		kos_bda_implementation.temp_value = 0;

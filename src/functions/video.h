@@ -6,7 +6,7 @@
 		#include "../android/root.h"
 	#endif
 	
-	void video_clear(unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
+	void kos_video_clear(unsigned long long self, unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
 		glClearColor((float) r / _UI64_MAX, (float) g / _UI64_MAX, (float) b / _UI64_MAX, (float) a / _UI64_MAX);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
