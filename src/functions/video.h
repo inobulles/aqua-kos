@@ -23,7 +23,7 @@
 	static unsigned long long last_ns = 0;
 	static unsigned long long fps = 0;
 	
-	void video_flip(void) {
+	void kos_video_flip(unsigned long long zvm) {
 		// get current fps
 		
 		struct timespec now;
@@ -61,15 +61,15 @@
 		
 	}
 	
-	unsigned long long video_width (void) { return (unsigned long long) current_kos->width;  }
-	unsigned long long video_height(void) { return (unsigned long long) current_kos->height; }
+	unsigned long long kos_video_width (unsigned long long zvm) { return (unsigned long long) current_kos->width;  }
+	unsigned long long kos_video_height(unsigned long long zvm) { return (unsigned long long) current_kos->height; }
 	
 	unsigned long long video_bpp(void) {
 		return (unsigned long long) current_kos->bpp;
 		
 	}
 	
-	unsigned long long video_fps(void) {
+	unsigned long long kos_video_fps(unsigned long long zvm) {
 		return fps;
 		
 	}

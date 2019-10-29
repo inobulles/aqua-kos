@@ -172,11 +172,7 @@
 		#include "../devices/android.h"
 	#endif
 	
-<<<<<<< HEAD
-	unsigned long long* send_device(unsigned long long device, unsigned long long __data) {
-=======
 	unsigned long long* kos_send_device(unsigned long long self, unsigned long long device, unsigned long long __data) {
->>>>>>> zvm-v4
 		const char* data = (const char*) __data;
 		
 		kos_bda_implementation.temp_value = 0;
