@@ -4,6 +4,7 @@
 	
 	static void gl_device_handle(unsigned long long** result, const char* data) {
 		const signed long long* gl_command = (const signed long long*) data;
+		
 		if (gl_command[0] == 't') { // bind/activate texture
 			glActiveTexture((GLenum) (GL_TEXTURE0 + gl_command[23]));
 			glBindTexture  (GL_TEXTURE_2D, (GLenum) gl_command[24]);

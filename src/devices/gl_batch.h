@@ -27,7 +27,7 @@
 	} ivx_meta_t;
 	
 	typedef struct {
-		ivx_meta_t meta;
+		ivx_meta_t* meta;
 		
 		unsigned long long vertex_pointer;
 		unsigned long long coords_pointer;
@@ -159,9 +159,9 @@
 			unsigned long long old_coords_count = object->coords_count;
 			unsigned long long old_index_count  = object->index_count;
 			
-			object->vertex_count += model->meta.vertex_count;
-			object->coords_count += model->meta.coords_count;
-			object-> index_count += model->meta. index_count;
+			object->vertex_count += model->meta->vertex_count;
+			object->coords_count += model->meta->coords_count;
+			object-> index_count += model->meta-> index_count;
 			
 			if (old_vertex_count == 0) { // if nothing yet in batch, simply malloc
 				object->positions      = (kos_gl_batch_device_batch_position_t*)      malloc(object->vertex_count * sizeof(kos_gl_batch_device_batch_position_t));
@@ -187,9 +187,9 @@
 				
 			}
 			
-			memcpy(object->positions      + old_vertex_count * sizeof(kos_gl_batch_device_batch_position_t),      (void*) model->vertex_pointer, model->meta.vertex_count * sizeof(kos_gl_batch_device_batch_position_t));
-			memcpy(object->texture_coords + old_coords_count * sizeof(kos_gl_batch_device_batch_texture_coord_t), (void*) model->coords_pointer, model->meta.coords_count * sizeof(kos_gl_batch_device_batch_texture_coord_t));
-			memcpy(object->indices        +  old_index_count * sizeof(object->indices[0]),                        (void*) model->index_pointer,  model->meta. index_count * sizeof(object->indices[0]));
+			memcpy(object->positions      + old_vertex_count * sizeof(kos_gl_batch_device_batch_position_t),      (void*) model->vertex_pointer, model->meta->vertex_count * sizeof(kos_gl_batch_device_batch_position_t));
+			memcpy(object->texture_coords + old_coords_count * sizeof(kos_gl_batch_device_batch_texture_coord_t), (void*) model->coords_pointer, model->meta->coords_count * sizeof(kos_gl_batch_device_batch_texture_coord_t));
+			memcpy(object->indices        +  old_index_count * sizeof(object->indices[0]),                        (void*) model->index_pointer,  model->meta-> index_count * sizeof(object->indices[0]));
 			
 		} else if (batch_command[0] == 'u') { // colour
 			for (unsigned long long i = 0; i < object->vertex_count; i++) {
