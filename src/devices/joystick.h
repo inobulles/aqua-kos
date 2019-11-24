@@ -7,7 +7,10 @@
 	static unsigned long long kos_joystick_count = 0;
 	
 	#if KOS_USES_SDL2
-		static SDL_GameController* kos_sdl2_joysticks[MAX_JOYSTICK_COUNT];
+		static struct {
+			SDL_GameController* game_controller;
+			SDL_Joystick* joystick;
+		} kos_sdl2_joysticks[MAX_JOYSTICK_COUNT];
 	#endif
 	
 	static inline unsigned long long kos_get_joystick_count(void) {
@@ -24,8 +27,13 @@
 			kos_joystick_count = SDL_NumJoysticks();
 			
 			for (unsigned long long i = 0; i < kos_joystick_count; i++) {
-				if (SDL_IsGameController(i)) kos_sdl2_joysticks[i] = SDL_GameControllerOpen(i);
-				else                         kos_sdl2_joysticks[i] = (SDL_GameController*) 0;
+				if (SDL_IsGameController(i)) {
+					kos_sdl2_joysticks[i].game_controller = SDL_GameControllerOpen(i);
+					kos_sdl2_joysticks[i].joystick = SDL_GameControllerGetJoystick(kos_sdl2_joysticks[i].game_controller);
+				} else {
+					kos_sdl2_joysticks[i].game_controller = (SDL_GameController*) 0;
+					kos_sdl2_joysticks[i].joystick = SDL_JoystickOpen(i);
+				}
 				
 			}
 		#endif
@@ -35,10 +43,8 @@
 	void kos_close_joysticks(void) {
 		#if KOS_USES_SDL2
 			for (unsigned long long i = 0; i < kos_joystick_count; i++) {
-				if (kos_sdl2_joysticks[i]) {
-					SDL_GameControllerClose(kos_sdl2_joysticks[i]);
-					
-				}
+				if (kos_sdl2_joysticks[i].game_controller) SDL_GameControllerClose(kos_sdl2_joysticks[i].game_controller);
+				else if (kos_sdl2_joysticks[i].joystick) SDL_JoystickClose(kos_sdl2_joysticks[i].joystick);
 				
 			}
 		#endif
@@ -50,7 +56,7 @@
 			jboolean is_copy = 0;
 			return callback_env->GetStringUTFChars((jstring) CALLBACK(java_joystick_name, callback_env->CallStaticObjectMethod, __this), &is_copy);
 		#elif KOS_USES_SDL2
-			return SDL_JoystickName(SDL_GameControllerGetJoystick(kos_sdl2_joysticks[__this]));
+			return SDL_JoystickName(kos_sdl2_joysticks[__this].joystick);
 		#else
 			return (char*) 0;
 		#endif
@@ -61,7 +67,8 @@
 		#if KOS_USES_JNI
 			return (unsigned long long) CALLBACK(java_joystick_button, callback_env->CallStaticBooleanMethod, __this);
 		#elif KOS_USES_SDL2
-			return SDL_GameControllerGetButton(kos_sdl2_joysticks[__this], button);
+			if (kos_sdl2_joysticks[__this].game_controller) return SDL_GameControllerGetButton(kos_sdl2_joysticks[__this].game_controller, button);
+			else return SDL_JoystickGetButton(kos_sdl2_joysticks[__this].joystick, button);
 		#else
 			return 0;
 		#endif
@@ -70,7 +77,8 @@
 		#if KOS_USES_JNI
 			return (float) CALLBACK(java_joystick_axis, callback_env->CallStaticFloatMethod, __this);
 		#elif KOS_USES_SDL2
-			return (float) SDL_GameControllerGetAxis(kos_sdl2_joysticks[__this], axis) / 32768.0f;
+			if (kos_sdl2_joysticks[__this].game_controller) return (float) SDL_GameControllerGetAxis(kos_sdl2_joysticks[__this].game_controller, axis) / 32768.0f;
+			else return (float) SDL_JoystickGetAxis(kos_sdl2_joysticks[__this].joystick, axis) / 32768.0f;
 		#else
 			return 0.0f;
 		#endif

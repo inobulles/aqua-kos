@@ -130,7 +130,7 @@
 		printf("Initializing joysticks ...\n");
 		
 		#if KOS_USES_SDL2
-			if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0) {
+			if (SDL_Init(SDL_INIT_EVERYTHING) /*SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC)*/ < 0) {
 				printf("ERROR SDL2 could not initialize joysticks (%s)\n", SDL_GetError());
 				KOS_ERROR
 				
