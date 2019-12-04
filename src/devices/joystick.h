@@ -10,6 +10,7 @@
 		static struct {
 			SDL_GameController* game_controller;
 			SDL_Joystick* joystick;
+			SDL_Haptic* haptic;
 		} kos_sdl2_joysticks[MAX_JOYSTICK_COUNT];
 	#endif
 	
@@ -35,6 +36,11 @@
 					kos_sdl2_joysticks[i].joystick = SDL_JoystickOpen(i);
 				}
 				
+				if ((kos_sdl2_joysticks[i].haptic = SDL_HapticOpenFromJoystick(kos_sdl2_joysticks[i].joystick)) != (SDL_Haptic*) 0) {
+					SDL_HapticRumbleInit(kos_sdl2_joysticks[i].haptic);
+				} else {
+					kos_sdl2_joysticks[i].haptic = 0;
+				}
 			}
 		#endif
 		
@@ -45,7 +51,7 @@
 			for (unsigned long long i = 0; i < kos_joystick_count; i++) {
 				if (kos_sdl2_joysticks[i].game_controller) SDL_GameControllerClose(kos_sdl2_joysticks[i].game_controller);
 				else if (kos_sdl2_joysticks[i].joystick) SDL_JoystickClose(kos_sdl2_joysticks[i].joystick);
-				
+				if (kos_sdl2_joysticks[i].haptic) SDL_HapticClose(kos_sdl2_joysticks[i].haptic);
 			}
 		#endif
 		
@@ -85,6 +91,15 @@
 		
 	}
 	
+	static inline unsigned long long kos_joystick_rumble(unsigned long long __this, unsigned long long strength, unsigned long long seconds) {
+		#if KOS_USES_JNI
+			printf("TODO Joystick rumble on JNI\n");
+		#elif KOS_USES_SDL2
+			if (kos_sdl2_joysticks[__this].haptic) return SDL_HapticRumblePlay(kos_sdl2_joysticks[__this].haptic, (double) strength / FLOAT_ONE, seconds / 1000);
+			else return 1;
+		#endif
+	}
+	
 	static void joystick_device_handle(unsigned long long** result, const char* data) {
 		unsigned long long* command = (unsigned long long*) data;
 		unsigned char result_string = 0;
@@ -98,14 +113,7 @@
 		else if (command[0] == 'c') kos_bda_implementation.temp_value = kos_get_joystick_count();
 		else if (command[0] == 'b') kos_bda_implementation.temp_value = kos_get_joystick_button(command[1], command[2]);
 		else if (command[0] == 'a') kos_bda_implementation.temp_value = (unsigned long long) (kos_get_joystick_axis(command[1], command[2]) * FLOAT_ONE);
-		
-		else if (command[0] == 'h') { /// TODO Joystick haptic feedback
-			printf("TODO Joystick haptic feedback\n");
-			//SDL_Haptic* haptic = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(kos_sdl2_joysticks[command[1]]));
-			//SDL_HapticRumblePlay(haptic, 0.5f, 2000);
-			//SDL_HapticClose(haptic);
-			
-		}
+		else if (command[0] == 'h') kos_bda_implementation.temp_value = kos_joystick_rumble(command[1], command[2], command[3]);
 		
 		else KOS_DEVICE_COMMAND_WARNING("joystick")
 		*result = result_string ? (unsigned long long*) kos_bda_implementation.temp_string : &kos_bda_implementation.temp_value;

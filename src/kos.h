@@ -172,8 +172,12 @@
 				SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 				SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
 				
-				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-				//~ SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
+				#if KOS_MSAA
+					if (KOS_MSAA) {
+						SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+						SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, KOS_MSAA);
+					}
+				#endif
 				
 				__this->window = SDL_CreateWindow("AQUA", \
 					SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, \
