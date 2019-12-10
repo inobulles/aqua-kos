@@ -8,14 +8,10 @@
 	static GLint shader_time_location;
 	
 	static GLint shader_sampler_location;
-	static GLint shader_aux_location;
 	static GLint shader_has_texture_location;
 	
 	static GLint shader_width_location;
 	static GLint shader_height_location;
-	
-	static GLint shader_threshold_location;
-	static GLint shader_radius_location;
 	
 	#include "../gl_versions/shaders/gl_1.h"
 	#include "../gl_versions/shaders/gl_2.h"
@@ -60,22 +56,17 @@
 		
 	}
 	
-	void gl_shader_locations(GLuint aux, GLfloat radius, GLfloat threshold) {
+	unsigned long long gl_shader_get_uniform_location(GLuint* program, const char* string) {
 		switch (kos_best_gl_version_major) {
-			case 1: break;
-			case 2: gl2_shader_locations(aux, radius, threshold); break;
-			case 3: break;
-			case 4: break;
-			case 5: break;
-			
-			default: {
-				KOS_WARN_NO_GL_VERSION
-				break;
-				
-			}
-			
+			case 2: return gl2_shader_get_uniform_location(program, string); break;
+			default: return 0;
 		}
-		
+	}
+	
+	void gl_shader_set_uniform_location(GLint uniform_location, unsigned long long data, unsigned long long type) {
+		switch (kos_best_gl_version_major) {
+			case 2: gl2_shader_set_uniform_location(uniform_location, data, type); break;
+		}
 	}
 	
 	void gl_delete_shader_program(GLuint* program) {

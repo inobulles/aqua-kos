@@ -91,12 +91,37 @@
 		
 	}
 	
-	static inline unsigned long long kos_joystick_rumble(unsigned long long __this, unsigned long long strength, unsigned long long seconds) {
+	static int last_effect_id = 0;
+	
+	static inline unsigned long long kos_joystick_rumble(unsigned long long __this, unsigned long long strength, unsigned long long seconds, unsigned long long period, unsigned long long direction) {
 		#if KOS_USES_JNI
 			printf("TODO Joystick rumble on JNI\n");
 		#elif KOS_USES_SDL2
-			if (kos_sdl2_joysticks[__this].haptic) return SDL_HapticRumblePlay(kos_sdl2_joysticks[__this].haptic, (double) strength / FLOAT_ONE, seconds / 1000);
-			else return 1;
+			SDL_Haptic* haptic = kos_sdl2_joysticks[__this].haptic;
+			
+			if (haptic) {
+				if (/*SDL_HapticQuery(haptic) & SDL_HAPTIC_SINE*/ 0) { // has sine effect
+					SDL_HapticDestroyEffect(haptic, last_effect_id);
+					
+					SDL_HapticEffect effect;
+					SDL_memset(&effect, 0, sizeof(SDL_HapticEffect));
+					
+					effect.type = SDL_HAPTIC_SINE;
+					effect.periodic.direction.type = SDL_HAPTIC_POLAR;
+					effect.periodic.direction.dir[0] = direction / 1000;
+					effect.periodic.magnitude = strength * 32767 / FLOAT_ONE;
+					effect.periodic.length = seconds / 1000;
+					effect.periodic.period = period / FLOAT_ONE;
+					
+					int id = SDL_HapticNewEffect(haptic, &effect);
+					SDL_HapticRunEffect(haptic, id, 1);
+					last_effect_id = id;
+				} else {
+					return SDL_HapticRumblePlay(haptic, (double) strength / FLOAT_ONE, seconds / 1000);
+				}
+			} else {
+				return 1;
+			}
 		#endif
 	}
 	
@@ -113,7 +138,7 @@
 		else if (command[0] == 'c') kos_bda_implementation.temp_value = kos_get_joystick_count();
 		else if (command[0] == 'b') kos_bda_implementation.temp_value = kos_get_joystick_button(command[1], command[2]);
 		else if (command[0] == 'a') kos_bda_implementation.temp_value = (unsigned long long) (kos_get_joystick_axis(command[1], command[2]) * FLOAT_ONE);
-		else if (command[0] == 'h') kos_bda_implementation.temp_value = kos_joystick_rumble(command[1], command[2], command[3]);
+		else if (command[0] == 'h') kos_bda_implementation.temp_value = kos_joystick_rumble(command[1], command[2], command[3], command[4], command[5]);
 		
 		else KOS_DEVICE_COMMAND_WARNING("joystick")
 		*result = result_string ? (unsigned long long*) kos_bda_implementation.temp_string : &kos_bda_implementation.temp_value;

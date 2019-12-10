@@ -70,16 +70,15 @@
 		
 	}
 	
-	void gl2_shader_locations(GLuint aux, GLfloat radius, GLfloat threshold) {
-		glUniform1i(shader_time_location, (GLint) clock());
-		glUniform1i(shader_aux_location, aux);
-		
-		glUniform1i(shader_width_location,  (GLint) kos_video_width (0));
-		glUniform1i(shader_height_location, (GLint) kos_video_height(0));
-		
-		glUniform1i(shader_radius_location, (GLint) radius);
-		glUniform1i(shader_threshold_location, (GLint) threshold);
-		
+	unsigned long long gl2_shader_get_uniform_location(GLuint* program, const char* string) {
+		return glGetUniformLocation(*program, string);
+	}
+	
+	void gl2_shader_set_uniform_location(GLint uniform_location, unsigned long long data, unsigned long long type) {
+		switch (type) {
+			case 'f': glUniform1f(uniform_location, data); break;
+			default: glUniform1i(uniform_location, (GLint) data); break;
+		}
 	}
 	
 	void gl2_use_shader_program(GLuint* program) {
@@ -89,14 +88,14 @@
 		shader_time_location        = glGetUniformLocation(*program, "time");
 		
 		shader_sampler_location     = glGetUniformLocation(*program, "sampler_texture");
-		shader_aux_location         = glGetUniformLocation(*program, "aux_texture");
 		shader_has_texture_location = glGetUniformLocation(*program, "has_texture");
 		
 		shader_width_location       = glGetUniformLocation(*program, "width");
 		shader_height_location      = glGetUniformLocation(*program, "height");
 		
-		shader_threshold_location   = glGetUniformLocation(*program, "threshold");
-		shader_radius_location      = glGetUniformLocation(*program, "radius");
+		glUniform1i(shader_time_location,   (GLint) clock());
+		glUniform1i(shader_width_location,  (GLint) kos_video_width (0));
+		glUniform1i(shader_height_location, (GLint) kos_video_height(0));
 		
 		glUseProgram(*program);
 		
