@@ -81,7 +81,7 @@
 		return stbtt_InitFont(&self->font, (const unsigned char*) data, stbtt_GetFontOffsetForIndex((const unsigned char*) data, 0)) ? kos_font_count++ : 0;
 		
 	} unsigned long long font_size(unsigned long long __self, unsigned long long size) {
-		kos_fonts[__self].size = (float) size / _UI64_MAX;
+		kos_fonts[__self].size = (float) size / FLOAT_ONE;
 		kos_fonts[__self].text = (char*) 0;
 		return 0;
 		

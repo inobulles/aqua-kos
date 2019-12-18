@@ -72,11 +72,11 @@
 		surface_t* __this = (surface_t*) ____this;
 		surface_set_layer((unsigned long long) __this, __this->layer);
 		
-		float width  = (float) __this->width  / _UI64_MAX_MARGIN;
-		float height = (float) __this->height / _UI64_MAX_MARGIN;
+		float width  = (float) __this->width  / FLOAT_ONE;
+		float height = (float) __this->height / FLOAT_ONE;
 		
-		float x      = (float) __this->x      / _UI64_MAX_MARGIN;
-		float y      = (float) __this->y      / _UI64_MAX_MARGIN;
+		float x      = (float) __this->x      / FLOAT_ONE - width  / 2;
+		float y      = (float) __this->y      / FLOAT_ONE - height / 2;
 		
 		GLint half_vwidth;
 		GLint half_vheight;
@@ -115,11 +115,11 @@
 		surface_t* __this = (surface_t*) ____this;
 		__this->scroll_texture = 1;
 		
-		float x      = ((float) _x      / _SI64_MAX_MARGIN / 4) + 0.5f;
-		float y      = ((float) _y      / _SI64_MAX_MARGIN / 4) + 0.5f;
+		float x      = ((float) _x      / FLOAT_ONE / 4) + 0.5f;
+		float y      = ((float) _y      / FLOAT_ONE / 4) + 0.5f;
 		
-		float width  =  (float) _width  / _UI64_MAX_MARGIN / 2;
-		float height =  (float) _height / _UI64_MAX_MARGIN / 2;
+		float width  =  (float) _width  / (FLOAT_ONE * 2) / 2;
+		float height =  (float) _height / (FLOAT_ONE * 2) / 2;
 		
 		y = -y - height - 1.0f;
 		
@@ -135,10 +135,10 @@
 	static void surface_update_colours(unsigned long long ____this) {
 		surface_t* __this = (surface_t*) ____this;
 		
-		float red   = (float) __this->red   / _UI64_MAX;
-		float green = (float) __this->green / _UI64_MAX;
-		float blue  = (float) __this->blue  / _UI64_MAX;
-		float alpha = (float) __this->alpha / _UI64_MAX;
+		float red   = (float) __this->red   / FLOAT_ONE;
+		float green = (float) __this->green / FLOAT_ONE;
+		float blue  = (float) __this->blue  / FLOAT_ONE;
+		float alpha = (float) __this->alpha / FLOAT_ONE;
 		
 		int i;
 		for (i = 0; i < SURFACE_VERTEX_COUNT; i++) {
@@ -176,9 +176,9 @@
 	void surface_new(unsigned long long ____this, signed long long x, signed long long y, unsigned long long width, unsigned long long height) {
 		surface_t* __this = (surface_t*) ____this;
 		
-		__this->red    = _UI64_MAX;
-		__this->green  = _UI64_MAX;
-		__this->blue   = _UI64_MAX;
+		__this->red    = FLOAT_ONE;
+		__this->green  = FLOAT_ONE;
+		__this->blue   = FLOAT_ONE;
 		
 		__this->x      = x;
 		__this->y      = y;
@@ -187,7 +187,7 @@
 		__this->height = height;
 		
 		__this->layer  = 0;
-		__this->alpha  = _UI64_MAX;
+		__this->alpha  = FLOAT_ONE;
 		
 		__this->scroll_texture     = 0;
 		__this->has_texture        = 0;
@@ -247,7 +247,7 @@
 		surface_t* __this = (surface_t*) ____this;
 		
 		__this->alpha         = alpha;
-		GLfloat float_alpha = (GLfloat) __this->alpha / _UI64_MAX;
+		GLfloat float_alpha = (GLfloat) __this->alpha / FLOAT_ONE;
 		
 		int i;
 		for (i = 0; i < SURFACE_VERTEX_COUNT; i++) {
@@ -306,10 +306,10 @@
 	#define SURFACE_GRADIENT_FUNCTIONS 1
 	
 	#define KOS_SURF_SET_COLOUR_FOR_VERTEX(index) { \
-		__this->colours[index].red   = (float) red   / _UI64_MAX; \
-		__this->colours[index].green = (float) green / _UI64_MAX; \
-		__this->colours[index].blue  = (float) blue  / _UI64_MAX; \
-		__this->colours[index].alpha = (float) alpha / _UI64_MAX; \
+		__this->colours[index].red   = (float) red   / FLOAT_ONE; \
+		__this->colours[index].green = (float) green / FLOAT_ONE; \
+		__this->colours[index].blue  = (float) blue  / FLOAT_ONE; \
+		__this->colours[index].alpha = (float) alpha / FLOAT_ONE; \
 	}
 	
 	void surface_gradient_left(KOS_SURF_FULL_COLOUR_FUNCTION_PARAMS) {
