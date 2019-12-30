@@ -1,79 +1,26 @@
 
-#ifndef __AQUA__SDL2_SRC_FUNCTIONS_VIDEO_H
-	#define __AQUA__SDL2_SRC_FUNCTIONS_VIDEO_H
-	
-	#if KOS_USES_ANDROID
-		#include "../android/root.h"
-	#endif
-	
-	void kos_video_clear(unsigned long long zvm, unsigned long long r, unsigned long long g, unsigned long long b, unsigned long long a) {
-		glClearColor((float) r / _UI64_MAX, (float) g / _UI64_MAX, (float) b / _UI64_MAX, (float) a / _UI64_MAX);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-	}
-	
-	#if KOS_USES_JNI
-		unsigned char waiting_video_flip = 0;
-	#endif
-	
-	static unsigned char video_flip_called = 0;
-	
-	#include <time.h>
-	
-	static unsigned long long last_ns = 0;
-	static unsigned long long fps = 0;
-	
-	void kos_video_flip(unsigned long long zvm) {
-		// get current fps
-		
-		struct timespec now;
-		clock_gettime(CLOCK_MONOTONIC, &now);
-		unsigned long long ns = now.tv_sec * 1000000000ull + now.tv_nsec;
-		
-		if (last_ns > 0) {
-			float delta = (float) (ns - last_ns) * 0.000000001f;
-			fps = (unsigned long long) (1.0f / delta);
-			
-		} last_ns = ns;
-		
-		// flip
-		video_flip_called = 1;
-		
-		#if KOS_USES_SDL2 && KOS_USES_OPENGL
-			SDL_GL_SwapWindow(current_kos->window);
-		#endif
-		
-		#if KOS_USES_BCM && KOS_USES_OPENGLES
-			eglSwapBuffers(current_kos->display, current_kos->surface);
-		#endif
-		
-		#if KOS_USES_JNI
-			waiting_video_flip = 1;
-		#endif
-		
-		surface_layer_offset = 0.0f;
-		
-		#if KOS_3D_VISUALIZATION
-			glRotatef(1.0f, 0.0f, 1.0f, 0.0f);
-		#endif
-		
-		update_predefined_textures();
-		
-	}
-	
-	unsigned long long kos_video_width (unsigned long long zvm) { return (unsigned long long) current_kos->width;  }
-	unsigned long long kos_video_height(unsigned long long zvm) { return (unsigned long long) current_kos->height; }
-	
-	unsigned long long video_bpp(void) {
-		return (unsigned long long) current_kos->bpp;
-		
-	}
-	
-	unsigned long long kos_video_fps(unsigned long long zvm) {
-		return fps;
-		
-	}
-	
-	#include "events.h"
-	
-#endif
+uint64_t kos_video_width(void* zvm) {
+	return video_width;
+}
+
+uint64_t kos_video_height(void* zvm) {
+	return video_height;
+}
+
+uint64_t kos_video_fps(void* zvm) {
+	return 60;
+}
+
+void kos_video_clear(void* zvm, uint64_t r, uint64_t g, uint64_t b, uint64_t a) {
+	glClearColor((GLfloat) r / PRECISION, (GLfloat) g / PRECISION, (GLfloat) b / PRECISION, (GLfloat) a / PRECISION);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+extern void before_flip_devices(void);
+extern void after_flip_devices(void);
+
+void kos_video_flip(void* zvm) {
+	before_flip_devices();
+	video_flip();
+	after_flip_devices();
+}

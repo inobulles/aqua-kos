@@ -1,241 +1,140 @@
 
-#ifndef __AQUA__KOS_FUNCTION_DEVICE_H
-	#define __AQUA__KOS_FUNCTION_DEVICE_H
+#define KOS_BDA
 
-	#define DEVICE_NULL            0
-	#define DEVICE_TEXTURE         1
-	#define DEVICE_KEYBOARD        2
-	#define DEVICE_WM              3
-	#define DEVICE_MATH            4
-	#define DEVICE_CLOCK           5
-	#define DEVICE_ANDROID         6
-	#define DEVICE_FRAMEBUFFER     7
-	#define DEVICE_SHADER          8
-	#define DEVICE_REQUESTS        9
-	#define DEVICE_DISCORD         10
-	#define DEVICE_GL              11
-	#define DEVICE_GL_BATCH        12
-	#define DEVICE_FS              13
-	#define DEVICE_KEYBOARD_DIALOG 14
-	#define DEVICE_DEBUG           15
-	#define DEVICE_JOYSTICK        16
-	#define DEVICE_DDS             17
-	#define DEVICE_SURFACE         18
-	#define DEVICE_FONT            19
-	#define DEVICE_MOUSE           20
-	#define DEVICE_SOCKET          21
-	#define DEVICE_PREDEFINED      22
-	#define DEVICE_BMP             23
-	#define DEVICE_KTX             24
-	#define DEVICE_PLATFORM        25
-	#define DEVICE_SOUND           26
-	#define DEVICE_MP3             27
-	#define DEVICE_JPG             28
-	#define DEVICE_PNG             29
-	#define DEVICE_CLIPBOARD       30
+uint64_t  kos_bda_bytes = 0;
+uint64_t* kos_bda = (uint64_t*) 0;
+
+typedef struct {
+	char name[1024];
+	void* library;
 	
-	// compute devices
+	// functions
 	
-	#define COMPUTE_BASE 0xC0C0
+	void (*load) (void);
+	void (*quit) (void);
 	
-	#define __COMPUTE_COMPILER_DEVICE 0
-	#define __COMPUTE_EXECUTOR_DEVICE 1
+	void (*before_flip) (void);
+	void (*after_flip) (void);
+	void (*handle) (uint64_t** result_pointer_pointer, void* data);
+} device_t;
+
+static uint64_t  device_count = 0;
+static device_t* devices[64];
+
+void load_devices(void) {
+	printf("Indexing devices ...\n");
 	
-	#define COMPUTE_COMPILER_DEVICE(x) (COMPUTE_BASE + __COMPUTE_COMPILER_DEVICE + (x) * 2)
-	#define COMPUTE_EXECUTOR_DEVICE(x) (COMPUTE_BASE + __COMPUTE_EXECUTOR_DEVICE + (x) * 2)
-	
-	#define DEVICE_COMPUTE_CUDA_COMPILER (COMPUTE_COMPILER_DEVICE(0))
-	#define DEVICE_COMPUTE_CUDA_EXECUTOR (COMPUTE_EXECUTOR_DEVICE(0))
-	
-	#define KOS_DEVICE_COMMAND_WARNING(device_name) printf("WARNING The command you have passed to the " device_name " device (%s) is unrecognized\n", (const char*) data);
-	
-	unsigned long long kos_create_device(unsigned long long zvm, unsigned long long __device) {
-		const char* device = (const char*) __device;
+	#ifndef KOS_DEVICES_PATH
+		printf("WARNING Failed to index devices, KOS_DEVICES_PATH is not set\n");
+	#else
+		devices[0] = (device_t*) malloc(sizeof(device_t));
+		memset(devices[0], 0, sizeof(device_t));
 		
-		if      (strcmp(device, "texture")     == 0) return DEVICE_TEXTURE;
-		else if (strcmp(device, "wm")          == 0) return DEVICE_WM;
-		else if (strcmp(device, "math")        == 0) return DEVICE_MATH;
-		else if (strcmp(device, "clock")       == 0) return DEVICE_CLOCK;
-		else if (strcmp(device, "framebuffer") == 0) return DEVICE_FRAMEBUFFER;
-		else if (strcmp(device, "shader")      == 0) return DEVICE_SHADER;
-		else if (strcmp(device, "gl")          == 0) return DEVICE_GL;
-		else if (strcmp(device, "gl batch")    == 0) return DEVICE_GL_BATCH;
-		else if (strcmp(device, "fs")          == 0) return DEVICE_FS;
-		else if (strcmp(device, "debug")       == 0) return DEVICE_DEBUG;
-		else if (strcmp(device, "surface")     == 0) return DEVICE_SURFACE;
-		else if (strcmp(device, "font")        == 0) return DEVICE_FONT;
-		else if (strcmp(device, "mouse")       == 0) return DEVICE_MOUSE;
-		else if (strcmp(device, "socket")      == 0) return DEVICE_SOCKET;
-		else if (strcmp(device, "predefined")  == 0) return DEVICE_PREDEFINED;
-		else if (strcmp(device, "bmp")         == 0) return DEVICE_BMP;
-		else if (strcmp(device, "joystick")    == 0) return DEVICE_JOYSTICK;
-		else if (strcmp(device, "ktx")         == 0) return DEVICE_KTX;
-		else if (strcmp(device, "platform")    == 0) return DEVICE_PLATFORM;
-		else if (strcmp(device, "keyboard")    == 0) return DEVICE_KEYBOARD; /// TODO Add keyboard support for Android
-		else if (strcmp(device, "jpg")         == 0) return DEVICE_JPG;
-		else if (strcmp(device, "png")         == 0) return DEVICE_PNG;
-		else if (strcmp(device, "clipboard")   == 0) return DEVICE_CLIPBOARD;
+		strcpy(devices[0]->name, "null");
+		device_count++;
 		
-		#if KOS_USES_JNI // JNI specific
-			else if (strcmp(device, "android")  == 0) return DEVICE_ANDROID;
-		#else // absolutely not JNI
-		#endif
-		#if KOS_USES_OPENGL_DESKTOP
-			else if (strcmp(device, "dds") == 0) return DEVICE_DDS; /// TODO Add ETC compression for android
-		#endif
-		
-		// compute
-		
-		else if (strcmp(device, "nvcc") == 0 && !system("command -v nvcc")) return DEVICE_COMPUTE_CUDA_COMPILER;
-		else if (strcmp(device, "cuda") == 0)                               return DEVICE_COMPUTE_CUDA_EXECUTOR;
-		
-		// extensions
-		
-		#ifdef __HAS_CURL
-			else if (strcmp(device, "requests") == 0) return DEVICE_REQUESTS;
-		#endif
-		#ifdef __HAS_DISCORD
-			else if (strcmp(device, "discord")  == 0) return DEVICE_DISCORD;
-		#endif
-		#ifdef __HAS_AUDIO
-			else if (strcmp(device, "sound")    == 0) return DEVICE_SOUND;
-			else if (strcmp(device, "mp3")      == 0) return DEVICE_MP3;
-		#endif
-		
-		else return DEVICE_NULL;
-		
-	}
-	
-	typedef struct {
-		uint64_t hour;
-		uint64_t minute;
-		uint64_t second;
-		
-		uint64_t day;
-		uint64_t month;
-		uint64_t year;
-		
-		uint64_t week_day;
-		uint64_t year_day;
-		
-	} time_device_t;
-	
-	typedef struct {
-		unsigned long long temp_value;
-		char temp_string[4096];
-		unsigned long long temp_value_field[8];
-		
-	} kos_bda_extension_t;
-	
-	#define KOS_BDA_EXTENSION
-	kos_bda_extension_t kos_bda_implementation;
-	
-	#include "../devices/clock.h"
-	#include "../devices/math.h"
-	#include "../devices/keyboard.h"
-	#include "../devices/joystick.h"
-	#include "../devices/compute/cuda.h"
-	#include "../devices/fs.h"
-	#include "../devices/framebuffer.h"
-	#include "../devices/shader.h"
-	#include "../devices/surface.h"
-	#include "../devices/gl_batch.h"
-	#include "../devices/gl.h"
-	#include "../devices/texture.h"
-	#include "../devices/wm.h"
-	#include "../devices/debug.h"
-	#include "../devices/font.h"
-	#include "../devices/mouse.h"
-	#include "../devices/socket.h"
-	#include "../devices/bmp.h"
-	#include "../devices/predefined.h"
-	#include "../devices/ktx.h"
-	#include "../devices/platform.h"
-	#include "../devices/jpg.h"
-	#include "../devices/png.h"
-	#include "../devices/clipboard.h"
-	
-	#if KOS_USES_OPENGL_DESKTOP
-		#include "../devices/dds.h"
-	#endif
-	#ifdef __HAS_CURL
-		#include "../devices/requests.h"
-	#endif
-	#ifdef __HAS_DISCORD
-		#include "../devices/discord.h"
-	#endif
-	#ifdef __HAS_AUDIO
-		#include "../devices/sound.h"
-		#include "../devices/mp3.h"
-	#endif
-	#if KOS_USES_JNI
-		#include "../devices/android.h"
-	#endif
-	
-	unsigned long long* kos_send_device(unsigned long long zvm, unsigned long long device, unsigned long long __data) {
-		const char* data = (const char*) __data;
-		
-		kos_bda_implementation.temp_value = 0;
-		unsigned long long* result = &kos_bda_implementation.temp_value;
-		
-		switch (device) {
-			case DEVICE_CLOCK:                        clock_device_handle(&result, data); break;
-			case DEVICE_MATH:                          math_device_handle(&result, data); break;
-			case DEVICE_KEYBOARD:                  keyboard_device_handle(&result, data); break;
-			case DEVICE_JOYSTICK:                  joystick_device_handle(&result, data); break;
-			case DEVICE_COMPUTE_CUDA_COMPILER: cuda_compile_device_handle(&result, data); break;
-			case DEVICE_COMPUTE_CUDA_EXECUTOR: cuda_execute_device_handle(&result, data); break;
-			case DEVICE_FS:                              fs_device_handle(&result, data); break;
-			case DEVICE_FRAMEBUFFER:            framebuffer_device_handle(&result, data); break;
-			case DEVICE_SHADER:                      shader_device_handle(&result, data); break;
-			case DEVICE_GL_BATCH:                  gl_batch_device_handle(&result, data); break;
-			case DEVICE_GL:                              gl_device_handle(&result, data); break;
-			case DEVICE_TEXTURE:                    texture_device_handle(&result, data); break;
-			case DEVICE_WM:                              wm_device_handle(&result, data); break;
-			case DEVICE_DEBUG:                        debug_device_handle(&result, data); break;
-			case DEVICE_FONT:                          font_device_handle(&result, data); break;
-			case DEVICE_SURFACE:                    surface_device_handle(&result, data); break;
-			case DEVICE_PREDEFINED:              predefined_device_handle(&result, data); break;
-			case DEVICE_BMP:                            bmp_device_handle(&result, data); break;
-			case DEVICE_SOCKET:                      socket_device_handle(&result, data); break;
-			case DEVICE_KTX:                            ktx_device_handle(&result, data); break;
-			case DEVICE_MOUSE:                        mouse_device_handle(&result, data); break;
-			case DEVICE_PLATFORM:                  platform_device_handle(&result, data); break;
-			case DEVICE_JPG:                            jpg_device_handle(&result, data); break;
-			case DEVICE_PNG:                            png_device_handle(&result, data); break;
-			case DEVICE_CLIPBOARD:                clipboard_device_handle(&result, data); break;
-			
-			#if KOS_USES_OPENGL_DESKTOP
-				case DEVICE_DDS: dds_device_handle(&result, data); break;
-			#endif
-			#ifdef __HAS_CURL
-				case DEVICE_REQUESTS: requests_device_handle(&result, data); break;
-			#endif
-			#ifdef __HAS_DISCORD
-				case DEVICE_DISCORD: discord_device_handle(&result, data); break;
-			#endif
-			#ifdef __HAS_AUDIO
-				case DEVICE_SOUND: sound_device_handle(&result, data); break;
-				case DEVICE_MP3:     mp3_device_handle(&result, data); break;
-			#endif
-			#if KOS_USES_JNI
-				case DEVICE_ANDROID: android_device_handle(&result, data); break;
-			#endif
-			
-			case DEVICE_NULL: {
-				printf("WARNING The device you have selected is DEVICE_NULL\n");
-				break;
-				
-			} default: {
-				printf("WARNING Device %lld does not seem to exist or doesn't accept `get` commands\n", device);
-				break;
-				
-			}
-			
+		DIR* dp = opendir(KOS_DEVICES_PATH);
+		if (!dp) {
+			printf("WARNING Failed to index devices, could not read directory at KOS_DEVICES_PATH (%s)\n", KOS_DEVICES_PATH);
+			return;
 		}
 		
-		return result;
+		char path[1024];
 		
+		struct dirent* entry;
+		while ((entry = readdir(dp)) != NULL) if (*entry->d_name != '.') { // ignore all entries starting with a '.'
+			sprintf(path, "%s/%s", KOS_DEVICES_PATH, entry->d_name);
+			
+			void* device_library = dlopen(path, RTLD_NOW);
+			if (!device_library) {
+				printf("WARNING Failed to open %s (%s)\n", entry->d_name, dlerror());
+				break;
+			}
+			
+			dlerror();
+			
+			device_t* device = (device_t*) malloc(sizeof(device_t));
+			strncpy(device->name, entry->d_name, sizeof(device->name));
+			
+			// functions
+			
+			device->load        = dlsym(device_library, "load");
+			device->quit        = dlsym(device_library, "quit");
+			
+			device->before_flip = dlsym(device_library, "before_flip");
+			device->after_flip  = dlsym(device_library, "after_flip");
+			device->handle      = dlsym(device_library, "handle");
+			
+			// variables
+			
+			void** reference_pointer = (void**) 0;
+			#define REFERENCE(string, variable) { reference_pointer = dlsym(device_library, (string)); if (reference_pointer) *reference_pointer = &(variable); }
+			
+			REFERENCE("window_based_mouse_pointer", window_based_mouse)
+			if (window_based_mouse) {
+				REFERENCE("mouse_x_pointer", mouse_x)
+				REFERENCE("mouse_y_pointer", mouse_y)
+				
+				REFERENCE("mouse_scroll_pointer", mouse_scroll)
+				REFERENCE("mouse_button_pointer", mouse_button)
+			}
+			
+			REFERENCE("video_width_pointer", video_width)
+			REFERENCE("video_height_pointer", video_height)
+			
+			REFERENCE("kos_bda_bytes_pointer", kos_bda_bytes)
+			REFERENCE("kos_bda_pointer", kos_bda)
+			
+			if (device->load) {
+				device->load();
+			}
+			
+			device->library = device_library;
+			devices[device_count++] = device;
+		}
+		
+		closedir(dp);
+	#endif
+}
+
+void before_flip_devices(void) {
+	for (uint64_t i = 0; i < device_count; i++) if (devices[i]->before_flip) {
+		devices[i]->before_flip();
+	}
+}
+
+void after_flip_devices(void) {
+	for (uint64_t i = 0; i < device_count; i++) if (devices[i]->after_flip) {
+		devices[i]->after_flip();
+	}
+}
+
+void quit_devices(void) {
+	printf("Quitting devices ...\n");
+	
+	for (uint64_t i = 0; i < device_count; i++) {
+		if (devices[i]->quit   ) devices[i]->quit();
+		if (devices[i]->library) dlclose(devices[i]->library);
+		
+		free(devices[i]);
+	}
+}
+
+uint64_t kos_create_device(void* zvm, const char* name) {
+	for (uint64_t i = 0; i < device_count; i++) if (strncmp(devices[i]->name, name, sizeof(devices[i]->name)) == 0) {
+		return i;
 	}
 	
-#endif
+	return 0;
+}
+
+void* kos_send_device(void* zvm, uint64_t device_id, void* data) {
+	memset(kos_bda, 0, kos_bda_bytes);
+	uint64_t* result_pointer = &kos_bda[0];
+	
+	if (device_id < device_count && devices[device_id]->handle) {
+		devices[device_id]->handle(&result_pointer, data);
+	}
+	
+	return result_pointer;
+}
