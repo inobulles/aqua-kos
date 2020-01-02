@@ -19,8 +19,8 @@ static EGLSurface egl_surface;
 
 static EGL_DISPMANX_WINDOW_T egl_native_window;
 
-static VCHI_INSTANCE_T vchi_instance;
-static VCHI_CONNECTION_T* vchi_connections;
+//~ static VCHI_INSTANCE_T vchi_instance;
+//~ static VCHI_CONNECTION_T* vchi_connections;
 
 #include "broadcom/video.h"
 #include "broadcom/events.h"
@@ -52,10 +52,10 @@ void load_platform_kos(void) {
 	
 	// setup everything to do with videocore communication
 	
-	vcos_init();
-	assert(vchi_initialise(&vchi_instance) == VCHIQ_SUCCESS);
-	assert(!vchi_connect(NULL, 0, vchi_instance));
-	assert(!vc_vchi_tv_init(vchi_instance, &vchi_connections, 1));
+	//~ vcos_init();
+	//~ assert(vchi_initialise(&vchi_instance) == VCHIQ_SUCCESS);
+	//~ assert(!vchi_connect(NULL, 0, vchi_instance));
+	//~ assert(!vc_vchi_tv_init(vchi_instance, &vchi_connections, 1));
 	
 	// initialize opengl
 	
