@@ -67,7 +67,7 @@ void load_kos(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glEnable(GL_DEPTH_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
+	//~ glAlphaFunc(GL_GREATER, 0.0f);
 	
 	//~ glMatrixMode(GL_PROJECTION);
 	//~ glViewport(0, 0, (GLsizei) video_width, (GLsizei) video_height);
