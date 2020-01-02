@@ -98,13 +98,13 @@ void load_devices(void) {
 }
 
 void before_flip_devices(void) {
-	for (uint64_t i = 0; i < device_count; i++) if (devices[i]->before_flip) {
+	for (uint32_t i = 0; i < device_count; i++) if (devices[i]->before_flip) {
 		devices[i]->before_flip();
 	}
 }
 
 void after_flip_devices(void) {
-	for (uint64_t i = 0; i < device_count; i++) if (devices[i]->after_flip) {
+	for (uint32_t i = 0; i < device_count; i++) if (devices[i]->after_flip) {
 		devices[i]->after_flip();
 	}
 }
@@ -112,7 +112,7 @@ void after_flip_devices(void) {
 void quit_devices(void) {
 	printf("Quitting devices ...\n");
 	
-	for (uint64_t i = 0; i < device_count; i++) {
+	for (uint32_t i = 0; i < device_count; i++) {
 		if (devices[i]->quit   ) devices[i]->quit();
 		if (devices[i]->library) dlclose(devices[i]->library);
 		
@@ -120,15 +120,19 @@ void quit_devices(void) {
 	}
 }
 
-uint64_t kos_create_device(void* zvm, const char* name) {
-	for (uint64_t i = 0; i < device_count; i++) if (strncmp(devices[i]->name, name, sizeof(devices[i]->name)) == 0) {
+uint64_t kos_create_device(uint64_t __zvm, uint64_t __name) {
+	const char* name = (const char*) __name;
+	
+	for (uint32_t i = 0; i < device_count; i++) if (strncmp(devices[i]->name, name, sizeof(devices[i]->name)) == 0) {
 		return i;
 	}
 	
 	return 0;
 }
 
-void* kos_send_device(void* zvm, uint64_t device_id, void* data) {
+void* kos_send_device(uint64_t __zvm, uint64_t device_id, uint64_t __data) {
+	void* data = (void*) __data;
+	
 	memset(kos_bda, 0, kos_bda_bytes);
 	uint64_t* result_pointer = &kos_bda[0];
 	

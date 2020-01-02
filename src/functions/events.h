@@ -12,7 +12,8 @@ void catch_signal(int signal) {
 	}
 }
 
-void kos_get_events(void* zvm, events_t* events) {
+void kos_get_events(uint64_t __zvm, uint64_t __events) {
+	events_t* events = (events_t*) __events;
 	memset(events, 0, sizeof(*events));
 	
 	if (doomed) events->quit = 1;
