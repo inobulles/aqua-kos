@@ -5,9 +5,6 @@
 
 #include "GLES2/gl2.h"
 
-//~ #include "GLES/gl.h"
-//~ #include "GLES/glext.h"
-
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
 

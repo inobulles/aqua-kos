@@ -65,19 +65,7 @@ void load_kos(void) {
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
 	glEnable(GL_DEPTH_TEST);
-	//~ glAlphaFunc(GL_GREATER, 0.0f);
-	
-	//~ glMatrixMode(GL_PROJECTION);
-	//~ glViewport(0, 0, (GLsizei) video_width, (GLsizei) video_height);
-	//~ glLoadIdentity();
-	
-	//~ glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 500.0f);
-	//~ glTranslatef(0.0f, 0.0f, -100.0f);
-	
-	//~ glMatrixMode(GL_MODELVIEW);
-	//~ glLoadIdentity();
 	
 	// print out info about opengl
 	
