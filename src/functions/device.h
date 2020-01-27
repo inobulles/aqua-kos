@@ -18,7 +18,7 @@ typedef struct {
 	void (*handle) (uint64_t** result_pointer_pointer, void* data);
 } device_t;
 
-static uint64_t  device_count = 0;
+static uint32_t  device_count = 0;
 static device_t* devices[64];
 
 void load_devices(void) {
