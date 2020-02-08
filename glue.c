@@ -13,7 +13,7 @@
 // functions left to implement
 
 void kos_get_platform       (void) { printf("IMPLEMENT %s\n", __func__); }
-void kos_platform_command   (void) { printf("IMPLEMENT %s\n", __func__); }
+void kos_platform_command   (void* zvm, const char* command) { system(command); } /// REMME
 void kos_native             (void) { printf("IMPLEMENT %s\n", __func__); }
 
 void kos_create_machine     (void) { printf("IMPLEMENT %s\n", __func__); }
