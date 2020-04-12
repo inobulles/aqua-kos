@@ -119,6 +119,8 @@ int main(int argc, char** argv) {
 		goto end_unique;
 	}
 	
+	printf("Unique is %s\n", unique);
+	
 	chdir(root_path);
 	mkdir("data", 0700);
 	chdir("data");
