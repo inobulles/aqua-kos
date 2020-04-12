@@ -8,8 +8,18 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <dirent.h>
+#include <limits.h>
+#include <sys/stat.h>
 
 #include "src/iar.h"
+
+iar_file_t boot_package;
+char* unique = (char*) 0;
+char* cwd_path = (char*) 0;
+
+char* root_path = (char*) 0;
+char* boot_path = (char*) 0;
+
 #include "src/kos.h"
 
 // functions left to implement
@@ -30,11 +40,10 @@ void kos_current_machine    (void) { printf("IMPLEMENT %s\n", __func__); }
 #define BOOT_PATH "root/boot.zpk"
 
 static zvm_program_t* de_program;
-static iar_file_t boot_package;
 
 int main(int argc, char** argv) {
-	char* root_path = (char*) ROOT_PATH;
-	char* boot_path = (char*) BOOT_PATH;
+	root_path = ROOT_PATH;
+	boot_path = BOOT_PATH;
 	
 	printf("Parsing arguments ...\n");
 	for (int i = 1; i < argc; i++) {
@@ -86,6 +95,38 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	
+	printf("Making copy of current working directory path ...\n");
+	cwd_path = (char*) malloc(PATH_MAX + 1);
+	getcwd(cwd_path, PATH_MAX + 1);
+	
+	printf("Finding unique node ...\n");
+	
+	iar_node_t unique_node;
+	if (iar_find_node(&boot_package, &unique_node, "unique", &boot_package.root_node) == -1) {
+		printf("WARNING Boot package doesn't contain any unique node; the data drive won't be accessible by the application\n");
+		goto end_unique;
+	}
+	
+	printf("Reading unique node ...\n");
+	if (!unique_node.data_bytes) {
+		printf("WARNING Unique node empty\n");
+		goto end_unique;
+	}
+	
+	unique = (char*) malloc(unique_node.data_bytes);
+	if (iar_read_node_contents(&boot_package, &unique_node, unique)) {
+		free(unique);
+		goto end_unique;
+	}
+	
+	chdir(root_path);
+	mkdir("data", 0700);
+	chdir("data");
+	mkdir(unique, 0700);
+	chdir(cwd_path);
+	
+	end_unique:
+	
 	if (strncmp(start_command, "zed", 3) == 0) {
 		printf("Start command is zed, finding ROM node ...\n");
 		
@@ -108,6 +149,9 @@ int main(int argc, char** argv) {
 		
 		printf("Loading the KOS ...\n");
 		load_kos();
+		
+		printf("Changing into root directory ...\n");
+		chdir(root_path);
 		
 		printf("Loading the DE ...\n");
 		

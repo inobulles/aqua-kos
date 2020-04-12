@@ -48,10 +48,10 @@ void load_devices(void) {
 			void* device_library = dlopen(path, RTLD_NOW);
 			if (!device_library) {
 				printf("WARNING Failed to open %s (%s)\n", entry->d_name, dlerror());
-				break;
+				continue;
 			}
 			
-			dlerror();
+			dlerror(); // clear the last error
 			
 			device_t* device = (device_t*) malloc(sizeof(device_t));
 			strncpy(device->name, entry->d_name, sizeof(device->name));
@@ -69,6 +69,11 @@ void load_devices(void) {
 			
 			void** reference_pointer = (void**) 0;
 			#define REFERENCE(string, variable) { reference_pointer = dlsym(device_library, (string)); if (reference_pointer) *reference_pointer = &(variable); }
+			
+			REFERENCE("root_path_pointer", root_path)
+			REFERENCE("cwd_path_pointer", cwd_path)
+			REFERENCE("unique_pointer", unique)
+			REFERENCE("boot_package_pointer", boot_package)
 			
 			REFERENCE("window_based_mouse_pointer", window_based_mouse)
 			if (window_based_mouse) {
