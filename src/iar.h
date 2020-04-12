@@ -9,7 +9,10 @@ typedef struct {
 typedef struct {
 	uint64_t node_count;
 	uint64_t node_offsets_offset;
+	
+	uint64_t name_bytes;
 	uint64_t name_offset;
+	
 	uint64_t data_bytes;
 	uint64_t data_offset;
 } iar_node_t;
@@ -58,10 +61,13 @@ uint64_t iar_find_node(iar_file_t* self, iar_node_t* node, const char* name, iar
 		iar_node_t child_node;
 		pread(self->fd, &child_node, sizeof(child_node), node_offsets[i]);
 		
-		char node_name[256]; // don't think many names will be larger than 256 tbh
-		pread(self->fd, node_name, sizeof(node_name), child_node.name_offset); // don't have to worry about node->name_offset + sizeof(node_name) potentially being bigger than file, since pread will stop reading if it reaches eof
+		char* node_name = (char*) malloc(child_node.name_bytes);
+		pread(self->fd, node_name, child_node.name_bytes, child_node.name_offset);
 		
-		if (strncmp(name, node_name, sizeof(node_name)) == 0) {
+		uint8_t condition = strncmp(name, node_name, sizeof(node_name)) == 0;
+		free(node_name);
+		
+		if (condition) {
 			memcpy(node, &child_node, sizeof(child_node));
 			found = i;
 			break;
