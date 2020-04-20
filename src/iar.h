@@ -4,6 +4,8 @@ typedef struct {
 	uint64_t magic;
 	uint64_t version;
 	uint64_t root_node_offset;
+	uint64_t page_bytes; // this isn't really needed for the KOS, as each file is loaded in its entirety in memory using pread anyway, so knowing if we can use mmap on this platform is useless
+	                     // HOWEVER, some devices may rely on files previously loaded over here, so it is still important to include this
 } iar_header_t;
 
 typedef struct {
