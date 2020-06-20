@@ -23,8 +23,8 @@ static uint32_t  device_count = 0;
 static device_t* devices[64];
 
 void load_devices(void) {
-	printf("Indexing devices ...\n");
-	
+	printf("[AQUA KOS] Indexing devices ...\n");
+
 	devices[0] = (device_t*) malloc(sizeof(device_t));
 	memset(devices[0], 0, sizeof(device_t));
 	
@@ -33,7 +33,7 @@ void load_devices(void) {
 	
 	DIR* dp = opendir(device_path);
 	if (!dp) {
-		printf("WARNING Failed to index devices, could not read directory at device_path (%s)\n", device_path);
+		printf("[AQUA KOS] WARNING Failed to index devices, could not read directory at device_path (%s)\n", device_path);
 		return;
 	}
 	
@@ -45,7 +45,7 @@ void load_devices(void) {
 		
 		void* device_library = dlopen(path, RTLD_NOW);
 		if (!device_library) {
-			printf("WARNING Failed to open %s (%s)\n", entry->d_name, dlerror());
+			printf("[AQUA KOS] WARNING Failed to open %s (%s)\n", entry->d_name, dlerror());
 			continue;
 		}
 
@@ -112,8 +112,8 @@ void after_flip_devices(void) {
 }
 
 void quit_devices(void) {
-	printf("Quitting devices ...\n");
-	
+	printf("[AQUA KOS] Quitting devices ...\n");
+
 	for (uint32_t i = 0; i < device_count; i++) {
 		if (devices[i]->quit   ) devices[i]->quit();
 		if (devices[i]->library) dlclose(devices[i]->library);
