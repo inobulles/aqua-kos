@@ -44,19 +44,9 @@ void load_kos(void) {
 	sigaction(SIGINT, &signal_interrupt_handler, NULL);
 	
 	if (feature_video) {
-		// setup gl
-		
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_DEPTH_TEST);
-		
-		// print out info about opengl
-		
-		printf("OpenGL info\n");
-		printf("\tVendor:                   %s\n", glGetString(GL_VENDOR));
-		printf("\tRenderer:                 %s\n", glGetString(GL_RENDERER));
-		printf("\tVersion:                  %s\n", glGetString(GL_VERSION));
-		printf("\tShading language version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 	}
 	
 	if (feature_devices) {
