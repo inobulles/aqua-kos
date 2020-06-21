@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 			
 			if (strcmp(option, "help") == 0) {
 				printf("AQUA KOS command-line executable help\n");
-				printf("`--help`: Print out information for each argument.\n");
+				printf("`--help`: Print out information on each argument.\n");
 				printf("`--root [root directory path]`: Specify where the root directory is.\n");
 				printf("`--boot [boot package path]`: Specifiy where the boot package is. Note that this is relative to the working directory, not the root directory.\n");
 				printf("`--devices [device binaries directory path]`: Specifiy where the device binaries directory is.\n");
@@ -80,8 +80,9 @@ int main(int argc, char** argv) {
 				fprintf(stderr, "[AQUA KOS] ERROR Option `--%s` is unknown. Run `aqua --help` to see a list of available options\n", option);
 				return 1;
 			}
+
 		} else {
-			fprintf(stderr, "[AQUA KOS] ERROR Unexpected argument `%s`\n", argv[i]);
+			fprintf(stderr, "[AQUA KOS] ERROR Unexpected argument '%s'\n", argv[i]);
 			return 1;
 		}
 	}
@@ -166,11 +167,11 @@ int main(int argc, char** argv) {
 		goto end_feature_set;
 	}
 
-	/*for (char* feature = strtok(feature_set, " "); feature; feature = strtok((char*) 0, " ")) {
+	for (char* feature = strtok(feature_set, " "); feature; feature = strtok((char*) 0, " ")) {
 		if (strcmp(feature, "video") == 0) feature_video = 1;
 		else if (strcmp(feature, "devices") == 0) feature_devices = 1;
 		else printf("[AQUA KOS] WARNING '%s' feature is unknown\n", feature);
-	}*/
+	}
 
 	free(feature_set);
 	end_feature_set:
@@ -222,6 +223,7 @@ int main(int argc, char** argv) {
 		quit_kos();
 		free(de_program);
 		
+		printf("[AQUA KOS] Done\n");
 		return error_code;
 	}
 
