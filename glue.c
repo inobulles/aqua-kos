@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
 			if (strcmp(option, "help") == 0) {
 				printf("AQUA KOS command-line executable help\n");
 				printf("`--help`: Print out information on each argument.\n");
-				printf("`--root [root directory path]`: Specify where the root directory is.\n");
+				printf("`--root [root directory path]`: Specify where the root directory is. If `NO_ROOT` is passed as the root directory path, the KOS will boot without a root directory.\n");
 				printf("`--boot [boot package path]`: Specifiy where the boot package is. Note that this is relative to the working directory, not the root directory.\n");
 				printf("`--devices [device binaries directory path]`: Specifiy where the device binaries directory is.\n");
 				printf("`--width [width in pixels]`: Specify the prefered screen width in pixels when starting up. Depending on the platform and application settings, this flag may not be respected.\n");
@@ -86,6 +86,10 @@ int main(int argc, char** argv) {
 			return 1;
 		}
 	}
+
+	if (strcmp(root_path, "NO_ROOT") == 0) {
+		root_path = (char*) 0;
+	}
 	
 	printf("[AQUA KOS] Reading the boot package (%s) ...\n", boot_path);
 	if (iar_open(&boot_package, boot_path)) return 1;
@@ -110,38 +114,41 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	
-	printf("[AQUA KOS] Making copy of current working directory path ...\n");
-	cwd_path = (char*) malloc(PATH_MAX + 1);
-	getcwd(cwd_path, PATH_MAX + 1);
-	
-	printf("[AQUA KOS] Finding unique node ...\n");
-	
-	iar_node_t unique_node;
-	if (iar_find_node(&boot_package, &unique_node, "unique", &boot_package.root_node) == -1) {
-		printf("[AQUA KOS] WARNING Boot package doesn't contain any unique node; the data drive won't be accessible by the application\n");
-		goto end_unique;
+	if (root_path) {
+		printf("[AQUA KOS] Making copy of current working directory path ...\n");
+		cwd_path = (char*) malloc(PATH_MAX + 1);
+		getcwd(cwd_path, PATH_MAX + 1);
+		
+		printf("[AQUA KOS] Finding unique node ...\n");
+		
+		iar_node_t unique_node;
+		if (iar_find_node(&boot_package, &unique_node, "unique", &boot_package.root_node) == -1) {
+			printf("[AQUA KOS] WARNING Boot package doesn't contain any unique node; the data drive won't be accessible by the application\n");
+			goto end_unique;
+		}
+		
+		printf("[AQUA KOS] Reading unique node ...\n");
+		if (!unique_node.data_bytes) {
+			printf("[AQUA KOS] WARNING Unique node empty\n");
+			goto end_unique;
+		}
+		
+		unique = (char*) malloc(unique_node.data_bytes);
+		if (iar_read_node_contents(&boot_package, &unique_node, unique)) {
+			free(unique);
+			goto end_unique;
+		}
+		
+		printf("[AQUA KOS] Unique is %s\n", unique);
+		
+		chdir(root_path);
+		mkdir("data", 0700);
+		chdir("data");
+		mkdir(unique, 0700);
+		chdir(cwd_path);
+		
 	}
-	
-	printf("[AQUA KOS] Reading unique node ...\n");
-	if (!unique_node.data_bytes) {
-		printf("[AQUA KOS] WARNING Unique node empty\n");
-		goto end_unique;
-	}
-	
-	unique = (char*) malloc(unique_node.data_bytes);
-	if (iar_read_node_contents(&boot_package, &unique_node, unique)) {
-		free(unique);
-		goto end_unique;
-	}
-	
-	printf("[AQUA KOS] Unique is %s\n", unique);
-	
-	chdir(root_path);
-	mkdir("data", 0700);
-	chdir("data");
-	mkdir(unique, 0700);
-	chdir(cwd_path);
-	
+
 	end_unique:
 	
 	printf("[AQUA KOS] Finding feature_set node ...\n");
@@ -199,8 +206,10 @@ int main(int argc, char** argv) {
 		printf("[AQUA KOS] Loading the KOS ...\n");
 		load_kos();
 
-		printf("[AQUA KOS] Changing into root directory ...\n");
-		chdir(root_path);
+		if (root_path) {
+			printf("[AQUA KOS] Changing into root directory ...\n");
+			chdir(root_path);
+		}
 
 		printf("[AQUA KOS] Loading the DE ...\n");
 

@@ -9,6 +9,7 @@ Print out information for each argument.
 
 ### --root [root directory path]
 Specify where the root directory is.
+If `NO_ROOT` is passed as the root directory path, the KOS will boot without a root directory.
 
 ### --boot [boot package path]
 Specifiy where the boot package is.
