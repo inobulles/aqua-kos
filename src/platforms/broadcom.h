@@ -25,10 +25,10 @@ static EGL_DISPMANX_WINDOW_T egl_native_window;
 // platform specific kos functions
 
 void load_platform_kos(void) {
-	if (feature_device) {
+	if (feature_video) {
 		// attributes
 		
-		static const EGLint attribute_list[] = {
+		EGLint attribute_list[] = {
 			EGL_RED_SIZE,    8,
 			EGL_GREEN_SIZE,  8,
 			EGL_BLUE_SIZE,   8,
@@ -39,7 +39,7 @@ void load_platform_kos(void) {
 			EGL_NONE,
 		};
 		
-		static const EGLint context_attributes[] = {
+		EGLint context_attributes[] = {
 			EGL_CONTEXT_CLIENT_VERSION, 2,
 			EGL_NONE,
 		};

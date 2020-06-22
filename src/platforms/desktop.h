@@ -36,9 +36,8 @@ void load_platform_kos(void) {
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, video_msaa);
 		}
 		
-		if (video_vsync && SDL_GL_SetSwapInterval(-1) < 0) {
-			SDL_GL_SetSwapInterval(1);
-		}
+		if (video_vsync && SDL_GL_SetSwapInterval(-1) < 0) SDL_GL_SetSwapInterval(1);
+		else SDL_GL_SetSwapInterval(0);
 		
 		// window creation
 		

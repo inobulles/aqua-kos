@@ -62,8 +62,8 @@ int main(int argc, char** argv) {
 				printf("`--height [height in pixels]`: Specify the prefered screen height in pixels when starting up. Depending on the platform and application settings, this flag may not be respected.\n");
 				printf("`--msaa [sample count to be used]`: Tell the KOS how many MSAA samples you want to use. Passing \"0\" will disable MSAA. This flag may not be implemented on all platforms.\n");
 				printf("`--no-vsync`: Tell the KOS not to enable VSync.\n");
-				return 0;
 				
+				return 0;
 			}
 			
 			else if (strcmp(option, "root") == 0) root_path = argv[++i];
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 			}
 
 		} else {
-			fprintf(stderr, "[AQUA KOS] ERROR Unexpected argument '%s'\n", argv[i]);
+			fprintf(stderr, "[AQUA KOS] ERROR Unexpected argument `%s`\n", argv[i]);
 			return 1;
 		}
 	}
