@@ -8,7 +8,6 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <dirent.h>
-#include <limits.h>
 #include <sys/stat.h>
 
 #include "src/iar.h"
@@ -97,7 +96,7 @@ int main(int argc, char** argv) {
 	printf("[AQUA KOS] Finding start node ...\n");
 	
 	iar_node_t start_node;
-	if (iar_find_node(&boot_package, &start_node, "start", &boot_package.root_node) == -1) {
+	if (iar_find_node(&boot_package, &start_node, "start", &boot_package.root_node) < 0) {
 		fprintf(stderr, "[AQUA KOS] ERROR Failed to find start node in boot package\n");
 		//iar_free(&boot_package); // don't care about freeing this; no risk for memory leaks
 		return 1;
@@ -110,14 +109,13 @@ int main(int argc, char** argv) {
 	}
 	
 	char* start_command = (char*) malloc(start_node.data_bytes);
-	if (iar_read_node_contents(&boot_package, &start_node, start_command)) {
+	if (iar_read_node_content(&boot_package, &start_node, start_command)) {
 		return 1;
 	}
 	
 	if (root_path) {
 		printf("[AQUA KOS] Making copy of current working directory path ...\n");
-		cwd_path = (char*) malloc(PATH_MAX + 1);
-		getcwd(cwd_path, PATH_MAX + 1);
+		cwd_path = getcwd((char*) 0, 0);
 		
 		printf("[AQUA KOS] Finding unique node ...\n");
 		
@@ -134,7 +132,7 @@ int main(int argc, char** argv) {
 		}
 		
 		unique = (char*) malloc(unique_node.data_bytes);
-		if (iar_read_node_contents(&boot_package, &unique_node, unique)) {
+		if (iar_read_node_content(&boot_package, &unique_node, unique)) {
 			free(unique);
 			goto end_unique;
 		}
@@ -169,7 +167,7 @@ int main(int argc, char** argv) {
 	}
 
 	char* feature_set = (char*) malloc(feature_set_node.data_bytes);
-	if (iar_read_node_contents(&boot_package, &feature_set_node, feature_set)) {
+	if (iar_read_node_content(&boot_package, &feature_set_node, feature_set)) {
 		free(feature_set);
 		goto end_feature_set;
 	}
@@ -199,7 +197,7 @@ int main(int argc, char** argv) {
 		}
 		
 		char* rom = (char*) malloc(rom_node.data_bytes);
-		if (iar_read_node_contents(&boot_package, &rom_node, rom)) {
+		if (iar_read_node_content(&boot_package, &rom_node, rom)) {
 			return 1;
 		}
 

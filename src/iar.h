@@ -66,7 +66,7 @@ uint64_t iar_find_node(iar_file_t* self, iar_node_t* node, const char* name, iar
 		char* node_name = (char*) malloc(child_node.name_bytes);
 		pread(self->fd, node_name, child_node.name_bytes, child_node.name_offset);
 		
-		uint8_t condition = strncmp(name, node_name, sizeof(node_name)) == 0;
+		uint8_t condition = strncmp(name, node_name, child_node.name_bytes) == 0;
 		free(node_name);
 		
 		if (condition) {
@@ -80,7 +80,7 @@ uint64_t iar_find_node(iar_file_t* self, iar_node_t* node, const char* name, iar
 	return found;
 }
 
-int iar_read_node_contents(iar_file_t* self, iar_node_t* node, char* buffer) {
+int iar_read_node_content /* content not contents */ (iar_file_t* self, iar_node_t* node, char* buffer) {
 	if (node->data_offset) {
 		pread(self->fd, buffer, node->data_bytes, node->data_offset);
 		return 0;
