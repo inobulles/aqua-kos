@@ -10,7 +10,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#include "src/iar.h"
+#include <iar.h>
 
 iar_file_t boot_package;
 char* unique = (char*) 0;
@@ -91,14 +91,14 @@ int main(int argc, char** argv) {
 	}
 	
 	printf("[AQUA KOS] Reading the boot package (%s) ...\n", boot_path);
-	if (iar_open(&boot_package, boot_path)) return 1;
+	if (iar_open_read(&boot_package, boot_path)) return 1;
 	
 	printf("[AQUA KOS] Finding start node ...\n");
 	
 	iar_node_t start_node;
 	if (iar_find_node(&boot_package, &start_node, "start", &boot_package.root_node) < 0) {
 		fprintf(stderr, "[AQUA KOS] ERROR Failed to find start node in boot package\n");
-		//iar_free(&boot_package); // don't care about freeing this; no risk for memory leaks
+		iar_close(&boot_package);
 		return 1;
 	}
 
@@ -144,10 +144,9 @@ int main(int argc, char** argv) {
 		chdir("data");
 		mkdir(unique, 0700);
 		chdir(cwd_path);
-		
 	}
 
-	end_unique:
+end_unique:
 	
 	printf("[AQUA KOS] Finding feature_set node ...\n");
 
@@ -179,7 +178,8 @@ int main(int argc, char** argv) {
 	}
 
 	free(feature_set);
-	end_feature_set:
+	
+end_feature_set:
 
 	if (strncmp(start_command, "zed", 3) == 0) {
 		printf("[AQUA KOS] Start command is zed, finding ROM node ...\n");
