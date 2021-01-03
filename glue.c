@@ -51,21 +51,7 @@ int main(int argc, char** argv) {
 		if (strncmp(argv[i], "--", 2) == 0) { // argument is option
 			char* option = argv[i] + 2;
 			
-			if (strcmp(option, "help") == 0) {
-				printf("AQUA KOS command-line executable help\n");
-				printf("`--help`: Print out information on each argument.\n");
-				printf("`--root [root directory path]`: Specify where the root directory is. If `NO_ROOT` is passed as the root directory path, the KOS will boot without a root directory.\n");
-				printf("`--boot [boot package path]`: Specifiy where the boot package is. Note that this is relative to the working directory, not the root directory.\n");
-				printf("`--devices [device binaries directory path]`: Specifiy where the device binaries directory is.\n");
-				printf("`--width [width in pixels]`: Specify the prefered screen width in pixels when starting up. Depending on the platform and application settings, this flag may not be respected.\n");
-				printf("`--height [height in pixels]`: Specify the prefered screen height in pixels when starting up. Depending on the platform and application settings, this flag may not be respected.\n");
-				printf("`--msaa [sample count to be used]`: Tell the KOS how many MSAA samples you want to use. Passing \"0\" will disable MSAA. This flag may not be implemented on all platforms.\n");
-				printf("`--no-vsync`: Tell the KOS not to enable VSync.\n");
-				
-				return 0;
-			}
-			
-			else if (strcmp(option, "root") == 0) root_path = argv[++i];
+			if (strcmp(option, "root") == 0) root_path = argv[++i];
 			else if (strcmp(option, "boot") == 0) boot_path = argv[++i];
 			else if (strcmp(option, "devices") == 0) device_path = argv[++i];
 
@@ -76,12 +62,12 @@ int main(int argc, char** argv) {
 			else if (strcmp(option, "no-vsync") == 0) video_vsync = 0;
 			
 			else {
-				fprintf(stderr, "[AQUA KOS] ERROR Option `--%s` is unknown. Run `aqua --help` to see a list of available options\n", option);
+				fprintf(stderr, "[AQUA KOS] ERROR Option '--%s' is unknown. Check README.md or go to https://github.com/inobulles/aqua-kos/blob/master/README.md to see a list of available options\n", option);
 				return 1;
 			}
 
 		} else {
-			fprintf(stderr, "[AQUA KOS] ERROR Unexpected argument `%s`\n", argv[i]);
+			fprintf(stderr, "[AQUA KOS] ERROR Unexpected argument '%s'\n", argv[i]);
 			return 1;
 		}
 	}
@@ -234,6 +220,6 @@ end_feature_set:
 		return error_code;
 	}
 
-	printf("[AQUA KOS] ERROR Unknown start command %s\n", start_command);
+	printf("[AQUA KOS] ERROR Unknown start command '%s'\n", start_command);
 	return 1;
 }

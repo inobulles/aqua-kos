@@ -2,10 +2,7 @@
 This repository contains the source code for the main AQUA KOS (the one that contains all of the code for every Unix-based platform).
 
 ## Command-line arguments
-Here is a list of all command-line arguments that can be passed to the KOS executable.
-
-### --help
-Print out information for each argument.
+Here is a list of all command-line arguments that can be passed to the KOS executable:
 
 ### --root [root directory path]
 Specify where the root directory is.
