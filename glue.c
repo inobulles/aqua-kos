@@ -23,15 +23,10 @@ char* boot_path = (char*) 0;
 
 // functions left to implement
 
-void kos_get_platform       (void) { printf("IMPLEMENT %s\n", __func__); }
-void kos_platform_command   (void* zvm, const char* command) { system(command); } /// REMME
-void kos_native             (void) { printf("IMPLEMENT %s\n", __func__); }
-
-void kos_create_machine     (void) { printf("IMPLEMENT %s\n", __func__); }
-void kos_execute_machine    (void) { printf("IMPLEMENT %s\n", __func__); }
-void kos_kill_machine       (void) { printf("IMPLEMENT %s\n", __func__); }
-void kos_give_machine_events(void) { printf("IMPLEMENT %s\n", __func__); }
-void kos_current_machine    (void) { printf("IMPLEMENT %s\n", __func__); }
+void kos_get_platform    (void) { printf("IMPLEMENT %s\n", __func__); }
+void kos_platform_command(void* zvm, const char* command) { system(command); } /// REMME
+void kos_get_requests    (void* zvm, const char* command) { system(command); } /// REMME
+void kos_native          (void) { printf("IMPLEMENT %s\n", __func__); }
 
 #include "zvm/zvm.h"
 static zvm_program_t* de_program;
@@ -106,7 +101,7 @@ int main(int argc, char** argv) {
 		printf("[AQUA KOS] Finding unique node ...\n");
 		
 		iar_node_t unique_node;
-		if (iar_find_node(&boot_package, &unique_node, "unique", &boot_package.root_node) == -1) {
+		if (iar_find_node(&boot_package, &unique_node, ZPK_UNIQUE_PATH, &boot_package.root_node) == -1) {
 			printf("[AQUA KOS] WARNING Boot package doesn't contain any unique node; the data drive won't be accessible by the application\n");
 			goto end_unique;
 		}
@@ -171,7 +166,7 @@ end_feature_set:
 		printf("[AQUA KOS] Start command is zed, finding ROM node ...\n");
 		
 		iar_node_t rom_node;
-		if (iar_find_node(&boot_package, &rom_node, "rom.zed", &boot_package.root_node) == -1) {
+		if (iar_find_node(&boot_package, &rom_node, ZPK_ROM_PATH, &boot_package.root_node) == -1) {
 			fprintf(stderr, "[AQUA KOS] ERROR Failed to find ROM node (rom.zed) in boot package\n");
 			return 1;
 		}
@@ -182,7 +177,7 @@ end_feature_set:
 			return 1;
 		}
 		
-		char* rom = (char*) malloc(rom_node.data_bytes);
+		void* rom = malloc(rom_node.data_bytes);
 		if (iar_read_node_content(&boot_package, &rom_node, rom)) {
 			return 1;
 		}
@@ -199,10 +194,13 @@ end_feature_set:
 
 		de_program = (zvm_program_t*) malloc(sizeof(zvm_program_t));
 		memset(de_program, 0, sizeof(zvm_program_t));
-		de_program->pointer = rom;
+		de_program->rom = rom;
 
 		printf("[AQUA KOS] Starting run setup phase ...\n");
-		zvm_program_run_setup_phase(de_program);
+		if (zvm_program_run_setup_phase(de_program)) {
+			fprintf(stderr, "[AQUA KOS] ERROR The ZVM's program setup phase failed\n");
+			return 1;
+		}
 		
 		while (!zvm_program_run_loop_phase(de_program));
 		int error_code = de_program->error_code;
