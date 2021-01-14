@@ -122,7 +122,7 @@ void quit_devices(void) {
 	}
 }
 
-uint64_t kos_create_device(uint64_t __zvm, uint64_t __name) {
+uint64_t kos_query_device(uint64_t __zvm, uint64_t __name) {
 	const char* name = (const char*) __name;
 	
 	for (uint32_t i = 0; i < device_count; i++) if (strncmp(devices[i]->name, name, sizeof(devices[i]->name)) == 0) {
