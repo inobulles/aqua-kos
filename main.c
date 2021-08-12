@@ -1,4 +1,9 @@
 
+#if __linux__
+	#define _GNU_SOURCE
+	#include <sys/mman.h> // for 'memfd_create'
+#endif
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -220,24 +225,27 @@ end_unique:
 
 	else if (strncmp(start_command, "native", 6) == 0) {
 		// TODO some platforms are not supported. Support them: https://github.com/google/iree/issues/3845
-		// also thanks to https://stackoverflow.com/questions/5053664/dlopen-from-memory for introducing me to 'fdlopen' :heart:
-
-		kos_start = KOS_START_NATIVE;
+		// also thanks to https://stackoverflow.com/questions/5053664/dlopen-from-memory for introducing me to 'fdlopen' ❤️
 		
+		kos_start = KOS_START_NATIVE;
+				
+		printf("[AQUA KOS] Start command is 'native', finding native binary node ...\n");
+
+		iar_node_t native_binary_node;
+		if (iar_find_node(&boot_package, &native_binary_node, ZPK_NATIVE_BINARY_PATH, &boot_package.root_node) == -1) {
+			fprintf(stderr, "[AQUA KOS] ERROR Failed to find native binary node (" ZPK_NATIVE_BINARY_PATH ") in boot package\n");
+			return -1;
+		}
+
+		if (!native_binary_node.data_bytes) {
+			fprintf(stderr, "[AQUA KOS] ERROR Native binary node empty\n");
+			return -1;
+		}
+
+		void* library = (void*) 0;
+
 		#if defined(__FreeBSD__) // are we running on a supported platform? (i.e. FreeBSD or aquaBSD)
-			printf("[AQUA KOS] Start command is 'native', finding native binary node ...\n");
-
-			iar_node_t native_binary_node;
-			if (iar_find_node(&boot_package, &native_binary_node, ZPK_NATIVE_BINARY_PATH, &boot_package.root_node) == -1) {
-				fprintf(stderr, "[AQUA KOS] ERROR Failed to find native binary node (" ZPK_NATIVE_BINARY_PATH ") in boot package\n");
-				return -1;
-			}
-
 			printf("[AQUA KOS] Creating a shared memory file descriptor for the native binary ...\n");
-			if (!native_binary_node.data_bytes) {
-				fprintf(stderr, "[AQUA KOS] ERROR Native binary node empty\n");
-				return -1;
-			}
 
 			int file_descriptor = shm_open(SHM_ANON, O_RDWR, 0);
 			ftruncate(file_descriptor, native_binary_node.data_bytes);
@@ -253,54 +261,84 @@ end_unique:
 
 			printf("[AQUA KOS] Dynamically linking native binary ...\n");
 
-			void* library = fdlopen(file_descriptor, RTLD_LAZY);
+			library = fdlopen(file_descriptor, RTLD_LAZY);
 			close(file_descriptor);
+			
+		#elif __linux__ // are we instead running on Linux? (https://github.com/google/iree/issues/3845)
+			printf("[AQUA KOS] Creating memory file descriptor for the native binary ...\n");
 
-			if (!library) {
-				fprintf(stderr, "[AQUA KOS] Failed to link the native binary (%s)\n", dlerror());
+			if (!unique) {
+				fprintf(stderr, "[AQUA KOS] ERROR 'unique' node is required for native binaries\n");
 				return -1;
 			}
 
-			printf("[AQUA KOS] Looking for entry symbol to native binary ...\n");
-			
-			int (*native_binary_entry) () = dlsym(library, "main");
+			char* name = (char*) malloc(strlen(unique) + 20 /* strlen("aqua_native_binary_") + 1 */);
+			sprintf(name, "aqua_native_binary_%s", unique);
 
-			if (!native_binary_entry) {
-				fprintf(stderr, "[AQUA KOS] ERROR Entry symbol not found\n");
+			int file_descriptor = memfd_create(name, 0);
+			ftruncate(file_descriptor, native_binary_node.data_bytes);
+
+			void* native_binary = mmap(NULL, native_binary_node.data_bytes, PROT_WRITE, MAP_SHARED, file_descriptor, 0);
+
+			printf("[AQUA KOS] Reading native binary node ...\n");
+			if (iar_read_node_content(&boot_package, &native_binary_node, native_binary)) {
 				return -1;
 			}
 
-			printf("[AQUA KOS] Setting up devices ...\n");
-			setup_devices();
-
-			if (root_path) {
-				printf("[AQUA KOS] Changing into root directory ...\n");
-				chdir(root_path);
-			}
-
-			printf("[AQUA KOS] Looking for 'aqua_set_kos_functions' in the native binary and calling it ...\n");
+			munmap(native_binary, native_binary_node.data_bytes);
 			
-			void (*aqua_set_kos_functions) (
-				uint64_t (*_kos_query_device) (uint64_t _, uint64_t name),
-				uint64_t (*_kos_send_device) (uint64_t _, uint64_t device, uint64_t command, uint64_t data)) = dlsym(library, "aqua_set_kos_functions");
-
-			if (aqua_set_kos_functions) {
-				aqua_set_kos_functions(kos_query_device, kos_send_device);
-			}
-
-			printf("[AQUA KOS] Entering into native binary ...\n");
-			int error_code = native_binary_entry(kos_query_device, kos_send_device);
-
-			printf("[AQUA KOS] Native binary return code is %d\n", error_code);
-
-			printf("[AQUA KOS] Unloading devices ...\n");
-			unload_devices();
-
-			printf("[AQUA KOS] Done\n");
-			return error_code;
-		#else
-			fprintf(stderr, "[AQUA KOS] Running native binary ZPK files is unsupported on this platform (only FreeBSD/aquaBSD are supported currently). Support is coming to Linux soon ...\n");
+			char fd_name[64]; // likely enough space
+			sprintf(fd_name, "/proc/self/fd/%d", file_descriptor);
+			
+			library = dlopen(fd_name, RTLD_LAZY);
+			close(file_descriptor);
+			
+		#else // unsupported platform
+			fprintf(stderr, "[AQUA KOS] Running native binary ZPK files is unsupported on this platform (only FreeBSD/aquaBSD and GNU/Linux are supported currently)\n");
 		#endif
+
+		if (!library) {
+			fprintf(stderr, "[AQUA KOS] Failed to link the native binary (%s)\n", dlerror());
+			return -1;
+		}
+
+		printf("[AQUA KOS] Looking for entry symbol to native binary ...\n");
+		
+		int (*native_binary_entry) () = dlsym(library, "main");
+
+		if (!native_binary_entry) {
+			fprintf(stderr, "[AQUA KOS] ERROR Entry symbol not found\n");
+			return -1;
+		}
+
+		printf("[AQUA KOS] Setting up devices ...\n");
+		setup_devices();
+
+		if (root_path) {
+			printf("[AQUA KOS] Changing into root directory ...\n");
+			chdir(root_path);
+		}
+
+		printf("[AQUA KOS] Looking for 'aqua_set_kos_functions' in the native binary and calling it ...\n");
+		
+		void (*aqua_set_kos_functions) (
+			uint64_t (*_kos_query_device) (uint64_t _, uint64_t name),
+			uint64_t (*_kos_send_device) (uint64_t _, uint64_t device, uint64_t command, uint64_t data)) = dlsym(library, "aqua_set_kos_functions");
+
+		if (aqua_set_kos_functions) {
+			aqua_set_kos_functions(kos_query_device, kos_send_device);
+		}
+
+		printf("[AQUA KOS] Entering into native binary ...\n");
+		int error_code = native_binary_entry(kos_query_device, kos_send_device);
+
+		printf("[AQUA KOS] Native binary return code is %d\n", error_code);
+
+		printf("[AQUA KOS] Unloading devices ...\n");
+		unload_devices();
+
+		printf("[AQUA KOS] Done\n");
+		return error_code;
 	}
 
 	printf("[AQUA KOS] ERROR Unknown start command '%s'\n", start_command);
