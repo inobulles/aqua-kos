@@ -202,5 +202,10 @@ uint64_t kos_send_device(uint64_t _, uint64_t __device, uint64_t __command, uint
 	uint64_t command = (uint64_t) __command;
 	void* data = (void*) __data;
 
+	if (!device->send) {
+		printf("[AQUA KOS] WARNING The '%s' device doesn't seem to have a 'send' function. Is it malformed?\n", device->name);
+		return -1;
+	}
+
 	return device->send((uint16_t) command, data);
 }
