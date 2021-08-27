@@ -27,16 +27,16 @@ static uint32_t device_count;
 static device_t** devices;
 
 static void setup_devices(void) {
-	devices = malloc(sizeof(device_t*));
+	devices = malloc(sizeof(*devices));
 	device_count = 1;
 
 	// we want to create a first 'null' device at index '0'
 	// this is so that we can use this index as an erroneous return value for the 'query_device' kfunc
 
-	devices[0] = (device_t*) malloc(sizeof(device_t));
+	devices[0] = malloc(sizeof(*devices[0]));
 	memset(devices[0], 0, sizeof(*devices[0]));
 
-	devices[0]->name = (char*) malloc(5 /* strlen("null") + 1 */);
+	devices[0]->name = malloc(5 /* strlen("null") + 1 */);
 	memcpy(devices[0]->name, "null", 5);
 }
 
@@ -130,7 +130,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 
 	// load the device if it hasn't yet been loaded
 
-	char* path = (char*) malloc(strlen(device_path) + name_length + 9 /* strlen("/") + strlen(".device") + 1 */);
+	char* path = malloc(strlen(device_path) + name_length + 9 /* strlen("/") + strlen(".device") + 1 */);
 	sprintf(path, "%s/%s.device", device_path, name);
 
 	// we're using 'RTLD_NOW' here instead of 'RTLD_LAZY' as would normally be preferred
@@ -147,10 +147,10 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	// clear the last error
 	dlerror();
 
-	device_t* device = (device_t*) malloc(sizeof(device_t));
+	device_t* device = malloc(sizeof(*device));
 	device->library = device_library;
 
-	device->name = (char*) malloc(name_length + 1);
+	device->name = malloc(name_length + 1);
 	memcpy(device->name, name, name_length + 1);
 
 	// find useful symbols in the device library
@@ -178,7 +178,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	
 	REFERENCE(kos_argc)
 	REFERENCE(kos_argv)
-
+	
 	// attempt to load the device
 
 	if (device->load && device->load(kos_query_device, kos_load_device_function, kos_callback) < 0) {
@@ -193,7 +193,9 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 
 	// add the device and return its index
 
+	devices = realloc(devices, (device_count + 1) * sizeof(*devices));
 	devices[device_count] = device;
+	
 	return device_count++;
 }
 
