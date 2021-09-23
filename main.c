@@ -275,9 +275,18 @@ end_unique:
 			char* name = (char*) malloc(strlen(unique) + 20 /* strlen("aqua_native_binary_") + 1 */);
 			sprintf(name, "aqua_native_binary_%s", unique);
 
-			int file_descriptor = memfd_create(name, 0);
-			ftruncate(file_descriptor, native_binary_node.data_bytes);
+			#if defined(__WSL__)
+				printf("[AQUA KOS] Applying special special fix for WSL 💛 ...\n");
 
+				char tmp_file_path[] = "/tmp/aqua-XXXXXXX";
+				int file_descriptor = mkstemp(tmp_file_path);
+
+				unlink(tmp_file_path);
+			#else			
+				int file_descriptor = memfd_create(name, 0);
+			#endif
+
+			ftruncate(file_descriptor, native_binary_node.data_bytes);
 			void* native_binary = mmap(NULL, native_binary_node.data_bytes, PROT_WRITE, MAP_SHARED, file_descriptor, 0);
 
 			printf("[AQUA KOS] Reading native binary node ...\n");
@@ -288,13 +297,12 @@ end_unique:
 			munmap(native_binary, native_binary_node.data_bytes);
 			
 			char fd_name[64]; // likely enough space
-			sprintf(fd_name, "/proc/self/fd/%d", file_descriptor);
+			snprintf(fd_name, sizeof(fd_name), "/proc/self/fd/%d", file_descriptor);
 			
 			library = dlopen(fd_name, RTLD_LAZY);
 			close(file_descriptor);
-			
 		#else // unsupported platform
-			fprintf(stderr, "[AQUA KOS] Running native binary ZPK files is unsupported on this platform (only FreeBSD/aquaBSD and GNU/Linux are supported currently)\n");
+			fprintf(stderr, "[AQUA KOS] Running native binary ZPK files is unsupported on this platform (only FreeBSD/aquaBSD and GNU/Linux (and apparently WSL now too) are supported currently)\n");
 		#endif
 
 		if (!library) {
