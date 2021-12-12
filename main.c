@@ -30,7 +30,8 @@
 
 typedef enum {
 	KOS_START_NONE = 0,
-	KOS_START_ZED, KOS_START_NATIVE, KOS_START_SYSTEM
+	KOS_START_ZED, KOS_START_NATIVE, KOS_START_SYSTEM,
+	KOS_START_LEN
 } kos_start_t;
 
 static kos_start_t kos_start = KOS_START_NONE;
@@ -79,12 +80,51 @@ void kos_native          (void) { printf("IMPLEMENT %s\n", __func__); }
 #include <zvm.h>
 static zvm_program_t* de_program;
 
+// start functions
+
+static int start_nothing(void* data, uint64_t bytes) {
+	ERROR("Unknown start command ('%d')\n", kos_start)
+	return -1;
+}
+
+static int start_zed(void* data, uint64_t bytes) {
+	int rv = -1;
+
+	INFO("Loading ZED ROM ...\n")
+
+	de_program = calloc(1, sizeof *de_program);
+	de_program->rom = data;
+
+	INFO("Starting run setup phase ...\n")
+
+	if (zvm_program_run_setup_phase(de_program)) {
+		ERROR("The ZVM's program setup phase failed\n")
+		goto done;
+	}
+
+	while (!zvm_program_run_loop_phase(de_program)) {
+		// do nothing
+	}
+
+	rv = de_program->error_code;
+	INFO("Program return code is %d\n", rv)
+
+done:
+
+	zvm_program_free(de_program);
+	free(de_program);
+
+	return rv;
+}
+
 // TODO perhaps I could combine these functions somehow?
 
 static int process_entry(void) {
 	int rv = -1;
 
 	char* entry_path = NULL;
+	void* entry_data = NULL;
+
 	iar_node_t entry_node;
 
 	INFO("Looking for entry node ...\n")
@@ -110,11 +150,60 @@ static int process_entry(void) {
 		goto done;
 	}
 
-	// read entry path, actually run the application
+	// read entry data
 
-	printf("TODO run %s\n", entry_path);
+	INFO("Entry path is %s, looking for entry data node ...\n", entry_path)
+
+	iar_node_t data_node;
+
+	if (iar_find_node(&boot_package, &data_node, entry_path, &boot_package.root_node) < 0) {
+		ERROR("Failed to find entry (%s) in boot package\n", entry_path);
+		goto done;
+	}
+
+	INFO("Reading entry ...\n")
+
+	if (!data_node.data_bytes) {
+		ERROR("Entry data node empty\n");
+		goto done;
+	}
+
+	entry_data = malloc(data_node.data_bytes);
+
+	if (iar_read_node_content(&boot_package, &data_node, entry_data)) {
+		goto done;
+	}
+
+	INFO("Setting up devices ...\n")
+	setup_devices(); // TODO error handling
+
+	if (root_path) {
+		INFO("Changing into root directory ...\n");
+		chdir(root_path);
+	}
+
+	// actually run the application
+
+	int (*START_LUT[KOS_START_LEN]) (void* data, uint64_t bytes);
+
+	for (unsigned i = 0; i < sizeof(START_LUT) / sizeof(*START_LUT); i++) {
+		START_LUT[i] = start_nothing;
+	}
+
+	START_LUT[KOS_START_ZED] = start_zed;
+
+	rv = START_LUT[kos_start](entry_data, data_node.data_bytes);
+
+	// free up everything
+
+	INFO("Unloading devices ...\n");
+	unload_devices();
 
 done:
+
+	if (entry_data) {
+		free(entry_data);
+	}
 
 	if (entry_path) {
 		free(entry_path);
@@ -531,6 +620,7 @@ int main(int argc, char** argv) {
 
 done:
 
+	INFO("Done\n")
 	return rv;
 
 error_unique:
