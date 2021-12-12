@@ -146,7 +146,7 @@ static int start_native(void* data, uint64_t bytes) {
 		printf("[AQUA KOS] Creating memory file descriptor for the native binary ...\n")
 
 		if (!unique) {
-			ERROR("Unique node is required for native binaries on GNU/Linux\n")
+			ERROR("Unique node is required for native binaries on GNU+Linux\n")
 			goto done;
 		}
 
@@ -179,7 +179,7 @@ static int start_native(void* data, uint64_t bytes) {
 		close(fd);
 
 	#else // unsupported platform
-		WARN("Running native binary ZPK files is unsupported on this platform (only FreeBSD/aquaBSD and GNU/Linux (and apparently WSL now too) are supported currently)\n")
+		WARN("Running native binary ZPK files is unsupported on this platform (only FreeBSD/aquaBSD and GNU+Linux (and apparently WSL now too) are supported currently)\n")
 	#endif
 
 	if (!lib) {
@@ -211,6 +211,43 @@ static int start_native(void* data, uint64_t bytes) {
 
 	INFO("Entering into native binary ...\n")
 	rv = native_bin_entry(kos_query_device, kos_send_device);
+
+done:
+
+	return rv;
+}
+
+static int start_system(void* data, uint64_t bytes) {
+	int rv = -1;
+
+	if (!unique) {
+		ERROR("Unique node is required for system ZPK's\n")
+		goto done;
+	}
+
+	INFO("Chrooting to data directory ...\n")
+
+	chdir("data");
+	
+	if (chdir(unique) < 0) {
+		goto done;
+	}
+
+	INFO("Extracting package contents ...\n")
+
+	char* extract_cmd = malloc(strlen(boot_path) + 256 /* should be enough */);
+	sprintf(extract_cmd, "iar --unpack %s --output .", boot_path);
+
+	if (system(extract_cmd)) {
+		goto done;
+	}
+
+	system("mv .package/* .");
+	system("rmdir .package");
+
+	INFO("Loading system script ...\n")
+
+	rv = system(data);
 
 done:
 
@@ -256,7 +293,10 @@ static int process_entry(void) {
 
 	iar_node_t data_node;
 
-	if (iar_find_node(&boot_package, &data_node, entry_path, &boot_package.root_node) < 0) {
+	char test[256]; // TODO fixme
+	strcpy(test, entry_path);
+
+	if (iar_find_node(&boot_package, &data_node, test, &boot_package.root_node) < 0) {
 		ERROR("Failed to find entry (%s) in boot package\n", entry_path);
 		goto done;
 	}
@@ -292,6 +332,7 @@ static int process_entry(void) {
 
 	START_LUT[KOS_START_ZED] = start_zed;
 	START_LUT[KOS_START_NATIVE] = start_native;
+	START_LUT[KOS_START_SYSTEM] = start_system;
 
 	rv = START_LUT[kos_start](entry_data, data_node.data_bytes);
 	INFO("Return code is %d\n", rv)
@@ -486,9 +527,10 @@ int main(int argc, char** argv) {
 	if (strcmp(root_path, "NO_ROOT") == 0) {
 		root_path = NULL;
 	}
-	
+
+	boot_path = realpath(boot_path, NULL); // no risk of memory leak
 	INFO("Reading the boot package (%s) ...\n", boot_path)
-	
+
 	if (iar_open_read(&boot_package, boot_path)) {
 		goto error;
 	}
@@ -535,132 +577,6 @@ int main(int argc, char** argv) {
 	// look for entry node
 
 	rv = process_entry();
-
-	// else if (strncmp(start_command, "native", 6) == 0) {
-	// 	// TODO some platforms are not supported. Support them: https://github.com/google/iree/issues/3845
-	// 	// also thanks to https://stackoverflow.com/questions/5053664/dlopen-from-memory for introducing me to 'fdlopen' ❤️
-		
-	// 	kos_start = KOS_START_NATIVE;
-				
-	// 	printf("[AQUA KOS] Start command is 'native', looking for native binary node ...\n");
-
-	// 	iar_node_t native_bin_node;
-	// 	if (iar_find_node(&boot_package, &native_bin_node, ZPK_native_bin_PATH, &boot_package.root_node) < 0) {
-	// 		fprintf(stderr, "[AQUA KOS] ERROR Failed to find native binary node (" ZPK_native_bin_PATH ") in boot package\n");
-	// 		return -1;
-	// 	}
-
-	// 	if (!native_bin_node.data_bytes) {
-	// 		fprintf(stderr, "[AQUA KOS] ERROR Native binary node empty\n");
-	// 		return -1;
-	// 	}
-
-	// 	void* lib = (void*) 0;
-
-	// 	#if defined(__FreeBSD__) // are we running on a supported platform? (i.e. FreeBSD or aquaBSD)
-	// 		printf("[AQUA KOS] Creating a shared memory file descriptor for the native binary ...\n");
-
-	// 		int fd = shm_open(SHM_ANON, O_RDWR, 0);
-	// 		ftruncate(fd, native_bin_node.data_bytes);
-
-	// 		void* native_bin = mmap(NULL, native_bin_node.data_bytes, PROT_WRITE, MAP_SHARED, fd, 0);
-
-	// 		printf("[AQUA KOS] Reading native binary node ...\n");
-	// 		if (iar_read_node_content(&boot_package, &native_bin_node, native_bin)) {
-	// 			return -1;
-	// 		}
-
-	// 		munmap(native_bin, native_bin_node.data_bytes);
-
-	// 		printf("[AQUA KOS] Dynamically linking native binary ...\n");
-
-	// 		lib = fdlopen(fd, RTLD_LAZY);
-	// 		close(fd);
-			
-	// 	#elif __linux__ // are we instead running on Linux? (https://github.com/google/iree/issues/3845)
-	// 		printf("[AQUA KOS] Creating memory file descriptor for the native binary ...\n");
-
-	// 		if (!unique) {
-	// 			fprintf(stderr, "[AQUA KOS] ERROR 'unique' node is required for native binaries\n");
-	// 			return -1;
-	// 		}
-
-	// 		char* name = (char*) malloc(strlen(unique) + 20 /* strlen("aqua_native_bin_") + 1 */);
-	// 		sprintf(name, "aqua_native_bin_%s", unique);
-
-	// 		#if defined(__WSL__)
-	// 			printf("[AQUA KOS] Applying special special fix for WSL 💛 ...\n");
-
-	// 			char tmp_file_path[] = "/tmp/aqua-XXXXXXX";
-	// 			int fd = mkstemp(tmp_file_path);
-
-	// 			unlink(tmp_file_path);
-	// 		#else
-	// 			int fd = memfd_create(name, 0);
-	// 		#endif
-
-	// 		ftruncate(fd, native_bin_node.data_bytes);
-	// 		void* native_bin = mmap(NULL, native_bin_node.data_bytes, PROT_WRITE, MAP_SHARED, fd, 0);
-
-	// 		printf("[AQUA KOS] Reading native binary node ...\n");
-	// 		if (iar_read_node_content(&boot_package, &native_bin_node, native_bin)) {
-	// 			return -1;
-	// 		}
-
-	// 		munmap(native_bin, native_bin_node.data_bytes);
-			
-	// 		char fd_name[64]; // likely enough space
-	// 		snprintf(fd_name, sizeof(fd_name), "/proc/self/fd/%d", fd);
-			
-	// 		lib = dlopen(fd_name, RTLD_LAZY);
-	// 		close(fd);
-	// 	#else // unsupported platform
-	// 		fprintf(stderr, "[AQUA KOS] Running native binary ZPK files is unsupported on this platform (only FreeBSD/aquaBSD and GNU/Linux (and apparently WSL now too) are supported currently)\n");
-	// 	#endif
-
-	// 	if (!lib) {
-	// 		fprintf(stderr, "[AQUA KOS] Failed to link the native binary (%s)\n", dlerror());
-	// 		return -1;
-	// 	}
-
-	// 	printf("[AQUA KOS] Looking for entry symbol to native binary ...\n");
-		
-	// 	int (*native_bin_entry) () = dlsym(lib, "main");
-
-	// 	if (!native_bin_entry) {
-	// 		fprintf(stderr, "[AQUA KOS] ERROR Entry symbol not found\n");
-	// 		return -1;
-	// 	}
-
-	// 	printf("[AQUA KOS] Setting up devices ...\n");
-	// 	setup_devices();
-
-	// 	if (root_path) {
-	// 		printf("[AQUA KOS] Changing into root directory ...\n");
-	// 		chdir(root_path);
-	// 	}
-
-	// 	printf("[AQUA KOS] Looking for 'aqua_set_kos_functions' in the native binary and calling it ...\n");
-		
-	// 	void (*aqua_set_kos_functions) (
-	// 		uint64_t (*_kos_query_device) (uint64_t _, uint64_t name),
-	// 		uint64_t (*_kos_send_device) (uint64_t _, uint64_t device, uint64_t command, uint64_t data)) = dlsym(lib, "aqua_set_kos_functions");
-
-	// 	if (aqua_set_kos_functions) {
-	// 		aqua_set_kos_functions(kos_query_device, kos_send_device);
-	// 	}
-
-	// 	printf("[AQUA KOS] Entering into native binary ...\n");
-	// 	int error_code = native_bin_entry(kos_query_device, kos_send_device);
-
-	// 	printf("[AQUA KOS] Native binary return code is %d\n", error_code);
-
-	// 	printf("[AQUA KOS] Unloading devices ...\n");
-	// 	unload_devices();
-
-	// 	printf("[AQUA KOS] Done\n");
-	// 	return error_code;
-	// }
 
 done:
 
