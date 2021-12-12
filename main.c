@@ -242,7 +242,7 @@ static int start_system(void* data, uint64_t bytes) {
 		goto done;
 	}
 
-	system("mv .package/* .");
+	system("rsync -a .package/ ./");
 	system("rmdir .package");
 
 	INFO("Loading system script ...\n")
