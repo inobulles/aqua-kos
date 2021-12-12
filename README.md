@@ -10,6 +10,10 @@ This repository contains the source code for the main AQUA KOS (the one that con
 
 Here is a list of all command-line arguments that can be passed to the KOS executable:
 
+### --verbose
+
+Enable verbose log output.
+
 ### --root [root directory path]
 
 Specify where the root directory is.
