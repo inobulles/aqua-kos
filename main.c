@@ -191,7 +191,7 @@ static int start_native(void* data, uint64_t bytes) {
 
 	INFO("Looking for entry symbol to native binary ...\n")
 	
-	int (*native_bin_entry) (/* &c */) = dlsym(lib, "main");
+	int (*native_bin_entry) (/* &c */) = dlsym(lib, "__native_entry");
 
 	if (!native_bin_entry) {
 		ERROR("Entry symbol not found\n")
