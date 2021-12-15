@@ -22,6 +22,8 @@
 #if defined(__FreeBSD__)
 	// TODO perhaps use some of the 'procctl' commands to do stuff like forcing ASLR?
 	#include <sys/procctl.h>
+#elif __linux__
+	#include <sys/prctl.h>
 #endif
 
 #include <iar.h>
@@ -143,7 +145,7 @@ static int start_native(void* data, uint64_t bytes) {
 		close(fd);
 		
 	#elif __linux__ // are we instead running on Linux? (https://github.com/google/iree/issues/3845)
-		printf("[AQUA KOS] Creating memory file descriptor for the native binary ...\n")
+		INFO("Creating memory file descriptor for the native binary ...\n")
 
 		if (!unique) {
 			ERROR("Unique node is required for native binaries on GNU+Linux\n")
