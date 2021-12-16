@@ -169,8 +169,11 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 		if (reference) *(reference) = (uint64_t) symbol; \
 	}
 
-	REFERENCE(boot_pkg->unique)
-	REFERENCE(boot_pkg->cwd)
+	char* unique = boot_pkg->unique;
+	char* cwd = boot_pkg->cwd;
+
+	REFERENCE(unique)
+	REFERENCE(cwd)
 
 	REFERENCE(device_path)
 	REFERENCE(root_path)
