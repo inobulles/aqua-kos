@@ -162,27 +162,33 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	device->send = dlsym(device->library, "send");
 
 	// set useful symbols in the device library
-	// the 'REFERENCE' macro simplifies this somewhat by checking and setting these for us
+	// the 'REF' macro simplifies this somewhat by checking and setting these for us
 
-	#define REFERENCE(symbol) { \
-		uint64_t* reference = dlsym(device->library, #symbol); \
-		if (reference) *(reference) = (uint64_t) symbol; \
+	#define REF(sym) { \
+		uint64_t* ref = dlsym(device->library, #sym); \
+		if (ref) *(ref) = (uint64_t) sym; \
 	}
 
+	REF(create_pkg)
+	REF(free_pkg)
+
+	REF(pkg_read)
+	REF(pkg_boot)
+
 	char* unique = boot_pkg->unique;
-	char* cwd = boot_pkg->cwd;
+	char* cwd_path = boot_pkg->cwd;
 
-	REFERENCE(unique)
-	REFERENCE(cwd)
+	REF(unique)
+	REF(cwd_path)
 
-	REFERENCE(device_path)
-	REFERENCE(root_path)
-	REFERENCE(boot_path)
+	REF(device_path)
+	REF(root_path)
+	REF(boot_path)
 
-	REFERENCE(kos_bda)
+	REF(kos_bda)
 	
-	REFERENCE(kos_argc)
-	REFERENCE(kos_argv)
+	REF(kos_argc)
+	REF(kos_argv)
 	
 	// attempt to load the device
 

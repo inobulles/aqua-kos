@@ -31,4 +31,10 @@ typedef struct {
 	char* name;
 } pkg_t;
 
+static pkg_t* create_pkg(const char* path);
+static void free_pkg(pkg_t* pkg);
+
+static void* pkg_read(pkg_t* pkg, const char* key, iar_node_t* parent, uint64_t* bytes_ref);
+static int pkg_boot(pkg_t* pkg);
+
 #endif
