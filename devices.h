@@ -26,7 +26,7 @@ typedef struct {
 static uint32_t device_count;
 static device_t** devices;
 
-static void setup_devices(void) {
+static int setup_devices(void) {
 	devices = malloc(sizeof(*devices));
 	device_count = 1;
 
@@ -38,6 +38,8 @@ static void setup_devices(void) {
 
 	devices[0]->name = malloc(5 /* strlen("null") + 1 */);
 	memcpy(devices[0]->name, "null", 5);
+
+	return 0;
 }
 
 static void unload_devices(void) {
@@ -84,14 +86,14 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 
 	va_end(list); // not too sure what the point of this is lol
 
-	if (kos_start == KOS_START_ZED) {
+	if (boot_pkg->start == PKG_START_ZED) {
 		printf("TODO Implement 'zvm_callback'\n");
 
 		// i'm not too sure how 'zvm_callback' is going to end up being implemented, but it may be necessary for the ZVM instance pointer to be passed to it... in which case, hello refactoring!
 		// return zvm_callback(callback, argument_count, arguments);
 	}
 
-	else if (kos_start == KOS_START_NATIVE) {
+	else if (boot_pkg->start == PKG_START_NATIVE) {
 		uint64_t (*callback_pointer) () = (void*) callback;
 		
 		#define c callback_pointer
@@ -167,8 +169,8 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 		if (reference) *(reference) = (uint64_t) symbol; \
 	}
 
-	REFERENCE(unique)
-	REFERENCE(cwd_path)
+	REFERENCE(boot_pkg->unique)
+	REFERENCE(boot_pkg->cwd)
 
 	REFERENCE(device_path)
 	REFERENCE(root_path)
