@@ -49,6 +49,7 @@ static uint32_t kos_argc;
 static char** kos_argv;
 
 #include "devices.h"
+// #include "pkg.h"
 
 // compile time macros
 
