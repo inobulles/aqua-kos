@@ -1,11 +1,11 @@
 
 #include <dlfcn.h>
 
-char* device_path = (char*) 0;
+char* device_path = NULL;
 #define KOS_BDA
 
 uint64_t  kos_bda_bytes = 0;
-uint64_t* kos_bda = (uint64_t*) 0;
+uint64_t* kos_bda = NULL;
 
 typedef struct {
 	char* name;
@@ -71,7 +71,7 @@ typedef uint64_t kos_callback_argument_t;
 
 uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 	if (argument_count > KOS_MAX_CALLBACK_ARGUMENTS) {
-		fprintf(stderr, "WARNING Too many arguments are being passed to the 'kos_callback' function (%d, maximum is %d)\n", argument_count, KOS_MAX_CALLBACK_ARGUMENTS);
+		WARN("Too many arguments are being passed to the 'kos_callback' function (%d, maximum is %d)\n", argument_count, KOS_MAX_CALLBACK_ARGUMENTS)
 		return -1;
 	}
 	
@@ -142,14 +142,14 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	free(path); // we won't be needing this anymore
 
 	if (!device_library) {
-		printf("[AQUA KOS] WARNING Failed to load the '%s' device library (in '%s', %s)\n", name, device_path, dlerror());
+		WARN("Failed to load the '%s' device library (in '%s', %s)\n", name, device_path, dlerror())
 		return 0;
 	}
 
 	// clear the last error
 	dlerror();
 
-	device_t* device = malloc(sizeof(*device));
+	device_t* device = malloc(sizeof *device);
 	device->library = device_library;
 
 	device->name = malloc(name_length + 1);
@@ -165,7 +165,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	// the 'REFERENCE' macro simplifies this somewhat by checking and setting these for us
 
 	#define REFERENCE(symbol) { \
-		uint64_t* reference = (uint64_t*) dlsym(device->library, #symbol); \
+		uint64_t* reference = dlsym(device->library, #symbol); \
 		if (reference) *(reference) = (uint64_t) symbol; \
 	}
 
@@ -184,7 +184,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	// attempt to load the device
 
 	if (device->load && device->load(kos_query_device, kos_load_device_function, kos_callback) < 0) {
-		printf("[AQUA KOS] WARNING Something went wrong in trying to load the '%s' device\n", name);
+		WARN("Something went wrong in trying to load the '%s' device\n", name)
 		dlclose(device->library);
 
 		free(device->name);
@@ -207,7 +207,7 @@ uint64_t kos_send_device(uint64_t _, uint64_t __device, uint64_t __command, uint
 	void* data = (void*) __data;
 
 	if (!device->send) {
-		printf("[AQUA KOS] WARNING The '%s' device doesn't seem to have a 'send' function. Is it malformed?\n", device->name);
+		WARN("The '%s' device doesn't seem to have a 'send' function. Is it malformed?\n", device->name)
 		return -1;
 	}
 
