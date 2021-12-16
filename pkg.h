@@ -244,7 +244,7 @@ static int pkg_boot(pkg_t* pkg) {
 	if (!fork()) {
 		// TODO see if there's a better way than running the KOS like this
 
-		execve(exec_name, (char* const[]) { "--boot", path }, NULL);
+		execlp(exec_name, exec_name, "--boot", path, NULL);
 		exit(1);
 	}
 
