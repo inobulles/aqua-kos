@@ -10,7 +10,7 @@ typedef enum {
 } pkg_start_t;
 
 typedef struct {
-	const char* path;
+	char* path;
 	iar_file_t iar;
 	
 	uint64_t entry_bytes;

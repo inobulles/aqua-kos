@@ -3,6 +3,10 @@
 static void free_pkg(pkg_t* pkg) {
 	iar_close(&pkg->iar);
 
+	if (pkg->path) {
+		free(pkg->path);
+	}
+
 	if (pkg->entry_data) {
 		free(pkg->entry_data);
 	}
@@ -75,7 +79,7 @@ static pkg_t* create_pkg(const char* path) {
 	int rv = -1;
 	
 	pkg_t* pkg = calloc(1, sizeof *pkg);
-	pkg->path = path;
+	pkg->path = strdup(path);
 
 	if (iar_open_read(&pkg->iar, pkg->path)) {
 		ERROR("Failed to read package IAR file (%s)\n", pkg->path)
