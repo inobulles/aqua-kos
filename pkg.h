@@ -42,7 +42,7 @@ static void* pkg_read(pkg_t* pkg, const char* key, iar_node_t* parent, uint64_t*
 	char* data = NULL;
 	iar_node_t node = { 0 };
 
-	if (iar_find_node(&pkg->iar, &node, key, parent) < 0) {
+	if (iar_find_node(&pkg->iar, &node, key, parent) == -1) {
 		goto error;
 	}
 
