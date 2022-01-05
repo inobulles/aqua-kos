@@ -204,6 +204,8 @@ static int pkg_set_proc_name(pkg_t* pkg) {
 
 #if defined(__FreeBSD__)
 	setproctitle("%s", pkg->name);
+	setprogname(pkg->name);
+
 	if (0)
 
 #elif __linux__
