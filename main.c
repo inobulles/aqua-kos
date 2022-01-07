@@ -141,10 +141,10 @@ int main(int argc, char** argv) {
 
 	// setup devices
 
-	INFO("Setting up devices ...")
+	INFO("Setting up devices ...\n")
 
 	if (setup_devices() < 0) {
-		ERROR("Failed to setup devices")
+		ERROR("Failed to setup devices\n")
 		goto error;
 	}
 
