@@ -166,7 +166,7 @@ int main(int argc, char** argv) {
 
 error_dev:
 
-	INFO("Unloading devices ...")
+	INFO("Unloading devices ...\n")
 	unload_devices();
 
 error:
