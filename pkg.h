@@ -209,7 +209,7 @@ static int pkg_set_proc_name(pkg_t* pkg) {
 	if (0)
 
 #elif __linux__
-	if (prctl(PR_SET_NAME, name, NULL, NULL, NULL) < 0)
+	if (prctl(PR_SET_NAME, pkg->name, NULL, NULL, NULL) < 0)
 #endif
 	{
 		WARN("Something went wrong setting the process name to %s\n", pkg->name)

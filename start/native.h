@@ -27,13 +27,13 @@ static int start_native(pkg_t* pkg) {
 	#elif __linux__ // are we instead running on Linux? (https://github.com/google/iree/issues/3845)
 		INFO("Creating memory file descriptor for the native binary ...\n")
 
-		if (!unique) {
+		if (!pkg->unique) {
 			ERROR("Unique node is required for native binaries on GNU+Linux\n")
 			goto done;
 		}
 
-		char* name = malloc(strlen(unique) + 17 /* strlen("aqua_native_bin_") + 1 */);
-		sprintf(name, "aqua_native_bin_%s", unique);
+		char* name = malloc(strlen(pkg->unique) + 17 /* strlen("aqua_native_bin_") + 1 */);
+		sprintf(name, "aqua_native_bin_%s", pkg->unique);
 
 		#if defined(__WSL__)
 			INFO("Applying special, special fix for WSL 💛 ...\n")
