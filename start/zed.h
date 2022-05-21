@@ -9,15 +9,15 @@ static zvm_program_t* de_program;
 static int start_zed(pkg_t* pkg) {
 	int rv = -1;
 
-	INFO("Loading ZED ROM ...\n")
+	LOG_INFO("Loading ZED ROM ...")
 
 	de_program = calloc(1, sizeof *de_program);
 	de_program->rom = pkg->entry_data;
 
-	INFO("Starting run setup phase ...\n")
+	LOG_INFO("Starting run setup phase ...")
 
 	if (zvm_program_run_setup_phase(de_program)) {
-		ERROR("The ZVM's program setup phase failed\n")
+		LOG_ERROR("The ZVM's program setup phase failed")
 		goto done;
 	}
 

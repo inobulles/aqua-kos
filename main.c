@@ -1,3 +1,8 @@
+// logging
+
+#include "log.h"
+#define LOG_COMPONENT "KOS"
+
 // includes
 
 #if __linux__
@@ -41,14 +46,6 @@
 	#define KOS_DEFAULT_DEVICES_PATH "devices"
 #endif
 
-// logging
-
-static unsigned verbose = 0;
-
-#define INFO(...) if (verbose) printf("[AQUA KOS] " __VA_ARGS__);
-#define WARN(...) fprintf(stderr, "[AQUA KOS] WARNING " __VA_ARGS__);
-#define ERROR(...) fprintf(stderr, "[AQUA KOS] ERROR " __VA_ARGS__);
-
 // important global variables
 
 #include "pkg_t.h"
@@ -63,13 +60,15 @@ static char** kos_argv;
 static char* exec_name = NULL;
 static char** proc_argv = NULL;
 
-// includes
+// local includes
 
 #include "devices.h"
 #include "pkg.h"
 
 int main(int argc, char** argv) {
-	int rv = -1;
+	int rv = EXIT_FAILURE;
+
+	LOG_INFO("Parsing arguments ...")
 
 	exec_name = strdup(argv[0]); // don't worry about freeing this
 	proc_argv = argv; // for 'pkg_set_proc_name' to set the name of our process
@@ -81,21 +80,15 @@ int main(int argc, char** argv) {
 	kos_argc = 0;
 	kos_argv = NULL;
 
-	INFO("Parsing arguments ...\n")
-
 	for (int i = 1; i < argc; i++) {
 		if (strncmp(argv[i], "--", 2)) {
-			ERROR("Unexpected argument '%s'\n", argv[i])
+			LOG_FATAL("Unexpected argument '%s'", argv[i])
 			goto error;
 		}
 
 		char* option = argv[i] + 2;
 
-		if (strcmp(option, "verbose") == 0) {
-			verbose = 1;
-		}
-
-		else if (strcmp(option, "devices") == 0) {
+		if (strcmp(option, "devices") == 0) {
 			device_path = argv[++i];
 		}
 
@@ -120,14 +113,15 @@ int main(int argc, char** argv) {
 		root_path = NULL;
 	}
 
+	char* _boot_path = boot_path;
 	boot_path = realpath(boot_path, NULL); // no risk of memory leak
 
 	if (!boot_path) {
-		ERROR("Boot package at '%s' doesn't exist\n", boot_path)
+		LOG_FATAL("Boot package at '%s' doesn't exist", _boot_path)
 		goto error;
 	}
 
-	INFO("Reading the boot package (%s) ...\n", boot_path)
+	LOG_INFO("Reading the boot package (%s) ...", boot_path)
 	boot_pkg = create_pkg(boot_path);
 
 	if (!boot_pkg) {
@@ -141,17 +135,17 @@ int main(int argc, char** argv) {
 
 	// setup devices
 
-	INFO("Setting up devices ...\n")
+	LOG_INFO("Setting up devices ...")
 
 	if (setup_devices() < 0) {
-		ERROR("Failed to setup devices\n")
+		LOG_FATAL("Failed to setup devices")
 		goto error;
 	}
 
 	// change into root directory if it exists
 
 	if (root_path) {
-		INFO("Changing into root directory ...\n")
+		LOG_INFO("Changing into root directory ...")
 		chdir(root_path);
 	}
 
@@ -162,11 +156,11 @@ int main(int argc, char** argv) {
 	}
 
 	rv = pkg_exec(boot_pkg);
-	INFO("Done\n")
+	LOG_SUCCESS("Done")
 
 error_dev:
 
-	INFO("Unloading devices ...\n")
+	LOG_INFO("Unloading devices ...")
 	unload_devices();
 
 error:

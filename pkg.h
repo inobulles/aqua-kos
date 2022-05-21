@@ -3,33 +3,18 @@
 static void free_pkg(pkg_t* pkg) {
 	iar_close(&pkg->iar);
 
-	if (pkg->path) {
-		free(pkg->path);
-	}
+	#define TRY_FREE(member) \
+		if (pkg->member) { \
+			free(pkg->member); \
+		}
 
-	if (pkg->entry_data) {
-		free(pkg->entry_data);
-	}
-
-	if (pkg->cwd) {
-		free(pkg->cwd);
-	}
-	
-	if (pkg->_start) {
-		free(pkg->_start);
-	}
-
-	if (pkg->entry) {
-		free(pkg->entry);
-	}
-
-	if (pkg->unique) {
-		free(pkg->unique);
-	}
-
-	if (pkg->name) {
-		free(pkg->name);
-	}
+	TRY_FREE(path)
+	TRY_FREE(entry_data)
+	TRY_FREE(cwd)
+	TRY_FREE(_start)
+	TRY_FREE(entry)
+	TRY_FREE(unique)
+	TRY_FREE(name)
 
 	free(pkg);
 }
@@ -38,7 +23,7 @@ static void* pkg_read(pkg_t* pkg, const char* key, iar_node_t* parent, uint64_t*
 	if (!parent) { // if 'parent == NULL', assume root node
 		parent = &pkg->iar.root_node;
 	}
-	
+
 	char* data = NULL;
 	iar_node_t node = { 0 };
 
@@ -77,12 +62,12 @@ error:
 
 static pkg_t* create_pkg(const char* path) {
 	int rv = -1;
-	
+
 	pkg_t* pkg = calloc(1, sizeof *pkg);
 	pkg->path = strdup(path);
 
 	if (iar_open_read(&pkg->iar, pkg->path)) {
-		ERROR("Failed to read package IAR file (%s)\n", pkg->path)
+		LOG_ERROR("Failed to read package IAR file (%s)", pkg->path)
 		goto error;
 	}
 
@@ -91,7 +76,7 @@ static pkg_t* create_pkg(const char* path) {
 	pkg->_start = pkg_read(pkg, "start", NULL, NULL);
 
 	if (!pkg->_start) {
-		ERROR("Failed to find start node in package\n")
+		LOG_ERROR("Failed to find start node in package")
 		goto error;
 	}
 
@@ -110,14 +95,14 @@ static pkg_t* create_pkg(const char* path) {
 	}
 
 	else {
-		ERROR("Unknown start command '%s'\n", pkg->_start)
+		LOG_ERROR("Unknown start command '%s'", pkg->_start)
 		goto error;
 	}
 
 	pkg->entry = pkg_read(pkg, "entry", NULL, NULL);
 
 	if (!pkg->entry) {
-		ERROR("Failed to find entry node in package\n")
+		LOG_ERROR("Failed to find entry node in package")
 		goto error;
 	}
 
@@ -126,7 +111,7 @@ static pkg_t* create_pkg(const char* path) {
 	pkg->unique = pkg_read(pkg, "unique", NULL, NULL);
 
 	if (!pkg->unique) {
-		WARN("Package doesn't contain any unique node; the data drive won't be accessible by the application\n")
+		LOG_WARN("Package doesn't contain any unique node; the data drive won't be accessible by the application")
 	}
 
 	pkg->name = pkg_read(pkg, "name", NULL, NULL);
@@ -147,7 +132,7 @@ static int pkg_read_entry(pkg_t* pkg) {
 	pkg->entry_data = pkg_read(pkg, pkg->entry, NULL, &pkg->entry_bytes);
 
 	if (!pkg->entry_data) {
-		ERROR("Failed to read entry (%s) in package\n", pkg->entry)
+		LOG_ERROR("Failed to read entry (%s) in package", pkg->entry)
 		return -1;
 	}
 
@@ -164,7 +149,7 @@ static int pkg_create_data_dir(pkg_t* pkg) {
 	}
 
 	if (chdir(root_path) < 0) {
-		WARN("Failed to enter the root directory (%s)\n", root_path)
+		LOG_WARN("Failed to enter the root directory (%s)", root_path)
 		return -1;
 	}
 
@@ -174,12 +159,12 @@ static int pkg_create_data_dir(pkg_t* pkg) {
 	mkdir("data", 0700);
 
 	if (chdir("data") < 0) {
-		WARN("Failed to enter the data directory (%s/data)\n", root_path)
+		LOG_WARN("Failed to enter the data directory (%s/data)", root_path)
 		goto error;
 	}
 
 	if (mkdir(pkg->unique, 0700) < 0 && errno != EEXIST) {
-		WARN("Failed to create private data directory for package (%s/data/%s)\n", root_path, pkg->unique)
+		LOG_WARN("Failed to create private data directory for package (%s/data/%s)", root_path, pkg->unique)
 		goto error;
 	}
 
@@ -212,7 +197,7 @@ static int pkg_set_proc_name(pkg_t* pkg) {
 	if (prctl(PR_SET_NAME, pkg->name, NULL, NULL, NULL) < 0)
 #endif
 	{
-		WARN("Something went wrong setting the process name to %s\n", pkg->name)
+		LOG_WARN("Something went wrong setting the process name to %s", pkg->name)
 		return -1;
 	}
 

@@ -17,7 +17,7 @@ typedef struct {
 		uint64_t (*kos_query_device) (uint64_t _, uint64_t name),
 		void* (*kos_load_device_function) (uint64_t __device, const char* name),
 		uint64_t (*kos_callback) (uint64_t callback, int argument_count, ...));
-	
+
 	void (*quit) (void);
 
 	uint64_t (*send) (uint16_t command, void* data);
@@ -71,12 +71,12 @@ typedef uint64_t kos_callback_argument_t;
 
 uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 	if (argument_count > KOS_MAX_CALLBACK_ARGUMENTS) {
-		WARN("Too many arguments are being passed to the 'kos_callback' function (%d, maximum is %d)\n", argument_count, KOS_MAX_CALLBACK_ARGUMENTS)
+		LOG_WARN("Too many arguments are being passed to the 'kos_callback' function (%d, maximum is %d)", argument_count, KOS_MAX_CALLBACK_ARGUMENTS)
 		return -1;
 	}
-	
+
 	kos_callback_argument_t arguments[KOS_MAX_CALLBACK_ARGUMENTS] = { 0 };
-	
+
 	va_list list;
 	va_start(list, argument_count);
 
@@ -95,7 +95,7 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 
 	else if (boot_pkg->start == PKG_START_NATIVE) {
 		uint64_t (*callback_pointer) () = (void*) callback;
-		
+
 		#define c callback_pointer
 		#define a arguments
 
@@ -142,7 +142,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	free(path); // we won't be needing this anymore
 
 	if (!device_library) {
-		WARN("Failed to load the '%s' device library (in '%s', %s)\n", name, device_path, dlerror())
+		LOG_WARN("Failed to load the '%s' device library (in '%s', %s)", name, device_path, dlerror())
 		return 0;
 	}
 
@@ -186,19 +186,19 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	REF(boot_path)
 
 	REF(kos_bda)
-	
+
 	REF(kos_argc)
 	REF(kos_argv)
-	
+
 	// attempt to load the device
 
 	if (device->load && device->load(kos_query_device, kos_load_device_function, kos_callback) < 0) {
-		WARN("Something went wrong in trying to load the '%s' device\n", name)
+		LOG_WARN("Something went wrong in trying to load the '%s' device", name)
 		dlclose(device->library);
 
 		free(device->name);
 		free(device);
-		
+
 		return 0;
 	}
 
@@ -206,7 +206,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 
 	devices = realloc(devices, (device_count + 1) * sizeof(*devices));
 	devices[device_count] = device;
-	
+
 	return device_count++;
 }
 
@@ -216,7 +216,7 @@ uint64_t kos_send_device(uint64_t _, uint64_t __device, uint64_t __command, uint
 	void* data = (void*) __data;
 
 	if (!device->send) {
-		WARN("The '%s' device doesn't seem to have a 'send' function. Is it malformed?\n", device->name)
+		LOG_WARN("The '%s' device doesn't seem to have a 'send' function. Is it malformed?", device->name)
 		return -1;
 	}
 
