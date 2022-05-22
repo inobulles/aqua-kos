@@ -1,7 +1,7 @@
 // logging
 
-#include "log.h"
-#define LOG_COMPONENT "KOS"
+#include <umber.h>
+#define UMBER_COMPONENT "KOS"
 
 // includes
 
