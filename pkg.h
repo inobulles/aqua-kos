@@ -61,8 +61,6 @@ error:
 }
 
 static pkg_t* create_pkg(const char* path) {
-	int rv = -1;
-
 	pkg_t* pkg = calloc(1, sizeof *pkg);
 	pkg->path = strdup(path);
 
