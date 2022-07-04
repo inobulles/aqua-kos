@@ -174,7 +174,9 @@ error:
 
 	if (pkg->cwd) {
 		chdir(pkg->cwd);
+
 		free(pkg->cwd);
+		pkg->cwd = NULL;
 	}
 
 	return rv;
