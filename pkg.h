@@ -146,13 +146,14 @@ static int pkg_create_data_dir(pkg_t* pkg) {
 		return -1;
 	}
 
+	pkg->cwd = getcwd(NULL, 0);
+
 	if (chdir(root_path) < 0) {
 		LOG_WARN("Failed to enter the root directory (%s)", root_path)
 		return -1;
 	}
 
 	int rv = -1;
-	pkg->cwd = getcwd(NULL, 0);
 
 	mkdir("data", 0700);
 
