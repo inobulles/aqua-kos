@@ -142,13 +142,6 @@ int main(int argc, char** argv) {
 		goto error;
 	}
 
-	// change into root directory if it exists
-
-	if (root_path) {
-		LOG_INFO("Changing into root directory ...")
-		chdir(root_path);
-	}
-
 	// read entry
 
 	if (pkg_read_entry(boot_pkg) < 0) {
