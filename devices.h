@@ -15,12 +15,12 @@ typedef struct {
 
 	int (*load) (
 		uint64_t (*kos_query_device) (uint64_t _, uint64_t name),
-		void* (*kos_load_device_function) (uint64_t __device, const char* name),
+		void* (*kos_load_device_function) (uint64_t _device, const char* name),
 		uint64_t (*kos_callback) (uint64_t callback, int argument_count, ...));
 
 	void (*quit) (void);
 
-	uint64_t (*send) (uint16_t command, void* data);
+	uint64_t (*send) (uint16_t cmd, void* data);
 } device_t;
 
 static uint32_t device_count;
@@ -61,8 +61,8 @@ static void unload_devices(void) {
 
 // useful functions for devices
 
-void* kos_load_device_function(uint64_t __device, const char* name) {
-	device_t* device = devices[__device];
+void* kos_load_device_function(uint64_t _device, const char* name) {
+	device_t* device = devices[_device];
 	return dlsym(device->library, name);
 }
 
@@ -99,8 +99,8 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 		#define c callback_pointer
 		#define a arguments
 
-		// yeah this is ugly, C doesn't provide an alternative unfortunately
-		// see 'aqua-unix/src/devices/aquabsd.alps.opengl.main/functions.h' at line 94 for more details
+		// yeah this is ugly - C doesn't provide an alternative unfortunately
+		// see 'aquabsd-private/components/experimental-devices/aquabsd.alps.opengl.main/functions.h:76' for more details
 
 		switch (argument_count) {
 			case 0: return c();
@@ -147,6 +147,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	}
 
 	// clear the last error
+
 	dlerror();
 
 	device_t* device = malloc(sizeof *device);
@@ -177,9 +178,11 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 
 	char* unique = boot_pkg->unique;
 	char* cwd_path = boot_pkg->cwd;
+	char* unique_path = boot_pkg->unique_path;
 
 	REF(unique)
 	REF(cwd_path)
+	REF(unique_path)
 
 	REF(device_path)
 	REF(root_path)
@@ -210,15 +213,15 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	return device_count++;
 }
 
-uint64_t kos_send_device(uint64_t _, uint64_t __device, uint64_t __command, uint64_t __data) {
-	device_t* device = devices[__device];
-	uint64_t command = (uint64_t) __command;
-	void* data = (void*) __data;
+uint64_t kos_send_device(uint64_t _, uint64_t _device, uint64_t _cmd, uint64_t _data) {
+	device_t* device = devices[_device];
+	uint16_t cmd = (uint16_t) _cmd;
+	void* data = (void*) _data;
 
 	if (!device->send) {
 		LOG_WARN("The '%s' device doesn't seem to have a 'send' function. Is it malformed?", device->name)
 		return -1;
 	}
 
-	return device->send((uint16_t) command, data);
+	return device->send(cmd, data);
 }

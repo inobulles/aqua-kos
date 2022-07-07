@@ -166,6 +166,13 @@ static int pkg_create_data_dir(pkg_t* pkg) {
 		goto error;
 	}
 
+	pkg->unique_path = realpath(pkg->unique, NULL);
+
+	if (!pkg->unique_path) {
+		LOG_WARN("Failed to get absolute path to unique directory for package (%s/data/%s)", root_path, pkg->unique)
+		goto error;
+	}
+
 	// success
 
 	rv = 0;

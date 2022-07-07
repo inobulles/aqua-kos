@@ -12,17 +12,18 @@ typedef enum {
 typedef struct {
 	char* path;
 	iar_file_t iar;
-	
+
 	uint64_t entry_bytes;
 	void* entry_data;
 
 	char* cwd;
+	char* unique_path;
 
 	// mandatory nodes
 
 	char* _start;
 	pkg_start_t start;
-	
+
 	char* entry;
 
 	// optional nodes
