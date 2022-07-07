@@ -51,8 +51,10 @@
 #include "pkg_t.h"
 static pkg_t* boot_pkg;
 
-static char* root_path = NULL;
 static char* boot_path = NULL;
+
+static char* root_path = NULL;
+static char* conf_path = NULL;
 
 static uint32_t kos_argc;
 static char** kos_argv;
@@ -111,6 +113,10 @@ int main(int argc, char** argv) {
 
 	if (strcmp(root_path, "NO_ROOT") == 0) {
 		root_path = NULL;
+	}
+
+	if (root_path) {
+		asprintf(&conf_path, "%s/conf", root_path); // no risk of memory leak
 	}
 
 	char* _boot_path = boot_path;

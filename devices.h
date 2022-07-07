@@ -185,8 +185,10 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	REF(unique_path)
 
 	REF(device_path)
-	REF(root_path)
 	REF(boot_path)
+
+	REF(root_path)
+	REF(conf_path)
 
 	REF(kos_bda)
 
