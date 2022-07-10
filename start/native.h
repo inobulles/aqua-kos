@@ -38,7 +38,15 @@ static int start_native(pkg_t* pkg) {
 		#if defined(__WSL__)
 			LOG_INFO("Applying special, special fix for WSL 💛 ...")
 
-			char tmp_file_path[] = "/tmp/aqua-XXXXXXX";
+			char tmp_file_path[] = "/tmp/aqua-wsl-XXXXXXX";
+			int fd = mkstemp(tmp_file_path);
+
+			unlink(tmp_file_path);
+
+		#elif __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 27)
+			LOG_INFO("Applying fix for glibc < 2.27 (Linux kernel >= 3.17 required for 'memfd_create') ...")
+
+			char tmp_file_path[] = "/tmp/aqua-old-glibc-XXXXXXX";
 			int fd = mkstemp(tmp_file_path);
 
 			unlink(tmp_file_path);
