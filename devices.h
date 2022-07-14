@@ -13,11 +13,7 @@ typedef struct {
 
 	// functions
 
-	int (*load) (
-		uint64_t (*kos_query_device) (uint64_t _, uint64_t name),
-		void* (*kos_load_device_function) (uint64_t _device, const char* name),
-		uint64_t (*kos_callback) (uint64_t callback, int argument_count, ...));
-
+	int (*load) (void);
 	void (*quit) (void);
 
 	uint64_t (*send) (uint16_t cmd, void* data);
@@ -170,6 +166,10 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 		if (ref) *(ref) = (uint64_t) sym; \
 	}
 
+	REF(kos_query_device)
+	REF(kos_load_device_function)
+	REF(kos_callback)
+
 	REF(create_pkg)
 	REF(free_pkg)
 
@@ -197,7 +197,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 
 	// attempt to load the device
 
-	if (device->load && device->load(kos_query_device, kos_load_device_function, kos_callback) < 0) {
+	if (device->load && device->load() < 0) {
 		LOG_WARN("Something went wrong in trying to load the '%s' device", name)
 		dlclose(device->library);
 
