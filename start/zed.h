@@ -1,6 +1,6 @@
 void kos_get_platform    (void) { printf("IMPLEMENT %s\n", __func__); }
-void kos_platform_command(void* zvm, const char* command) { system(command); } /// REMME
-void kos_get_requests    (void* zvm, const char* command) { system(command); } /// REMME
+void kos_platform_command(void* zvm, const char* command) { /* system(command); */ } /// REMME
+void kos_get_requests    (void* zvm, const char* command) { /* system(command); */ } /// REMME
 void kos_native          (void) { printf("IMPLEMENT %s\n", __func__); }
 
 #include <zvm.h>

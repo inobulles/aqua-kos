@@ -10,7 +10,7 @@ static int start_system(pkg_t* pkg) {
 
 	LOG_INFO("Chrooting to data directory ...")
 
-	chdir("data");
+	if (chdir("data"));
 
 	if (chdir(pkg->unique) < 0) {
 		goto done;
@@ -25,8 +25,8 @@ static int start_system(pkg_t* pkg) {
 		goto done;
 	}
 
-	system("rsync -a .package/ ./");
-	system("rm -r .package");
+	if (system("rsync -a .package/ ./"));
+	if (system("rm -r .package"));
 
 	LOG_INFO("Loading system script ...")
 
