@@ -12,7 +12,9 @@ static int start_native(pkg_t* pkg) {
 		LOG_INFO("Creating a shared memory file descriptor for the native binary ...")
 
 		int fd = shm_open(SHM_ANON, O_RDWR, 0);
-		if (ftruncate(fd, pkg->entry_bytes));
+
+		if (ftruncate(fd, pkg->entry_bytes))
+			;
 
 		void* native_bin = mmap(NULL, pkg->entry_bytes, PROT_WRITE, MAP_SHARED, fd, 0);
 		memcpy(native_bin, pkg->entry_data, pkg->entry_bytes);
