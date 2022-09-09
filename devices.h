@@ -90,7 +90,7 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 	}
 
 	else if (boot_pkg->start == PKG_START_NATIVE) {
-		uint64_t (*callback_pointer) () = (void*) callback;
+		uint64_t (*callback_pointer) () = (void*) (intptr_t) callback;
 
 		#define c callback_pointer
 		#define a arguments
@@ -114,7 +114,7 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 // kfuncs
 
 uint64_t kos_query_device(uint64_t _, uint64_t __name) {
-	const char* name = (const char*) __name;
+	const char* name = (const char*) (intptr_t) __name;
 	int name_length = strlen(name);
 
 	// check to see if the device has already been loaded
@@ -163,7 +163,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 
 	#define REF(sym) { \
 		uint64_t* ref = dlsym(device->library, #sym); \
-		if (ref) *(ref) = (uint64_t) sym; \
+		if (ref) *(ref) = (uint64_t) (intptr_t) sym; \
 	}
 
 	REF(kos_query_device)
