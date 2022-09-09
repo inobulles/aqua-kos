@@ -218,7 +218,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 uint64_t kos_send_device(uint64_t _, uint64_t _device, uint64_t _cmd, uint64_t _data) {
 	device_t* device = devices[_device];
 	uint16_t cmd = (uint16_t) _cmd;
-	void* data = (void*) _data;
+	void* data = (void*) (intptr_t) _data;
 
 	if (!device->send) {
 		LOG_WARN("The '%s' device doesn't seem to have a 'send' function. Is it malformed?", device->name)
