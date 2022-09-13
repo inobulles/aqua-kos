@@ -38,15 +38,15 @@
 
 // compile time macros
 
-#ifndef KOS_DEFAULT_ROOT_PATH
+#if !defined(KOS_DEFAULT_ROOT_PATH)
 	#define KOS_DEFAULT_ROOT_PATH "root"
 #endif
 
-#ifndef KOS_DEFAULT_BOOT_PATH
+#if !defined(KOS_DEFAULT_BOOT_PATH)
 	#define KOS_DEFAULT_BOOT_PATH "root/boot.zpk"
 #endif
 
-#ifndef KOS_DEFAULT_DEVICES_PATH
+#if !defined(KOS_DEFAULT_DEVICES_PATH)
 	#define KOS_DEFAULT_DEVICES_PATH "devices"
 #endif
 
