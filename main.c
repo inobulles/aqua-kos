@@ -1,39 +1,45 @@
-// logging
-
-#include <umber.h>
-#define UMBER_COMPONENT "KOS"
-
-// includes
+// feature test macros
 
 #define __STDC_WANT_LIB_EXT2__ 1 // ISO/IEC TR 24731-2:2010 standard library extensions
 
 #if __linux__
 	#define _GNU_SOURCE
-	#include <sys/mman.h> // for 'memfd_create'
-
-	int memfd_create(const char* name, unsigned int flags) __attribute__((weak)); // for systems with glibc >= 2.27 which should thus have 'memfd_create', but inexplicably don't
 #endif
 
+// logging
+
+#include <umber.h>
+#define UMBER_COMPONENT "KOS"
+
+// POSIX includes
+
+#include <assert.h>
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
 #include <signal.h>
-#include <stdint.h>
-#include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#include <dirent.h>
-#include <sys/stat.h>
+// system-specific includes
+
 #include <sys/mount.h>
+#include <sys/stat.h>
 
 #if defined(__FreeBSD__)
 	// TODO perhaps use some of the 'procctl' commands to do stuff like forcing ASLR?
 	#include <sys/procctl.h>
 #elif __linux__
 	#include <sys/prctl.h>
+#endif
+
+#if __linux__
+	#include <sys/mman.h> // for 'memfd_create'
+	int memfd_create(const char* name, unsigned int flags) __attribute__((weak)); // for systems with glibc >= 2.27 which should thus have 'memfd_create', but inexplicably don't
 #endif
 
 // compile time macros
