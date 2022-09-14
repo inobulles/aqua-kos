@@ -23,6 +23,8 @@ typedef struct {
 
 #if defined(KOS_HR)
 	uv_thread_t hr_thread;
+	uv_rwlock_t hr_rwlock;
+
 	uv_loop_t hr_loop;
 	uv_fs_event_t* hr_fs_event;
 #endif
@@ -67,7 +69,10 @@ static void free_device(device_t* device) {
 
 #if defined(KOS_HR)
 	uv_stop(&device->hr_loop);
+
 	uv_thread_join(&device->hr_thread);
+	uv_rwlock_destroy(&device->hr_rwlock);
+
 	uv_loop_close(&device->hr_loop);
 
 	if (device->hr_fs_event) {
@@ -118,7 +123,9 @@ static int load_device(device_t* device) {
 
 	#define REF(sym) { \
 		uint64_t* ref = dlsym(device->lib, #sym); \
-		if (ref) *(ref) = (uint64_t) (intptr_t) sym; \
+		if (ref) { \
+			*(ref) = (uint64_t) (intptr_t) sym; \
+		} \
 	}
 
 	REF(kos_query_device) REF(kos_load_device_function) REF(kos_callback)
@@ -146,6 +153,7 @@ static int load_device(device_t* device) {
 
 #if defined(KOS_HR)
 	uv_thread_create(&device->hr_thread, device_hr_thread, device);
+	uv_rwlock_init(&device->hr_rwlock);
 #endif
 
 	return 0;
@@ -157,7 +165,8 @@ static int load_device(device_t* device) {
 void device_hr_cb(uv_fs_event_t* handle, const char* filename, int events, int status) {
 	device_t* device = handle->data;
 
-	// wait until we're sure the file is still there
+	// wait until we're sure the file is there (again)
+	// this is because there could be a delay between removing the file (this triggering this callback) and repopulating it
 
 	struct stat sb;
 
@@ -167,10 +176,14 @@ void device_hr_cb(uv_fs_event_t* handle, const char* filename, int events, int s
 
 	// reload the device
 
-	LOG_INFO("The %s device has been reloaded", device->name)
+	LOG_INFO("The %s device has been modified; it will now be reloaded", device->name)
 
-	// free_device_lib(device);
-	// load_device(device);
+	uv_rwlock_wrlock(&device->hr_rwlock);
+
+	free_device_lib(device);
+	load_device(device);
+
+	uv_rwlock_wrunlock(&device->hr_rwlock);
 }
 
 void device_hr_thread(void* _device) {
@@ -289,5 +302,15 @@ uint64_t kos_send_device(uint64_t _, uint64_t _device, uint64_t _cmd, uint64_t _
 		return -1;
 	}
 
-	return device->send(cmd, data);
+#if defined(KOS_HR)
+	uv_rwlock_rdlock(&device->hr_rwlock);
+#endif
+
+	uint64_t rv = device->send(cmd, data);
+
+#if defined(KOS_HR)
+	uv_rwlock_rdunlock(&device->hr_rwlock);
+#endif
+
+	return rv;
 }
