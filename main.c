@@ -44,7 +44,7 @@
 
 // external includes
 
-#if defined(KOS_UV)
+#if defined(KOS_HR)
 	#include <uv.h>
 #endif
 
@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
 
 	// inform user that hot reloading is enabled
 
-#if defined(KOS_UV)
+#if defined(KOS_HR)
 	LOG_INFO("Hot reloading enabled (using libuv %d.%d)", UV_VERSION_MAJOR, UV_VERSION_MINOR)
 #endif
 

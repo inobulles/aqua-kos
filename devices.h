@@ -21,10 +21,10 @@ typedef struct {
 
 	// hot reloading stuff
 
-#if defined(KOS_UV)
-	uv_thread_t uv_thread;
-	uv_loop_t uv_loop;
-	uv_fs_event_t* uv_fs_event;
+#if defined(KOS_HR)
+	uv_thread_t hr_thread;
+	uv_loop_t hr_loop;
+	uv_fs_event_t* hr_fs_event;
 #endif
 } device_t;
 
@@ -65,13 +65,13 @@ static void free_device(device_t* device) {
 		free(device->name);
 	}
 
-#if defined(KOS_UV)
-	uv_stop(&device->uv_loop);
-	uv_thread_join(&device->uv_thread);
-	uv_loop_close(&device->uv_loop);
+#if defined(KOS_HR)
+	uv_stop(&device->hr_loop);
+	uv_thread_join(&device->hr_thread);
+	uv_loop_close(&device->hr_loop);
 
-	if (device->uv_fs_event) {
-		free(device->uv_fs_event);
+	if (device->hr_fs_event) {
+		free(device->hr_fs_event);
 	}
 #endif
 
@@ -144,8 +144,8 @@ static int load_device(device_t* device) {
 
 	// if hot reloading is enabled, watch over the file in question
 
-#if defined(KOS_UV)
-	uv_thread_create(&device->uv_thread, device_hr_thread, device);
+#if defined(KOS_HR)
+	uv_thread_create(&device->hr_thread, device_hr_thread, device);
 #endif
 
 	return 0;
@@ -153,7 +153,7 @@ static int load_device(device_t* device) {
 
 // hot reloading stuff
 
-#if defined(KOS_UV)
+#if defined(KOS_HR)
 void device_hr_cb(uv_fs_event_t* handle, const char* filename, int events, int status) {
 	device_t* device = handle->data;
 
@@ -176,15 +176,15 @@ void device_hr_cb(uv_fs_event_t* handle, const char* filename, int events, int s
 void device_hr_thread(void* _device) {
 	device_t* device = _device;
 
-	uv_loop_init(&device->uv_loop);
+	uv_loop_init(&device->hr_loop);
 
-	device->uv_fs_event = malloc(sizeof *device->uv_fs_event);
-	device->uv_fs_event->data = device;
+	device->hr_fs_event = malloc(sizeof *device->hr_fs_event);
+	device->hr_fs_event->data = device;
 
-	uv_fs_event_init(&device->uv_loop, device->uv_fs_event);
-	uv_fs_event_start(device->uv_fs_event, device_hr_cb, device->path, UV_FS_EVENT_WATCH_ENTRY);
+	uv_fs_event_init(&device->hr_loop, device->hr_fs_event);
+	uv_fs_event_start(device->hr_fs_event, device_hr_cb, device->path, UV_FS_EVENT_WATCH_ENTRY);
 
-	uv_run(&device->uv_loop, UV_RUN_DEFAULT);
+	uv_run(&device->hr_loop, UV_RUN_DEFAULT);
 }
 #endif
 
