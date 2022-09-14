@@ -42,6 +42,12 @@
 	int memfd_create(const char* name, unsigned int flags) __attribute__((weak)); // for systems with glibc >= 2.27 which should thus have 'memfd_create', but inexplicably don't
 #endif
 
+// external includes
+
+#if defined(KOS_UV)
+	#include <uv.h>
+#endif
+
 // compile time macros
 
 #if !defined(KOS_DEFAULT_ROOT_PATH)
@@ -59,17 +65,17 @@
 // important global variables
 
 #include "pkg_t.h"
-static pkg_t* boot_pkg;
+static pkg_t* boot_pkg = NULL;
 
 static char* boot_path = NULL;
 
 static char* root_path = NULL;
 static char* conf_path = NULL;
 
-static uint32_t kos_argc;
-static char** kos_argv;
+static uint32_t kos_argc = 0;
+static char**   kos_argv = NULL;
 
-static char* exec_name = NULL;
+static char* exec_name  = NULL;
 static char** proc_argv = NULL;
 
 // local includes
@@ -100,15 +106,15 @@ int main(int argc, char** argv) {
 
 		char* option = argv[i] + 2;
 
-		if (strcmp(option, "devices") == 0) {
+		if (!strcmp(option, "devices")) {
 			device_path = argv[++i];
 		}
 
-		else if (strcmp(option, "root") == 0) {
+		else if (!strcmp(option, "root")) {
 			root_path = argv[++i];
 		}
 
-		else if (strcmp(option, "boot") == 0) {
+		else if (!strcmp(option, "boot")) {
 			boot_path = argv[++i];
 			i++; // skip the argument we're currently parsing (boot_path)
 
@@ -121,7 +127,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if (strcmp(root_path, "NO_ROOT") == 0) {
+	if (!strcmp(root_path, "NO_ROOT")) {
 		root_path = NULL;
 	}
 
@@ -150,6 +156,12 @@ int main(int argc, char** argv) {
 	pkg_set_proc_name(boot_pkg);
 	pkg_create_data_dir(boot_pkg);
 
+	// inform user that hot reloading is enabled
+
+#if defined(KOS_UV)
+	LOG_INFO("Hot reloading enabled (using libuv %d.%d)", UV_VERSION_MAJOR, UV_VERSION_MINOR)
+#endif
+
 	// setup devices
 
 	LOG_INFO("Setting up devices ...")
@@ -175,9 +187,13 @@ error_dev:
 
 error:
 
+	LOG_INFO("Freeing boot package ...")
+
 	if (boot_pkg) {
 		free_pkg(boot_pkg);
 	}
+
+	LOG_SUCCESS("Bonne journée, au revoir !")
 
 	return rv;
 }
