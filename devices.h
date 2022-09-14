@@ -9,7 +9,8 @@ uint64_t* kos_bda = NULL;
 
 typedef struct {
 	char* name;
-	void* library;
+	char* path;
+	void* lib;
 
 	// functions
 
@@ -17,49 +18,181 @@ typedef struct {
 	void (*quit) (void);
 
 	uint64_t (*send) (uint16_t cmd, void* data);
+
+	// hot reloading stuff
+
+#if defined(KOS_HR)
+	uv_thread_t hr_thread;
+	uv_loop_t hr_loop;
+	uv_fs_event_t* hr_fs_event;
+#endif
 } device_t;
 
 static uint32_t device_count;
 static device_t** devices;
 
 static int setup_devices(void) {
-	devices = malloc(sizeof(*devices));
+	devices = malloc(sizeof *devices);
 	device_count = 1;
 
 	// we want to create a first 'null' device at index '0'
 	// this is so that we can use this index as an erroneous return value for the 'query_device' kfunc
 
-	devices[0] = malloc(sizeof(*devices[0]));
-	memset(devices[0], 0, sizeof(*devices[0]));
-
-	devices[0]->name = malloc(5 /* strlen("null") + 1 */);
-	memcpy(devices[0]->name, "null", 5);
+	devices[0] = calloc(1, sizeof *devices[0]);
+	devices[0]->name = strdup("null");
 
 	return 0;
 }
 
+static void free_device_lib(device_t* device) {
+	if (device->quit) {
+		device->quit();
+	}
+
+	if (device->lib) {
+		dlclose(device->lib);
+	}
+}
+
+static void free_device(device_t* device) {
+	free_device_lib(device);
+
+	if (device->path) {
+		free(device->path);
+	}
+
+	if (device->name) {
+		free(device->name);
+	}
+
+#if defined(KOS_HR)
+	uv_stop(&device->hr_loop);
+	uv_thread_join(&device->hr_thread);
+	uv_loop_close(&device->hr_loop);
+
+	if (device->hr_fs_event) {
+		free(device->hr_fs_event);
+	}
+#endif
+
+	free(device);
+}
+
 static void unload_devices(void) {
-	for (uint32_t i = 0 /* don't forget to include the 'null' device */; i < device_count; i++) {
-		if (devices[i]->quit) {
-			devices[i]->quit();
-		}
-
-		if (devices[i]->library) {
-			dlclose(devices[i]->library);
-		}
-
-		free(devices[i]->name);
-		free(devices[i]);
+	for (size_t i = 0 /* don't forget to include the 'null' device */; i < device_count; i++) {
+		free_device(devices[i]);
 	}
 
 	free(devices);
 }
 
+void device_hr_thread(void* _device);
+uint64_t kos_query_device(uint64_t _, uint64_t _name);
+uint64_t kos_send_device(uint64_t _, uint64_t _device, uint64_t _cmd, uint64_t _data);
+uint64_t kos_callback(uint64_t callback, int argument_count, ...);
+void* kos_load_device_function(uint64_t _device, const char* name);
+
+static int load_device(device_t* device) {
+	// we're using 'RTLD_NOW' here instead of 'RTLD_LAZY' as would normally be preferred
+	// since we only have a small number of functions that we know we'll eventually use, it's better to resolve all external symbols straight away
+
+	device->lib = dlopen(device->path, RTLD_NOW);
+
+	if (!device->lib) {
+		LOG_WARN("Failed to load the '%s' device library (in '%s', %s)", device->name, device->path, dlerror())
+		return -1;
+	}
+
+	// clear the last error
+
+	dlerror();
+
+	// find useful symbols in the device library
+
+	device->load = dlsym(device->lib, "load");
+	device->quit = dlsym(device->lib, "quit");
+	device->send = dlsym(device->lib, "send");
+
+	// set useful symbols in the device library
+	// the 'REF' macro simplifies this somewhat by checking and setting these for us
+
+	#define REF(sym) { \
+		uint64_t* ref = dlsym(device->lib, #sym); \
+		if (ref) *(ref) = (uint64_t) (intptr_t) sym; \
+	}
+
+	REF(kos_query_device) REF(kos_load_device_function) REF(kos_callback)
+	REF(create_pkg      ) REF(free_pkg                )
+	REF(pkg_read        ) REF(pkg_boot                )
+
+	char* unique      = boot_pkg->unique;
+	char* cwd_path    = boot_pkg->cwd;
+	char* unique_path = boot_pkg->unique_path;
+
+	REF(unique     ) REF(cwd_path ) REF(unique_path)
+	REF(device_path) REF(boot_path)
+	REF(root_path  ) REF(conf_path)
+	REF(kos_bda    )
+	REF(kos_argc   ) REF(kos_argv )
+
+	// attempt to load the device
+
+	if (device->load && device->load() < 0) {
+		LOG_WARN("Something went wrong in trying to load the '%s' device", device->name)
+		return -1;
+	}
+
+	// if hot reloading is enabled, watch over the file in question
+
+#if defined(KOS_HR)
+	uv_thread_create(&device->hr_thread, device_hr_thread, device);
+#endif
+
+	return 0;
+}
+
+// hot reloading stuff
+
+#if defined(KOS_HR)
+void device_hr_cb(uv_fs_event_t* handle, const char* filename, int events, int status) {
+	device_t* device = handle->data;
+
+	// wait until we're sure the file is still there
+
+	struct stat sb;
+
+	while (stat(device->path, &sb)) {
+		sleep(1);
+	}
+
+	// reload the device
+
+	LOG_INFO("The %s device has been reloaded", device->name)
+
+	// free_device_lib(device);
+	// load_device(device);
+}
+
+void device_hr_thread(void* _device) {
+	device_t* device = _device;
+
+	uv_loop_init(&device->hr_loop);
+
+	device->hr_fs_event = malloc(sizeof *device->hr_fs_event);
+	device->hr_fs_event->data = device;
+
+	uv_fs_event_init(&device->hr_loop, device->hr_fs_event);
+	uv_fs_event_start(device->hr_fs_event, device_hr_cb, device->path, UV_FS_EVENT_WATCH_ENTRY);
+
+	uv_run(&device->hr_loop, UV_RUN_DEFAULT);
+}
+#endif
+
 // useful functions for devices
 
 void* kos_load_device_function(uint64_t _device, const char* name) {
 	device_t* device = devices[_device];
-	return dlsym(device->library, name);
+	return dlsym(device->lib, name);
 }
 
 #define KOS_MAX_CALLBACK_ARGUMENTS 3
@@ -83,7 +216,7 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 	va_end(list); // not too sure what the point of this is lol
 
 	if (boot_pkg->start == PKG_START_ZED) {
-		printf("TODO Implement 'zvm_callback'\n");
+		LOG_FATAL("TODO Implement 'zvm_callback'")
 
 		// i'm not too sure how 'zvm_callback' is going to end up being implemented, but it may be necessary for the ZVM instance pointer to be passed to it... in which case, hello refactoring!
 		// return zvm_callback(callback, argument_count, arguments);
@@ -113,97 +246,28 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 
 // kfuncs
 
-uint64_t kos_query_device(uint64_t _, uint64_t __name) {
-	const char* name = (const char*) (intptr_t) __name;
-	int name_length = strlen(name);
+uint64_t kos_query_device(uint64_t _, uint64_t _name) {
+	const char* name = (void*) (intptr_t) _name;
 
 	// check to see if the device has already been loaded
 	// return its index if so
 
-	for (uint32_t i = 0; i < device_count; i++) {
-		if (strncmp(devices[i]->name, name, strlen(devices[i]->name)) == 0) {
+	for (size_t i = 0; i < device_count; i++) {
+		if (!strncmp(devices[i]->name, name, strlen(devices[i]->name))) {
 			return i;
 		}
 	}
 
 	// load the device if it hasn't yet been loaded
 
-	char* path = malloc(strlen(device_path) + name_length + 9 /* strlen("/") + strlen(".device") + 1 */);
-	sprintf(path, "%s/%s.device", device_path, name);
+	device_t* device = calloc(1, sizeof *device);
+	device->name = strdup(name);
 
-	// we're using 'RTLD_NOW' here instead of 'RTLD_LAZY' as would normally be preferred
-	// since we only have a small number of functions that we know we'll eventually use, it's better to resolve all external symbols straight away
+	if (asprintf(&device->path, "%s/%s.device", device_path, device->name))
+		;
 
-	void* device_library = dlopen(path, RTLD_NOW);
-	free(path); // we won't be needing this anymore
-
-	if (!device_library) {
-		LOG_WARN("Failed to load the '%s' device library (in '%s', %s)", name, device_path, dlerror())
-		return 0;
-	}
-
-	// clear the last error
-
-	dlerror();
-
-	device_t* device = malloc(sizeof *device);
-	device->library = device_library;
-
-	device->name = malloc(name_length + 1);
-	memcpy(device->name, name, name_length + 1);
-
-	// find useful symbols in the device library
-
-	device->load = dlsym(device->library, "load");
-	device->quit = dlsym(device->library, "quit");
-	device->send = dlsym(device->library, "send");
-
-	// set useful symbols in the device library
-	// the 'REF' macro simplifies this somewhat by checking and setting these for us
-
-	#define REF(sym) { \
-		uint64_t* ref = dlsym(device->library, #sym); \
-		if (ref) *(ref) = (uint64_t) (intptr_t) sym; \
-	}
-
-	REF(kos_query_device)
-	REF(kos_load_device_function)
-	REF(kos_callback)
-
-	REF(create_pkg)
-	REF(free_pkg)
-
-	REF(pkg_read)
-	REF(pkg_boot)
-
-	char* unique = boot_pkg->unique;
-	char* cwd_path = boot_pkg->cwd;
-	char* unique_path = boot_pkg->unique_path;
-
-	REF(unique)
-	REF(cwd_path)
-	REF(unique_path)
-
-	REF(device_path)
-	REF(boot_path)
-
-	REF(root_path)
-	REF(conf_path)
-
-	REF(kos_bda)
-
-	REF(kos_argc)
-	REF(kos_argv)
-
-	// attempt to load the device
-
-	if (device->load && device->load() < 0) {
-		LOG_WARN("Something went wrong in trying to load the '%s' device", name)
-		dlclose(device->library);
-
-		free(device->name);
-		free(device);
-
+	if (load_device(device) < 0) {
+		free_device(device);
 		return 0;
 	}
 
@@ -217,7 +281,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 
 uint64_t kos_send_device(uint64_t _, uint64_t _device, uint64_t _cmd, uint64_t _data) {
 	device_t* device = devices[_device];
-	uint16_t cmd = (uint16_t) _cmd;
+	uint16_t cmd = _cmd;
 	void* data = (void*) (intptr_t) _data;
 
 	if (!device->send) {

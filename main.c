@@ -1,33 +1,34 @@
-// logging
-
-#include <umber.h>
-#define UMBER_COMPONENT "KOS"
-
-// includes
+// feature test macros
 
 #define __STDC_WANT_LIB_EXT2__ 1 // ISO/IEC TR 24731-2:2010 standard library extensions
 
 #if __linux__
 	#define _GNU_SOURCE
-	#include <sys/mman.h> // for 'memfd_create'
-
-	int memfd_create(const char* name, unsigned int flags) __attribute__((weak)); // for systems with glibc >= 2.27 which should thus have 'memfd_create', but inexplicably don't
 #endif
 
+// logging
+
+#include <umber.h>
+#define UMBER_COMPONENT "KOS"
+
+// POSIX includes
+
+#include <assert.h>
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
 #include <signal.h>
-#include <stdint.h>
-#include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#include <dirent.h>
-#include <sys/stat.h>
+// system-specific includes
+
 #include <sys/mount.h>
+#include <sys/stat.h>
 
 #if defined(__FreeBSD__)
 	// TODO perhaps use some of the 'procctl' commands to do stuff like forcing ASLR?
@@ -36,34 +37,45 @@
 	#include <sys/prctl.h>
 #endif
 
+#if __linux__
+	#include <sys/mman.h> // for 'memfd_create'
+	int memfd_create(const char* name, unsigned int flags) __attribute__((weak)); // for systems with glibc >= 2.27 which should thus have 'memfd_create', but inexplicably don't
+#endif
+
+// external includes
+
+#if defined(KOS_HR)
+	#include <uv.h>
+#endif
+
 // compile time macros
 
-#ifndef KOS_DEFAULT_ROOT_PATH
+#if !defined(KOS_DEFAULT_ROOT_PATH)
 	#define KOS_DEFAULT_ROOT_PATH "root"
 #endif
 
-#ifndef KOS_DEFAULT_BOOT_PATH
+#if !defined(KOS_DEFAULT_BOOT_PATH)
 	#define KOS_DEFAULT_BOOT_PATH "root/boot.zpk"
 #endif
 
-#ifndef KOS_DEFAULT_DEVICES_PATH
+#if !defined(KOS_DEFAULT_DEVICES_PATH)
 	#define KOS_DEFAULT_DEVICES_PATH "devices"
 #endif
 
 // important global variables
 
 #include "pkg_t.h"
-static pkg_t* boot_pkg;
+static pkg_t* boot_pkg = NULL;
 
 static char* boot_path = NULL;
 
 static char* root_path = NULL;
 static char* conf_path = NULL;
 
-static uint32_t kos_argc;
-static char** kos_argv;
+static uint32_t kos_argc = 0;
+static char**   kos_argv = NULL;
 
-static char* exec_name = NULL;
+static char* exec_name  = NULL;
 static char** proc_argv = NULL;
 
 // local includes
@@ -94,15 +106,15 @@ int main(int argc, char** argv) {
 
 		char* option = argv[i] + 2;
 
-		if (strcmp(option, "devices") == 0) {
+		if (!strcmp(option, "devices")) {
 			device_path = argv[++i];
 		}
 
-		else if (strcmp(option, "root") == 0) {
+		else if (!strcmp(option, "root")) {
 			root_path = argv[++i];
 		}
 
-		else if (strcmp(option, "boot") == 0) {
+		else if (!strcmp(option, "boot")) {
 			boot_path = argv[++i];
 			i++; // skip the argument we're currently parsing (boot_path)
 
@@ -115,7 +127,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if (strcmp(root_path, "NO_ROOT") == 0) {
+	if (!strcmp(root_path, "NO_ROOT")) {
 		root_path = NULL;
 	}
 
@@ -144,6 +156,12 @@ int main(int argc, char** argv) {
 	pkg_set_proc_name(boot_pkg);
 	pkg_create_data_dir(boot_pkg);
 
+	// inform user that hot reloading is enabled
+
+#if defined(KOS_HR)
+	LOG_INFO("Hot reloading enabled (using libuv %d.%d)", UV_VERSION_MAJOR, UV_VERSION_MINOR)
+#endif
+
 	// setup devices
 
 	LOG_INFO("Setting up devices ...")
@@ -169,9 +187,13 @@ error_dev:
 
 error:
 
+	LOG_INFO("Freeing boot package ...")
+
 	if (boot_pkg) {
 		free_pkg(boot_pkg);
 	}
+
+	LOG_SUCCESS("Bonne journée, au revoir !")
 
 	return rv;
 }
