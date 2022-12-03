@@ -113,7 +113,7 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 
 // kfuncs
 
-uint64_t kos_query_device(uint64_t _, uint64_t __name) {
+uint64_t kos_query_device(__attribute__((unused)) uint64_t _, uint64_t __name) {
 	const char* name = (const char*) (intptr_t) __name;
 	int name_length = strlen(name);
 
@@ -215,7 +215,7 @@ uint64_t kos_query_device(uint64_t _, uint64_t __name) {
 	return device_count++;
 }
 
-uint64_t kos_send_device(uint64_t _, uint64_t _device, uint64_t _cmd, uint64_t _data) {
+uint64_t kos_send_device(__attribute__((unused)) uint64_t _, uint64_t _device, uint64_t _cmd, uint64_t _data) {
 	device_t* device = devices[_device];
 	uint16_t cmd = (uint16_t) _cmd;
 	void* data = (void*) (intptr_t) _data;
