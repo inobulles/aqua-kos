@@ -1,3 +1,5 @@
+#include <sys/mman.h>
+
 static int start_native(pkg_t* pkg) {
 	int rv = -1;
 

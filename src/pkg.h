@@ -27,7 +27,7 @@ static void* pkg_read(pkg_t* pkg, const char* key, iar_node_t* parent, uint64_t*
 	char* data = NULL;
 	iar_node_t node = { 0 };
 
-	if (iar_find_node(&pkg->iar, &node, key, parent) == -1) {
+	if (iar_find_node(&pkg->iar, &node, key, parent) == -1ul) {
 		goto error;
 	}
 
@@ -81,7 +81,8 @@ static pkg_t* create_pkg(const char* path) {
 	pkg->start = PKG_START_NONE;
 
 	if (strncmp(pkg->_start, "zed", 3) == 0) {
-		pkg->start = PKG_START_ZED;
+		LOG_FATAL("ZED start method is temporarily unavailable")
+		goto error;
 	}
 
 	else if (strncmp(pkg->_start, "native", 6) == 0) {
@@ -214,7 +215,6 @@ static int pkg_set_proc_name(pkg_t* pkg) {
 }
 
 #include "start/dummy.h"
-#include "start/zed.h"
 #include "start/native.h"
 #include "start/system.h"
 
@@ -225,7 +225,7 @@ static void pkg_init(void) {
 		START_LUT[i] = start_dummy;
 	}
 
-	START_LUT[PKG_START_ZED] = start_zed;
+	START_LUT[PKG_START_ZED] = NULL;
 	START_LUT[PKG_START_NATIVE] = start_native;
 	START_LUT[PKG_START_SYSTEM] = start_system;
 }
