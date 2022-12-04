@@ -27,9 +27,10 @@ cc.add_opt("-DKOS_DEFAULT_DEVICES_PATH=\"%(default_devices_path)\"")
 cc.add_opt("-DKOS_DEFAULT_ROOT_PATH=\"%(default_root_path)\"")
 cc.add_opt("-DKOS_DEFAULT_BOOT_PATH=\"%(default_boot_path)\"")
 
-// TODO only if running on WSL
-
-// cc.add_opt("-D__WSL__")
+if (OS.name().contains("WSL")) {
+	System.print("ON WSL")
+	cc.add_opt("-D__WSL__")
+}
 
 var src = File.list("src")
 	.where { |path| path.endsWith(".c") }
@@ -41,9 +42,9 @@ src
 
 var libs = ["iar", "umber"]
 
-// TODO only if running on FreeBSD/aquaBSD
-
-libs.add("stdthreads")
+if (OS.name().contains("FreeBSD") || OS.name().contains("aquaBSD")) {
+	libs.add("stdthreads")
+}
 
 var linker = Linker.new(cc)
 linker.link(src.toList, libs, "kos")
@@ -58,10 +59,8 @@ class Runner {
 
 // installation map
 
-var prefix = "/usr/local" // TODO way to discriminate between OS' - on Linux distros, this would usually be simply "/usr" instead
-
 var install = {
-	"kos": "%(prefix)/bin/aqua",
+	"kos": "%(OS.prefix())/bin/aqua",
 }
 
 // TODO testing
