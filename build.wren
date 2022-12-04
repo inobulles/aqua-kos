@@ -27,8 +27,7 @@ cc.add_opt("-DKOS_DEFAULT_DEVICES_PATH=\"%(default_devices_path)\"")
 cc.add_opt("-DKOS_DEFAULT_ROOT_PATH=\"%(default_root_path)\"")
 cc.add_opt("-DKOS_DEFAULT_BOOT_PATH=\"%(default_boot_path)\"")
 
-if (OS.name().contains("WSL")) {
-	System.print("ON WSL")
+if (Meta.os().contains("WSL")) {
 	cc.add_opt("-D__WSL__")
 }
 
@@ -42,7 +41,7 @@ src
 
 var libs = ["iar", "umber"]
 
-if (OS.name().contains("FreeBSD") || OS.name().contains("aquaBSD")) {
+if (Meta.os().contains("FreeBSD") || Meta.os().contains("aquaBSD")) {
 	libs.add("stdthreads")
 }
 
@@ -60,7 +59,7 @@ class Runner {
 // installation map
 
 var install = {
-	"kos": "%(OS.prefix())/bin/aqua",
+	"kos": "%(Meta.prefix())/bin/aqua",
 }
 
 // TODO testing
