@@ -63,3 +63,10 @@ var prefix = "/usr/local" // TODO way to discriminate between OS' - on Linux dis
 var install = {
 	"kos": "%(prefix)/bin/aqua",
 }
+
+// TODO testing
+
+class Tests {
+}
+
+var tests = []
