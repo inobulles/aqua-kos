@@ -47,3 +47,11 @@ libs.add("stdthreads")
 
 var linker = Linker.new(cc)
 linker.link(src.toList, libs, "kos")
+
+// running
+
+class Runner {
+	static run(args) {
+		return File.exec("kos", args)
+	}
+}
