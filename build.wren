@@ -1,7 +1,7 @@
 // install dependencies
 
-Deps.git("https://github.com/inobulles/umber.git")
-Deps.git("https://github.com/inobulles/iar.git")
+Deps.git("https://github.com/inobulles/umber")
+Deps.git("https://github.com/inobulles/iar")
 
 // options
 
