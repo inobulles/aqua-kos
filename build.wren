@@ -55,3 +55,11 @@ class Runner {
 		return File.exec("kos", args)
 	}
 }
+
+// installation map
+
+var prefix = "/usr/local" // TODO way to discriminate between OS' - on Linux distros, this would usually be simply "/usr" instead
+
+var install = {
+	"kos": "%(prefix)/bin/aqua",
+}
