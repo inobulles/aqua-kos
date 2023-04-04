@@ -128,8 +128,8 @@ uint64_t kos_query_device(__attribute__((unused)) uint64_t _, uint64_t __name) {
 
 	// load the device if it hasn't yet been loaded
 
-	char* path = malloc(strlen(device_path) + name_length + 9 /* strlen("/") + strlen(".device") + 1 */);
-	sprintf(path, "%s/%s.device", device_path, name);
+	char* path = malloc(strlen(device_path) + name_length + 7 /* strlen("/") + strlen(".vdev") + 1 */);
+	sprintf(path, "%s/%s.vdev", device_path, name);
 
 	// we're using 'RTLD_NOW' here instead of 'RTLD_LAZY' as would normally be preferred
 	// since we only have a small number of functions that we know we'll eventually use, it's better to resolve all external symbols straight away
