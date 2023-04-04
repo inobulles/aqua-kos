@@ -150,7 +150,7 @@ static int pkg_create_data_dir(pkg_t* pkg) {
 	pkg->cwd = getcwd(NULL, 0);
 
 	if (chdir(root_path) < 0) {
-		LOG_WARN("Failed to enter the root directory (%s)", root_path)
+		LOG_WARN("Failed to enter the root directory (%s): %s", root_path, strerror(errno))
 		return -1;
 	}
 
@@ -159,19 +159,19 @@ static int pkg_create_data_dir(pkg_t* pkg) {
 	mkdir("data", 0700);
 
 	if (chdir("data") < 0) {
-		LOG_WARN("Failed to enter the data directory (%s/data)", root_path)
+		LOG_WARN("Failed to enter the data directory (%s/data): %s", root_path, strerror(errno))
 		goto error;
 	}
 
 	if (mkdir(pkg->unique, 0700) < 0 && errno != EEXIST) {
-		LOG_WARN("Failed to create private data directory for package (%s/data/%s)", root_path, pkg->unique)
+		LOG_WARN("Failed to create private data directory for package (%s/data/%s): %s", root_path, pkg->unique, strerror(errno))
 		goto error;
 	}
 
 	pkg->unique_path = realpath(pkg->unique, NULL);
 
 	if (!pkg->unique_path) {
-		LOG_WARN("Failed to get absolute path to unique directory for package (%s/data/%s)", root_path, pkg->unique)
+		LOG_WARN("Failed to get absolute path to unique directory for package (%s/data/%s): %s", root_path, pkg->unique, strerror(errno))
 		goto error;
 	}
 
