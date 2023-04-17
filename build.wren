@@ -45,7 +45,7 @@ if (Meta.os().contains("FreeBSD") || Meta.os().contains("aquaBSD")) {
 	libs.add("stdthreads")
 }
 
-var linker = Linker.new(cc)
+var linker = Linker.new()
 linker.link(src.toList, libs, "kos")
 
 // running
