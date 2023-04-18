@@ -9,6 +9,8 @@
 
 #if __linux__
 	#define _GNU_SOURCE
+	#define _DEFAULT_SOURCE
+
 	#include <sys/mman.h> // for 'memfd_create'
 
 	int memfd_create(const char* name, unsigned int flags) __attribute__((weak)); // for systems with glibc >= 2.27 which should thus have 'memfd_create', but inexplicably don't
