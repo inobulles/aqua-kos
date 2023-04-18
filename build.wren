@@ -59,7 +59,7 @@ class Runner {
 // installation map
 
 var install = {
-	"kos": "%(Meta.prefix())/bin/aqua",
+	"kos": "bin/aqua",
 }
 
 // TODO testing
