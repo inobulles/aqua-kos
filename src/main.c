@@ -122,8 +122,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (root_path) {
-		if (asprintf(&conf_path, "%s/conf", root_path)) // no risk of memory leak
-			;
+		if (asprintf(&conf_path, "%s/conf", root_path)) {} // no risk of memory leak
 	}
 
 	char* _boot_path = boot_path;
