@@ -1,10 +1,3 @@
-// logging
-
-#include <umber.h>
-#define UMBER_COMPONENT "KOS"
-
-// includes
-
 #define __STDC_WANT_LIB_EXT2__ 1 // ISO/IEC TR 24731-2:2010 standard library extensions
 
 #if __linux__
@@ -15,6 +8,13 @@
 
 	int memfd_create(const char* name, unsigned int flags) __attribute__((weak)); // for systems with glibc >= 2.27 which should thus have 'memfd_create', but inexplicably don't
 #endif
+
+// logging
+
+#include <umber.h>
+#define UMBER_COMPONENT "KOS"
+
+// includes
 
 #include <errno.h>
 #include <fcntl.h>
