@@ -182,8 +182,7 @@ static int pkg_create_data_dir(pkg_t* pkg) {
 error:
 
 	if (pkg->cwd) {
-		if (chdir(pkg->cwd))
-			;
+		if (chdir(pkg->cwd)) {}
 
 		free(pkg->cwd);
 		pkg->cwd = NULL;
