@@ -5,7 +5,7 @@ Deps.git_inherit("https://github.com/inobulles/iar")
 
 // options
 
-var aqua_data_path = "/usr/local/share/aqua"
+var aqua_data_path = "%(Meta.prefix())/share/aqua"
 
 var default_devices_path = "%(aqua_data_path)/devices"
 var default_root_path = "~/.aqua"
