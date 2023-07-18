@@ -16,7 +16,7 @@ var default_boot_path = "%(default_root_path)/boot.zpk"
 var cc = CC.new()
 
 cc.add_opt("-std=c99")
-cc.add_opt("-O0")
+cc.add_opt("-g")
 cc.add_opt("-I/usr/local/include")
 cc.add_opt("-L/usr/local/lib")
 cc.add_opt("-Wall")

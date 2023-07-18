@@ -175,6 +175,7 @@ uint64_t kos_query_device(__attribute__((unused)) uint64_t _, uint64_t __name) {
 
 	REF(pkg_read)
 	REF(pkg_boot)
+	REF(boot_pkg)
 
 	char* unique = boot_pkg->unique;
 	char* cwd_path = boot_pkg->cwd;
