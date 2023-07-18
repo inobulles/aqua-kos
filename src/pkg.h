@@ -27,9 +27,22 @@ static void* pkg_read(pkg_t* pkg, const char* key, iar_node_t* parent, uint64_t*
 	char* data = NULL;
 	iar_node_t node = { 0 };
 
-	if (iar_find_node(&pkg->iar, &node, key, parent) == -1ul) {
-		goto error;
+	// traverse key path
+
+	char* key_path = strdup(key);
+	char* bit;
+
+	while ((bit = strsep(&key_path, "/"))) {
+		// &node may end up pointing to *parent at some point, but iar_find_node guarantees this won't be an issue (cf. fb5f30e)
+
+		if (iar_find_node(&pkg->iar, &node, bit, parent) == -1ul) {
+			goto error;
+		}
+
+		parent = &node;
 	}
+
+	free(key_path);
 
 	if (!node.data_bytes) {
 		goto error;
