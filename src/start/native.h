@@ -84,7 +84,10 @@ static int start_native(pkg_t* pkg) {
 
 	LOG_INFO("Looking for entry symbol to native binary ...")
 
-	int (*native_bin_entry) (/* &c */) = dlsym(lib, "__native_entry");
+	int (*native_bin_entry) (
+		uint64_t (*_kos_query_device) (uint64_t _, uint64_t name),
+		uint64_t (*_kos_send_device) (uint64_t _, uint64_t device, uint64_t command, uint64_t data)
+	) = dlsym(lib, "__native_entry");
 
 	if (!native_bin_entry) {
 		LOG_ERROR("Entry symbol not found")
