@@ -90,19 +90,21 @@ uint64_t kos_callback(uint64_t callback, int argument_count, ...) {
 	}
 
 	else if (boot_pkg->start == PKG_START_NATIVE) {
-		uint64_t (*callback_pointer) () = (void*) (intptr_t) callback;
+		uint64_t (*callback_pointer_0) (void) = (void*) (intptr_t) callback;
+		uint64_t (*callback_pointer_1) (uint64_t) = (void*) (intptr_t) callback;
+		uint64_t (*callback_pointer_2) (uint64_t, uint64_t) = (void*) (intptr_t) callback;
+		uint64_t (*callback_pointer_3) (uint64_t, uint64_t, uint64_t) = (void*) (intptr_t) callback;
 
-		#define c callback_pointer
 		#define a arguments
 
 		// yeah this is ugly - C doesn't provide an alternative unfortunately
 		// see 'aquabsd-private/components/experimental-devices/aquabsd.alps.opengl.main/functions.h:76' for more details
 
 		switch (argument_count) {
-			case 0: return c();
-			case 1: return c(a[0]);
-			case 2: return c(a[0], a[1]);
-			case 3: return c(a[0], a[1], a[2]);
+			case 0: return callback_pointer_0();
+			case 1: return callback_pointer_1(a[0]);
+			case 2: return callback_pointer_2(a[0], a[1]);
+			case 3: return callback_pointer_3(a[0], a[1], a[2]);
 
 			default: return -1; // this will never happen
 		}
